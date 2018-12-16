@@ -1,4 +1,4 @@
-package airportSecurityState.driver;
+package decisionTreeClassifier.driver;
 import util.ProcessorI;
 import util.Results;
 import util.StdoutDisplayInterface;
@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import util.FileProcessor;
 import util.MyLogger;
-import airportSecurityState.AirportContextI;
-import airportSecurityState.AirportSecurity;
 
 /**
  * @author Gregory Wint
@@ -57,22 +55,7 @@ public class Driver {
     }
     finally {}
 
-    // Read in output filename
-    CharSequence outputFilename = args[1];
-    try {
-      File testFile = new File(outputFilename.toString());
-      if(testFile.exists() && testFile.length() > 0) {
-        throw new IllegalArgumentException("Cannot write to non-empty output file.  Please pick another/delete file/empty out the file");
-      }
-    }
-    catch(NullPointerException e) {
-      System.err.println("Pathname to output file cannot be null");
-      System.err.println(e);
-      System.exit(1);
-    }
-    finally {}
-
-    // Read in debug value
+    // Read in debug level
     CharSequence debugValueStr = args[2];
     int debugValue = -1;
 
@@ -90,9 +73,5 @@ public class Driver {
     finally {}
 
     MyLogger.setDebugValue(debugValue);
-
-    AirportContextI airportSecurity = new AirportSecurity(inputFilename,
-                                                          outputFilename);
-    airportSecurity.processProhibitedItems();
   }
 }
