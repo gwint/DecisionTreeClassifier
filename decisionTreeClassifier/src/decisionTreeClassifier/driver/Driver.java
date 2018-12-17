@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import util.FileProcessor;
 import util.MyLogger;
+import util.NDArray;
 
 /**
  * @author Gregory Wint
@@ -73,5 +74,8 @@ public class Driver {
     finally {}
 
     MyLogger.setDebugValue(debugValue);
+
+    NDArray<Integer> ndarr = new NDArray<>(1,2,3,4);
+    System.out.println(ndarr.isEmpty());
   }
 }
