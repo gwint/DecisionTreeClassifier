@@ -75,6 +75,17 @@ public class Driver {
 
     MyLogger.setDebugValue(debugValue);
 
+    // Read in training data into NDArray
+    NDArray trainingData = NDArray.readCSV(new FileProcessor(inputFilename));
+
+    // Pass data to classifier
+
+    // Train classifier
+
+    // Predict
+
+    // Display values for performance metrics
+
     NDArray<Integer> ndarr = new NDArray<>(3,3,3);
     System.out.println(ndarr.isEmpty());
     ndarr.add(10,0,2,2);

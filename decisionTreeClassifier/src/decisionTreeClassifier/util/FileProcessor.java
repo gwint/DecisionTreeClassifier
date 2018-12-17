@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-public class FileProcessor implements ProcessorI {
+public class FileProcessor implements ProcessorI, Cloneable {
   private BufferedReader reader;
   private CharSequence fileName;
   private int id;
@@ -45,6 +45,11 @@ public class FileProcessor implements ProcessorI {
     finally {}
     this.id = FileProcessor.instanceCount;
     FileProcessor.instanceCount++;
+  }
+
+  @Override
+  protected Object clone() {
+    return new FileProcessor(this.getFileName());
   }
 
   private int getId() {

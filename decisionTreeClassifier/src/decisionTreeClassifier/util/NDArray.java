@@ -2,6 +2,7 @@ package util;
 
 import java.util.List;
 import java.util.ArrayList;
+import util.ProcessorI;
 
 public class NDArray<T> {
   private List<Integer> dimensions;
@@ -80,6 +81,41 @@ public class NDArray<T> {
 
     System.out.println(index1D);
     this.data.add(index1D, value);
+  }
+
+  public static NDArray readCSV(FileProcessor processor) {
+    FileProcessor processorCopy = (FileProcessor) processor.clone();
+
+    int numColumns = processorCopy.readNextLine().split(new String(",")).length;
+    System.out.println(numColumns);
+
+    int numRows = 1;
+    while(processorCopy.readNextLine() != null) {
+      numRows++;
+    }
+    System.out.println(numRows);
+
+    NDArray<Double> arr = new NDArray<>(numRows, numColumns);
+
+    int currRow = 0;
+    int currCol = 0;
+    String line = processor.readNextLine();
+    while(line != null) {
+      String[] pieces = line.split(new String(","));
+      for(String data : pieces) {
+        double value = Double.parseDouble(data);
+        arr.add(value, currRow, currCol);
+        currCol++;
+        if(currCol > numColumns) {
+          throw new IllegalStateException("Writing to column that doesn't exist in array");
+        }
+      }
+      line = processor.readNextLine();
+      currRow++;
+      currCol = 0;
+    }
+
+    return arr;
   }
 
   public boolean isEmpty() {
