@@ -17,11 +17,17 @@ public class NDArray<T> {
     this.dimensions = new ArrayList<>();
     this.data = new ArrayList<>();
 
+    int totalNumElements = 1;
+
     for(int dim : dims) {
+      totalNumElements *= dim;
       this.dimensions.add(dim);
     }
 
-    System.out.println(this.dimensions);
+    for(int n = 0; n < totalNumElements; n++) {
+      this.data.add(null);
+    }
+    System.out.println(totalNumElements);
   }
 
   public T get(int ... indices) {
@@ -31,10 +37,49 @@ public class NDArray<T> {
     if(indices.length != this.dimensions.size()) {
       throw new IllegalArgumentException(String.format("%d index values must be provided", this.dimensions.size()));
     }
-    return null;
+
+    for(int i = 0; i < indices.length; i++) {
+      if(indices[i] >= this.dimensions.get(i)) {
+        throw new IllegalArgumentException(String.format("Invalid index value for axis %d: %d", i, indices[i]));
+      }
+    }
+
+    int index1D = 0;
+    int totalNumElements = this.data.size();
+    for(int i = 0; i < indices.length; i++) {
+      // a(x2*x3*x4*...*xn) + b(X3*x4*x5*...*xn) + ... + z
+      totalNumElements /= this.dimensions.get(i);
+      index1D += indices[i] * totalNumElements;
+    }
+
+    System.out.println(index1D);
+    return this.data.get(index1D);
   }
 
   public void add(T value, int ... indices) {
+    if(indices == null) {
+      throw new IllegalArgumentException("Indices must be provided to retrieve element");
+    }
+    if(indices.length != this.dimensions.size()) {
+      throw new IllegalArgumentException(String.format("%d index values must be provided", this.dimensions.size()));
+    }
+
+    for(int i = 0; i < indices.length; i++) {
+      if(indices[i] >= this.dimensions.get(i)) {
+        throw new IllegalArgumentException(String.format("Invalid index value for axis %d: %d", i, indices[i]));
+      }
+    }
+
+    int index1D = 0;
+    int totalNumElements = this.data.size();
+    for(int i = 0; i < indices.length; i++) {
+      // a(x2*x3*x4*...*xn) + b(X3*x4*x5*...*xn) + ... + z
+      totalNumElements /= this.dimensions.get(i);
+      index1D += indices[i] * totalNumElements;
+    }
+
+    System.out.println(index1D);
+    this.data.add(index1D, value);
   }
 
   public boolean isEmpty() {

@@ -75,7 +75,9 @@ public class Driver {
 
     MyLogger.setDebugValue(debugValue);
 
-    NDArray<Integer> ndarr = new NDArray<>(1,2,3,4);
+    NDArray<Integer> ndarr = new NDArray<>(3,3,3);
     System.out.println(ndarr.isEmpty());
+    ndarr.add(10,0,2,2);
+    System.out.println(ndarr.get(0,2,2));
   }
 }
