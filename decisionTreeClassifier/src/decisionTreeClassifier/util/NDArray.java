@@ -119,7 +119,7 @@ public class NDArray<T> {
   }
 
   public int length(int axis) {
-    return 0;
+    return this.dimensions.get(axis);
   }
 
   @Override

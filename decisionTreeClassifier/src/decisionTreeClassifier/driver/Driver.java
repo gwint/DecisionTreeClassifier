@@ -14,10 +14,6 @@ import classifier.ID3Algorithm;
  *
  */
 
-/**
- * Class used to house the main method responsible for creating the objects
- * needed to calculate the sum of a collection of prime numbers.
- */
 public class Driver {
   /**
    * Grabs names of the file containing a list of integers, the
@@ -98,9 +94,9 @@ public class Driver {
     DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
                                                             trainingClasses);
 
-    clf.train(new ID3Algorithm());
+    clf.train(new ID3Algorithm(), 0.7);
 
-    // Predict
+    clf.predict();
 
     // Calculate performance metrics and display results
 
