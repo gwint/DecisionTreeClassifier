@@ -7,7 +7,8 @@ import java.io.IOException;
 import util.FileProcessor;
 import util.MyLogger;
 import util.NDArray;
-
+import classifier.DecisionTreeClassifier;
+import classifier.ID3Algorithm;
 /**
  * @author Gregory Wint
  *
@@ -91,17 +92,17 @@ public class Driver {
 
     MyLogger.setDebugValue(debugValue);
 
-    // Read in training data into NDArray
     NDArray trainingData = NDArray.readCSV(new FileProcessor(featuresFile));
     NDArray trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
 
-    // Pass data to classifier
+    DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
+                                                            trainingClasses);
 
-    // Train classifier
+    clf.train(new ID3Algorithm());
 
     // Predict
 
-    // Display values for performance metrics
+    // Calculate performance metrics and display results
 
   }
 }
