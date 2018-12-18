@@ -28,7 +28,6 @@ public class NDArray<T> {
     for(int n = 0; n < totalNumElements; n++) {
       this.data.add(null);
     }
-    System.out.println(totalNumElements);
   }
 
   public T get(int ... indices) {
@@ -79,7 +78,6 @@ public class NDArray<T> {
       index1D += indices[i] * totalNumElements;
     }
 
-    System.out.println(index1D);
     this.data.add(index1D, value);
   }
 
@@ -87,15 +85,13 @@ public class NDArray<T> {
     FileProcessor processorCopy = (FileProcessor) processor.clone();
 
     int numColumns = processorCopy.readNextLine().split(new String(",")).length;
-    System.out.println(numColumns);
 
     int numRows = 1;
     while(processorCopy.readNextLine() != null) {
       numRows++;
     }
-    System.out.println(numRows);
 
-    NDArray<Double> arr = new NDArray<>(numRows, numColumns);
+    NDArray arr = new NDArray<Double>(numRows, numColumns);
 
     int currRow = 0;
     int currCol = 0;

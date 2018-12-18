@@ -40,12 +40,28 @@ public class Driver {
       System.exit(0);
     }
 
-    // Read in input filename
-    CharSequence inputFilename = args[0];
+    // Read in name of file containing features
+    CharSequence featuresFile = args[0];
     try {
-      File testFile = new File(inputFilename.toString());
+      File testFile = new File(featuresFile.toString());
       if(!testFile.exists()) {
-        System.err.printf("%s does not exist\n", inputFilename.toString());
+        System.err.printf("%s does not exist\n", featuresFile.toString());
+        System.exit(1);
+      }
+    }
+    catch(NullPointerException e) {
+      System.err.println("Pathname to input file cannot be null");
+      System.err.println(e);
+      System.exit(1);
+    }
+    finally {}
+
+    // Read in name of file containing classes
+    CharSequence classesFile = args[1];
+    try {
+      File testFile = new File(classesFile.toString());
+      if(!testFile.exists()) {
+        System.err.printf("%s does not exist\n", classesFile.toString());
         System.exit(1);
       }
     }
@@ -76,7 +92,8 @@ public class Driver {
     MyLogger.setDebugValue(debugValue);
 
     // Read in training data into NDArray
-    NDArray trainingData = NDArray.readCSV(new FileProcessor(inputFilename));
+    NDArray trainingData = NDArray.readCSV(new FileProcessor(featuresFile));
+    NDArray trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
 
     // Pass data to classifier
 
@@ -86,9 +103,5 @@ public class Driver {
 
     // Display values for performance metrics
 
-    NDArray<Integer> ndarr = new NDArray<>(3,3,3);
-    System.out.println(ndarr.isEmpty());
-    ndarr.add(10,0,2,2);
-    System.out.println(ndarr.get(0,2,2));
   }
 }
