@@ -1,17 +1,25 @@
 package classifier;
+
 import util.Linkable;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Node implements Linkable, Cloneable {
   private static final int INVALID_NODE_ID = -1;
+  private static final int NO_LABEL_ASSIGNED = -1;
   private static int nodeCount = 0;
   private int nodeId;
   private Node left;
   private Node right;
+  private List<Integer> sampleIndices;
+  private int label;
 
   public Node(CharSequence bNumberIn) {
     this.left = null;
     this.right = null;
     this.nodeId = Node.nodeCount++;
+    this.sampleIndices = new ArrayList<>();
+    this.label = Node.NO_LABEL_ASSIGNED;
   }
 
   public static int getNodeCount() {

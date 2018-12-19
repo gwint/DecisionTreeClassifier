@@ -37,7 +37,8 @@ public class DecisionTreeClassifier {
       throw new IllegalArgumentException("Training strategy must not be null");
     }
     this.splitData(proportion);
-    this.trainedClassifier = strat.train(this.features, this.classes);
+    this.trainedClassifier = strat.train(this.features, this.classes,
+                                         this.trainingSamples);
   }
 
   public void predict(NDArray features) {
