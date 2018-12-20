@@ -13,7 +13,8 @@ public class DecisionTreeClassifier {
   private List<Integer> testingSamples;
   private Linkable trainedClassifier;
 
-  public DecisionTreeClassifier(NDArray allFeaturesIn, NDArray allClassesIn) {
+  public DecisionTreeClassifier(NDArray<Double> allFeaturesIn,
+                                NDArray<Double> allClassesIn) {
     if(allFeaturesIn == null) {
       throw new IllegalArgumentException("Array containing training features must not be null");
     }

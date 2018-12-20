@@ -28,6 +28,8 @@ public class NDArray<T> {
     for(int n = 0; n < totalNumElements; n++) {
       this.data.add(null);
     }
+
+    System.out.println(this.dimensions);
   }
 
   public T get(int ... indices) {
@@ -52,7 +54,7 @@ public class NDArray<T> {
       index1D += indices[i] * totalNumElements;
     }
 
-    System.out.println(index1D);
+    //System.out.println("1D index value from get: " + index1D);
     return this.data.get(index1D);
   }
 
@@ -78,10 +80,11 @@ public class NDArray<T> {
       index1D += indices[i] * totalNumElements;
     }
 
-    this.data.add(index1D, value);
+    //System.out.println("1D index value from add: " + index1D);
+    this.data.set(index1D, value);
   }
 
-  public static NDArray readCSV(FileProcessor processor) {
+  public static NDArray<Double> readCSV(FileProcessor processor) {
     FileProcessor processorCopy = (FileProcessor) processor.clone();
 
     int numColumns = processorCopy.readNextLine().split(new String(",")).length;
@@ -91,7 +94,7 @@ public class NDArray<T> {
       numRows++;
     }
 
-    NDArray arr = new NDArray<Double>(numRows, numColumns);
+    NDArray<Double> arr = new NDArray<Double>(numRows, numColumns);
 
     int currRow = 0;
     int currCol = 0;

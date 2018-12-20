@@ -14,11 +14,15 @@ public class Node implements Linkable, Cloneable {
   private List<Integer> sampleIndices;
   private int label;
 
-  public Node(CharSequence bNumberIn) {
+  public Node(List<Integer> sampleIndicesIn) {
+    if(sampleIndicesIn == null) {
+      throw new IllegalArgumentException("List of sample indices must not be null");
+    }
+
+    this.sampleIndices = sampleIndicesIn;
     this.left = null;
     this.right = null;
     this.nodeId = Node.nodeCount++;
-    this.sampleIndices = new ArrayList<>();
     this.label = Node.NO_LABEL_ASSIGNED;
   }
 

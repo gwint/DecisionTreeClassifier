@@ -88,8 +88,8 @@ public class Driver {
 
     MyLogger.setDebugValue(debugValue);
 
-    NDArray trainingData = NDArray.readCSV(new FileProcessor(featuresFile));
-    NDArray trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
+    NDArray<Double> trainingData = NDArray.readCSV(new FileProcessor(featuresFile));
+    NDArray<Double> trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
 
     DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
                                                             trainingClasses);
