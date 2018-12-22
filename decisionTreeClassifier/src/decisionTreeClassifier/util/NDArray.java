@@ -3,6 +3,7 @@ package util;
 import java.util.List;
 import java.util.ArrayList;
 import util.ProcessorI;
+import java.util.Arrays;
 
 public class NDArray<T> {
   private List<Integer> dimensions;
@@ -53,8 +54,7 @@ public class NDArray<T> {
       totalNumElements /= this.dimensions.get(i);
       index1D += indices[i] * totalNumElements;
     }
-
-    //System.out.println("1D index value from get: " + index1D);
+    System.out.println("1D index value from get: " + index1D);
     return this.data.get(index1D);
   }
 
