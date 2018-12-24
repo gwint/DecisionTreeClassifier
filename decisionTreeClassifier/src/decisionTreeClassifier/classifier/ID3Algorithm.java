@@ -29,16 +29,45 @@ public class ID3Algorithm implements TrainingStrategy {
   private Linkable trainHelper(NDArray<Double> features,
                                NDArray<Double> classes,
                                List<Integer> sampleIndices, Node treeRoot) {
-    /*
-     1) Calculate entropy of every attribute a of the data set
-     2) Partition set S into subsets using attribute providing minimum entropy / maximum information gain
-     3) Make a decision tree node containing the attribute
-     4) Recur on subsets using remaining attributes
-    */
+
+    // 1) Calculate entropy of every attribute a of the data set
+    // 2) Partition set S into subsets using attribute providing minimum
+    //    entropy
     int splitFeatureIdx = this.findLowestEntropyFeature(sampleIndices,
                                                         features, classes);
+    // 3) Make a decision tree node containing the attribute
+    List<Node> childNodes = this.createChildren(splitFeatureIdx, features,
+                                                sampleIndices);
+    // 4) Recur on subsets using remaining attributes
+
     System.out.println(splitFeatureIdx);
     return null;
+  }
+
+  /**
+   */
+  private List<Node> createChildren(int lowestEntropyFeatureIdx,
+                                    NDArray<Double> features,
+                                    List<Integer> sampleIndices) {
+
+    List<Node> childNodes = new ArrayList<>();
+
+    List<Interval> intervals =
+          this.getAttributeIntervals(lowestEntropyFeatureIdx, features);
+
+    List<List<Integer>> partitions =
+                 this.partitionSamples(intervals, lowestEntropyFeatureIdx,
+                                       features, sampleIndices);
+
+    if(intervals.size() != partitions.size()) {
+      throw new IllegalStateException("Number of partitions does not match the number of intervals when creating child nodes");
+    }
+
+    for(int i = 0; i < intervals.size(); i++) {
+      childNodes.add(new Node(partitions.get(i)));
+    }
+
+    return childNodes;
   }
 
   /**
@@ -46,6 +75,7 @@ public class ID3Algorithm implements TrainingStrategy {
   private int findLowestEntropyFeature(List<Integer> sampleIndices,
                                        NDArray<Double> features,
                                        NDArray<Double> classes) {
+
     Map<Integer, Double> entropies = new HashMap<>();
     Queue<Integer> attributeIndicies = new PriorityQueue<>(new Comparator<Integer>() {
       public int compare(Integer idx1, Integer idx2) {
@@ -70,7 +100,6 @@ public class ID3Algorithm implements TrainingStrategy {
         attributeIndicies.add(attributeIndex);
       }
     }
-
     return attributeIndicies.remove();
   }
 
