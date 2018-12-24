@@ -56,7 +56,7 @@ public class DecisionTreeClassifier {
     int numSamples = this.features.length(0);
     int numTrainingSamples = (int) Math.round(trainingProportion * numSamples);
 
-    Random randNumGen = new Random();
+    Random randNumGen = new Random(0);
     while(this.trainingSamples.size() < numTrainingSamples) {
       int randInt = Math.abs(randNumGen.nextInt()) % numSamples;
       if(!this.trainingSamples.contains(randInt)) {

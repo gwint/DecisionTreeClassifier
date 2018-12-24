@@ -37,6 +37,7 @@ public class ID3Algorithm implements TrainingStrategy {
     */
     int splitFeatureIdx = this.findLowestEntropyFeature(sampleIndices,
                                                         features, classes);
+    System.out.println(splitFeatureIdx);
     return null;
   }
 
@@ -59,41 +60,39 @@ public class ID3Algorithm implements TrainingStrategy {
       if(!this.usedAttributes.contains(attributeIndex)) {
         List<Interval> intervals = this.getAttributeIntervals(attributeIndex,
                                                               features);
+
         List<List<Integer>> partitions = this.partitionSamples(intervals,
                                                                attributeIndex,
                                                                features,
                                                                sampleIndices);
-        System.out.println(partitions);
 
-        // Calculate the entropy for each partition and sum them
-
-        System.out.println(intervals);
-        System.exit(1);
-        entropies.put(attributeIndex,
-                      calcEntropy(attributeIndex, sampleIndices,
-                                  features, classes));
+        entropies.put(attributeIndex, calcEntropy(partitions, classes));
         attributeIndicies.add(attributeIndex);
       }
     }
 
-    System.out.println(entropies);
     return attributeIndicies.remove();
   }
 
   /**
-   * TODO: Should be calculating entropy for this attribute after splitting
    */
-  private double calcEntropy(int attributeIndex, List<Integer> sampleIndices,
-                             NDArray<Double> features,
+  private double calcEntropy(List<List<Integer>> partitions,
                              NDArray<Double> classes) {
     double entropy = 0.0;
 
-    for(int classLabel : new int[] {0, 1}) {
-      double probability = this.getProportion(classLabel, classes,
-                                              sampleIndices);
-      entropy += -probability * (Math.log10(probability) / Math.log10(2));
-      System.out.println("entropy value: " + entropy);
+    assert partitions.size() == 2;
+
+    for(List<Integer> sampleIndices : partitions) {
+      for(int classLabel : new int[] {0, 1}) {
+        double probability = this.getProportion(classLabel, classes,
+                                                sampleIndices);
+        if(probability > 0) {
+          entropy += -probability * (Math.log10(probability) / Math.log10(2));
+        }
+      }
     }
+    System.out.println(String.format("Entropy for attribute: %f",
+                                     entropy));
     return entropy;
   }
 
@@ -102,8 +101,6 @@ public class ID3Algorithm implements TrainingStrategy {
   private double getProportion(int label, NDArray<Double> classes,
                                List<Integer> sampleIndices) {
     int numSamplesWithLabel = 0;
-    System.out.println("num rows in classes: " + classes.length(0));
-    System.out.println("random class label: " + classes.get(14,0));
 
     for(Integer sampleIdx : sampleIndices) {
       Double classLabel = classes.get(sampleIdx.intValue(), 0);
@@ -126,17 +123,16 @@ public class ID3Algorithm implements TrainingStrategy {
     double minVal = 0;
     double maxVal = 0;
 
-    System.out.println("Now entering getAttributeIntervals()");
-
-    System.out.println(features.get(52,0));
     List<Interval> intervals = new ArrayList<>();
 
     for(int sampleIdx = 0; sampleIdx < features.length(0); sampleIdx++) {
       Double attrValue = features.get(sampleIdx, attributeIndex);
       double associatedDoubleVal = attrValue.doubleValue();
       if(attrValue == null) {
-        System.out.println("Sample index on null: " + sampleIdx);
-        System.out.println("Attributre index on null: " + attributeIndex);
+        System.err.println("Attribute value Double object should not be null");
+        System.err.println("Sample index on null: " + sampleIdx);
+        System.err.println("Attributre index on null: " + attributeIndex);
+        System.exit(1);
       }
       if(associatedDoubleVal < minVal) {
         minVal = attrValue;
@@ -146,17 +142,11 @@ public class ID3Algorithm implements TrainingStrategy {
       }
     }
 
-    System.out.println("max: " + maxVal);
-    System.out.println("min: " + minVal);
-
     double intervalSize = (maxVal - minVal) / ID3Algorithm.NUM_DATA_PARTITIONS;
 
     for(double start = minVal; start < maxVal; start += intervalSize) {
       intervals.add(new Interval(start, start + intervalSize));
     }
-
-    System.out.println("Now leaving getAttributeIntervals()");
-
     return intervals;
   }
 
@@ -194,7 +184,6 @@ public class ID3Algorithm implements TrainingStrategy {
         }
       }
     }
-
     return partitions;
   }
 }

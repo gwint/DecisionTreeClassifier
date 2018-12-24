@@ -54,7 +54,6 @@ public class NDArray<T> {
       totalNumElements /= this.dimensions.get(i);
       index1D += indices[i] * totalNumElements;
     }
-    System.out.println("1D index value from get: " + index1D);
     return this.data.get(index1D);
   }
 

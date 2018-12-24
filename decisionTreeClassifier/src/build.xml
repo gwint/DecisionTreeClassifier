@@ -46,6 +46,9 @@
 
 <target name="run" depends="jar">
         <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
+                <assertions>
+                  <enable/>
+                </assertions>
 		<arg value="${arg0}"/>
 		<arg value="${arg1}"/>
                 <arg value="${arg2}"/>
