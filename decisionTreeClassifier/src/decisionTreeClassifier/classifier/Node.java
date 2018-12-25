@@ -9,21 +9,21 @@ public class Node implements Linkable, Cloneable {
   private static final int NO_LABEL_ASSIGNED = -1;
   private static int nodeCount = 0;
   private int nodeId;
-  private Node left;
-  private Node right;
+  private List<Node> children;
   private List<Integer> sampleIndices;
   private int label;
+  private Integer splitAttributeIndex;
 
-  public Node(List<Integer> sampleIndicesIn) {
+  public Node(List<Integer> sampleIndicesIn, Integer attributeIndex) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
 
     this.sampleIndices = sampleIndicesIn;
-    this.left = null;
-    this.right = null;
+    this.children = null;
     this.nodeId = Node.nodeCount++;
     this.label = Node.NO_LABEL_ASSIGNED;
+    this.splitAttributeIndex = attributeIndex;
   }
 
   public static int getNodeCount() {
@@ -42,8 +42,7 @@ public class Node implements Linkable, Cloneable {
 
   private Node() {
     this.nodeId = Node.INVALID_NODE_ID;
-    this.left = null;
-    this.right = null;
+    this.children = null;
   }
 
   @Override
@@ -70,26 +69,15 @@ public class Node implements Linkable, Cloneable {
     return false;
   }
 
-  public Node getLeftChild() {
-    return this.left;
+  public List<Node> getChildren() {
+    return this.children;
   }
 
-  public Node getRightChild() {
-    return this.right;
-  }
-
-  public void setLeftChild(Node aNodeIn) {
-    if(aNodeIn == null) {
-      throw new IllegalArgumentException("Cannot set left child to null.");
+  public void setChildren(List<Node> childNodes) {
+    if(childNodes == null) {
+      throw new IllegalArgumentException("Cannot set list of child nodes to null.");
     }
-    this.left = aNodeIn;
-  }
-
-  public void setRightChild(Node aNodeIn) {
-    if(aNodeIn == null) {
-      throw new IllegalArgumentException("Cannot set right child to null.");
-    }
-    this.right = aNodeIn;
+    this.children = childNodes;
   }
 
   /**

@@ -22,26 +22,75 @@ public class ID3Algorithm implements TrainingStrategy {
    */
   public Linkable train(NDArray<Double> features, NDArray<Double> classes,
                         List<Integer> sampleIndices) {
-    Node root = new Node(sampleIndices);
-    return this.trainHelper(features, classes, sampleIndices, root);
+    Node root = new Node(sampleIndices, null);
+    this.trainHelper(features, classes, sampleIndices, root);
+    return root;
   }
 
-  private Linkable trainHelper(NDArray<Double> features,
-                               NDArray<Double> classes,
-                               List<Integer> sampleIndices, Node treeRoot) {
+  private void trainHelper(NDArray<Double> features,
+                           NDArray<Double> classes,
+                           List<Integer> sampleIndices, Node treeRoot) {
+
+    if(features == null) {
+      throw new IllegalArgumentException("Features NDArray must not be null");
+    }
+    if(classes == null) {
+      throw new IllegalArgumentException("Classes NDArray must not be null");
+    }
+    if(sampleIndices == null) {
+      throw new IllegalArgumentException("List of sample indices must not be null");
+    }
+
+    // Stopping condition
+      // 1) If all samples are the same, create leaf node and return.
+      // 2) If root has no samples, create leaf node w/ random label and
+      //    return.
+      // 3) If no attributes left to use, create leaf node and return.
+      // 4) If number of samples is below minimum for spltting, create leaf
+      //    and return.
 
     // 1) Calculate entropy of every attribute a of the data set
     // 2) Partition set S into subsets using attribute providing minimum
     //    entropy
     int splitFeatureIdx = this.findLowestEntropyFeature(sampleIndices,
                                                         features, classes);
+    this.retireAttribute(splitFeatureIdx);
     // 3) Make a decision tree node containing the attribute
     List<Node> childNodes = this.createChildren(splitFeatureIdx, features,
                                                 sampleIndices);
+    treeRoot.setChildren(childNodes);
     // 4) Recur on subsets using remaining attributes
 
     System.out.println(splitFeatureIdx);
-    return null;
+  }
+
+  private boolean areAllClassesIdentical(NDArray<Double> elements) {
+    if(elements == null) {
+      throw new IllegalArgumentException("NDArray being checked for homegeneity must not be null");
+    }
+
+    boolean areIdentical = true;
+    for(int i = 0; i < elements.length(0) - 1; i++) {
+      Double elem = elements.get(i, 0);
+      Double nextElem = elements.get(i+1, 0);
+      if(elem == null || nextElem == null) {
+        throw new IllegalStateException("No class label should be null");
+      }
+      if(!elem.equals(nextElem)) {
+        areIdentical = false;
+        break;
+      }
+    }
+    return areIdentical;
+  }
+
+  private void retireAttribute(int attributeIndex) {
+    if(this.usedAttributes.contains(attributeIndex)) {
+      throw new IllegalArgumentException(String.format(
+             "Cannot retire previously retired attribute: %d",
+             attributeIndex));
+    }
+    this.usedAttributes.add(attributeIndex);
   }
 
   /**
@@ -64,7 +113,7 @@ public class ID3Algorithm implements TrainingStrategy {
     }
 
     for(int i = 0; i < intervals.size(); i++) {
-      childNodes.add(new Node(partitions.get(i)));
+      childNodes.add(new Node(partitions.get(i), lowestEntropyFeatureIdx));
     }
 
     return childNodes;
