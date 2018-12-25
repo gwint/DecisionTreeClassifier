@@ -19,6 +19,14 @@ public class ID3Algorithm implements TrainingStrategy {
   }
 
   /**
+   * Creates a decision tree using using the training data passed to the
+   * method.
+   * @param features An NDArray containing the features for all available
+   *                 samples.
+   * @param classes An NDArray containing the class label for all available
+   *                samples.
+   * @return A Linkable object representing the head of the newly created
+   *         decision tree.
    */
   public Linkable train(NDArray<Double> features, NDArray<Double> classes,
                         List<Integer> sampleIndices) {
@@ -27,6 +35,11 @@ public class ID3Algorithm implements TrainingStrategy {
     return root;
   }
 
+  /**
+   * A recursive helper method that helps with the building of the decision
+   * tree.  All the arguments are the same as those in train(...) but has
+   * another argument to represent the root of the tree to be created.
+   */
   private void trainHelper(NDArray<Double> features,
                            NDArray<Double> classes,
                            List<Integer> sampleIndices, Node treeRoot) {
