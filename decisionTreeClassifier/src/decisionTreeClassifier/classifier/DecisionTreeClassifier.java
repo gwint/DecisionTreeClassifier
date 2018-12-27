@@ -70,4 +70,9 @@ public class DecisionTreeClassifier {
       }
     }
   }
+
+  @Override
+  public String toString() {
+    return "";
+  }
 }

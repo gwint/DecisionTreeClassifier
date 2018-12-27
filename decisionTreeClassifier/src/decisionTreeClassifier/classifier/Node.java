@@ -3,6 +3,11 @@ package classifier;
 import util.Linkable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Iterator;
+import util.NDArray;
 
 public class Node implements Linkable, Cloneable {
   private static final int INVALID_NODE_ID = -1;
@@ -51,13 +56,51 @@ public class Node implements Linkable, Cloneable {
     return new Node(classLabel);
   }
 
-  public void setAsLeaf() {
+  public void setAsLeaf(NDArray<Double> classes) {
     this.isLeaf = true;
-    this.label = this.getLabel();
+    this.label = this.getLabel(classes);
   }
 
-  public double getLabel() {
-    return 0.0;
+  public double getLabel(NDArray<Double> classes) {
+    double classLabel = (double) Node.NO_LABEL_ASSIGNED;
+    if(this.getSampleIndices().size() == 0) {
+      classLabel = this.parent.getLabel(classes);
+    }
+    else {
+      int numSamples = this.getSampleIndices().size();
+      Map<Double, Integer> classCounts = new HashMap<>();
+      for(Integer sampleIdx : this.getSampleIndices()) {
+        if(sampleIdx == null) {
+          throw new IllegalArgumentException("List of sample indices should not contain any null elements");
+        }
+        int i = sampleIdx.intValue();
+        Double label = classes.get(sampleIdx, 0);
+        if(label == null) {
+          throw new IllegalArgumentException("Every class label should be non-null");
+        }
+
+        if(!classCounts.containsKey(label)) {
+          classCounts.put(label, 1);
+        }
+        else {
+          classCounts.put(label, classCounts.get(label).intValue() + 1);
+        }
+
+        Set<Double> allLabels = classCounts.keySet();
+        Iterator<Double> labelIter = allLabels.iterator();
+        Iterator<Double> initializer = allLabels.iterator();
+        classLabel = initializer.next();
+
+        while(labelIter.hasNext()) {
+          Double aLabel = labelIter.next();
+          if(classCounts.get(aLabel) > classCounts.get(classLabel)) {
+            classLabel = aLabel.doubleValue();
+          }
+        }
+      }
+    }
+
+    return classLabel;
   }
 
   public List<Integer> getSampleIndices() {
@@ -76,7 +119,8 @@ public class Node implements Linkable, Cloneable {
 
   @Override
   public String toString() {
-    String strForm = "";
+    String strForm = String.format("Node Type: %s \n",
+                                   (this.isLeaf) ? "Leaf" : "Non-Leaf");
     return strForm;
   }
 
