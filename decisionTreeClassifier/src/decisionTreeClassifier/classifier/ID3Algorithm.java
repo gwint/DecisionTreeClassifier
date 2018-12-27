@@ -9,9 +9,11 @@ import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 import util.Interval;
+import java.util.Arrays;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
+  private static final int MIN_SAMPLES_FOR_SPLIT = 10;
   private List<Integer> usedAttributes;
 
   public ID3Algorithm() {
@@ -53,14 +55,38 @@ public class ID3Algorithm implements TrainingStrategy {
     if(sampleIndices == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
+    if(treeRoot == null) {
+      throw new IllegalArgumentException("Decision tree root must not be null");
+    }
 
-    // Stopping condition
+    // Stopping conditions
       // 1) If all samples are the same, create leaf node and return.
+      if(this.areAllClassesIdentical(sampleIndices, classes)) {
+        System.out.println("All samples have the same class label");
+        treeRoot.setAsLeaf();
+        return;
+      }
       // 2) If root has no samples, create leaf node w/ random label and
       //    return.
+      if(treeRoot.getSampleIndices().size() == 0) {
+        System.out.println("Node contains no samples");
+        treeRoot.setAsLeaf();
+        return;
+      }
       // 3) If no attributes left to use, create leaf node and return.
+      if(this.usedAttributes.size() == features.length(1)) {
+        System.out.println("All attributes have been used already");
+        treeRoot.setAsLeaf();
+        return;
+      }
       // 4) If number of samples is below minimum for spltting, create leaf
       //    and return.
+      if(treeRoot.getSampleIndices().size() <
+         ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
+        System.out.println("Node contains less than the minimum amount needed for a split to occur");
+        treeRoot.setAsLeaf();
+        return;
+      }
 
     // 1) Calculate entropy of every attribute a of the data set
     // 2) Partition set S into subsets using attribute providing minimum
@@ -70,22 +96,41 @@ public class ID3Algorithm implements TrainingStrategy {
     this.retireAttribute(splitFeatureIdx);
     // 3) Make a decision tree node containing the attribute
     List<Node> childNodes = this.createChildren(splitFeatureIdx, features,
-                                                sampleIndices);
+                                                sampleIndices, treeRoot);
     treeRoot.setChildren(childNodes);
     // 4) Recur on subsets using remaining attributes
+    for(Node child : childNodes) {
+      this.trainHelper(features, classes, child.getSampleIndices(), child);
+    }
 
     System.out.println(splitFeatureIdx);
   }
 
-  private boolean areAllClassesIdentical(NDArray<Double> elements) {
-    if(elements == null) {
+  /**
+   * Helper method used to determine if all the samples in a node have the
+   * same class.
+   * @param classes NDArray containing classes for all available samples.
+   * @param sampleIndices List containing indices of relevant samples.
+   * @return true if all samples in the node have the same class label, and
+   *         false otherwise.
+   */
+  private boolean areAllClassesIdentical(List<Integer> sampleIndices,
+                                         NDArray<Double> classes) {
+    if(sampleIndices == null) {
+      throw new IllegalArgumentException("List of sample indices must not be null");
+    }
+    if(classes == null) {
       throw new IllegalArgumentException("NDArray being checked for homegeneity must not be null");
     }
 
-    boolean areIdentical = true;
-    for(int i = 0; i < elements.length(0) - 1; i++) {
-      Double elem = elements.get(i, 0);
-      Double nextElem = elements.get(i+1, 0);
+    boolean areIdentical = sampleIndices.size() > 0;
+    for(Integer indexObj : sampleIndices) {
+      if(indexObj == null) {
+        throw new IllegalStateException("No sample Index should be null");
+      }
+      int i = indexObj.intValue();
+      Double elem = classes.get(i, 0);
+      Double nextElem = classes.get(i+1, 0);
       if(elem == null || nextElem == null) {
         throw new IllegalStateException("No class label should be null");
       }
@@ -110,7 +155,8 @@ public class ID3Algorithm implements TrainingStrategy {
    */
   private List<Node> createChildren(int lowestEntropyFeatureIdx,
                                     NDArray<Double> features,
-                                    List<Integer> sampleIndices) {
+                                    List<Integer> sampleIndices,
+                                    Node parent) {
 
     List<Node> childNodes = new ArrayList<>();
 
@@ -126,7 +172,9 @@ public class ID3Algorithm implements TrainingStrategy {
     }
 
     for(int i = 0; i < intervals.size(); i++) {
-      childNodes.add(new Node(partitions.get(i), lowestEntropyFeatureIdx));
+      Node newNode = new Node(partitions.get(i), lowestEntropyFeatureIdx);
+      newNode.setParent(parent);
+      childNodes.add(newNode);
     }
 
     return childNodes;

@@ -11,14 +11,17 @@ public class Node implements Linkable, Cloneable {
   private int nodeId;
   private List<Node> children;
   private List<Integer> sampleIndices;
-  private int label;
+  private double label;
   private Integer splitAttributeIndex;
+  private boolean isLeaf;
+  private Node parent;
 
   public Node(List<Integer> sampleIndicesIn, Integer attributeIndex) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
 
+    this.isLeaf = false;
     this.sampleIndices = sampleIndicesIn;
     this.children = null;
     this.nodeId = Node.nodeCount++;
@@ -30,17 +33,43 @@ public class Node implements Linkable, Cloneable {
     return Node.nodeCount;
   }
 
+  public boolean isLeaf() {
+    return this.isLeaf;
+  }
+
+  public void setParent(Node parentNode) {
+    this.parent = parentNode;
+  }
+
   /**
    Creates a dummy Node object that cannot be used for insertion or deletion.
    It is meant to represent the Node equivalent of null and avoid
    nullpointerexception when no input.txt is empty.
    @return A dummy node created via private constructor.
    */
-  public static Node getDummyNode() {
-    return new Node();
+  public static Node getLeafNode(double classLabel) {
+    return new Node(classLabel);
   }
 
-  private Node() {
+  public void setAsLeaf() {
+    this.isLeaf = true;
+    this.label = this.getLabel();
+  }
+
+  public double getLabel() {
+    return 0.0;
+  }
+
+  public List<Integer> getSampleIndices() {
+    if(this.sampleIndices == null) {
+      throw new UnsupportedOperationException("Cannot get the sample indices of a leaf node");
+    }
+    return this.sampleIndices;
+  }
+
+  private Node(double classLabel) {
+    this.label = classLabel;
+    this.isLeaf = true;
     this.nodeId = Node.INVALID_NODE_ID;
     this.children = null;
   }
