@@ -56,9 +56,12 @@ public class Node implements Linkable, Cloneable {
     return new Node(classLabel);
   }
 
-  public void setAsLeaf(NDArray<Double> classes) {
+  public void assignLabel(double labelIn) {
+    this.label = labelIn;
+  }
+
+  public void setAsLeaf() {
     this.isLeaf = true;
-    this.label = this.getLabel(classes);
   }
 
   public double getLabel(NDArray<Double> classes) {

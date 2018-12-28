@@ -1,4 +1,5 @@
 package classifier;
+
 import util.Linkable;
 import util.NDArray;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.PriorityQueue;
 import java.util.Comparator;
 import util.Interval;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
@@ -17,6 +20,7 @@ public class ID3Algorithm implements TrainingStrategy {
   private List<Integer> usedAttributes;
   private NDArray<Double> features;
   private NDArray<Double> classes;
+  private List<Integer> trainingSampleIndices;
 
   public ID3Algorithm() {
     this.features = null;
@@ -48,12 +52,13 @@ public class ID3Algorithm implements TrainingStrategy {
    * @return A Linkable object representing the head of the newly created
    *         decision tree.
    */
-  public Linkable train(NDArray<Double> features, NDArray<Double> classes,
-                        List<Integer> sampleIndices) {
+  public Linkable train(NDArray<Double> features,
+                        NDArray<Double> classes,
+                        List<Integer> trainingSampleIndices) {
     this.setFeatures(features);
     this.setClasses(classes);
-    Node root = new Node(sampleIndices, null);
-    this.trainHelper(sampleIndices, root);
+    Node root = new Node(trainingSampleIndices, null);
+    this.trainHelper(trainingSampleIndices, root);
     return root;
   }
 
@@ -62,7 +67,8 @@ public class ID3Algorithm implements TrainingStrategy {
    * tree.  All the arguments are the same as those in train(...) but has
    * another argument to represent the root of the tree to be created.
    */
-  private void trainHelper(List<Integer> sampleIndices, Node treeRoot) {
+  private void trainHelper(List<Integer> trainingSampleIndices,
+                           Node treeRoot) {
 
     if(features == null) {
       throw new IllegalArgumentException("Features NDArray must not be null");
@@ -70,7 +76,7 @@ public class ID3Algorithm implements TrainingStrategy {
     if(classes == null) {
       throw new IllegalArgumentException("Classes NDArray must not be null");
     }
-    if(sampleIndices == null) {
+    if(trainingSampleIndices == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
     if(treeRoot == null) {
@@ -83,24 +89,27 @@ public class ID3Algorithm implements TrainingStrategy {
       throw new IllegalStateException("Classes should be set to a non-null object before this method is called");
     }
 
-    // Stopping conditions
+    // Stopping conditions:
       // 1) If all samples are the same, create leaf node and return.
-      if(this.areAllClassesIdentical(sampleIndices)) {
+      if(this.areAllClassesIdentical(trainingSampleIndices)) {
         System.out.println("All samples have the same class label");
-        treeRoot.setAsLeaf(this.classes);
+        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
+        treeRoot.setAsLeaf();
         return;
       }
       // 2) If root has no samples, create leaf node w/ random label and
       //    return.
       if(treeRoot.getSampleIndices().size() == 0) {
         System.out.println("Node contains no samples");
-        treeRoot.setAsLeaf(this.classes);
+        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
+        treeRoot.setAsLeaf();
         return;
       }
       // 3) If no attributes left to use, create leaf node and return.
       if(this.usedAttributes.size() == features.length(1)) {
         System.out.println("All attributes have been used already");
-        treeRoot.setAsLeaf(this.classes);
+        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
+        treeRoot.setAsLeaf();
         return;
       }
       // 4) If number of samples is below minimum for spltting, create leaf
@@ -108,22 +117,21 @@ public class ID3Algorithm implements TrainingStrategy {
       if(treeRoot.getSampleIndices().size() <
          ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
         System.out.println("Node contains less than the minimum amount needed for a split to occur");
-        treeRoot.setAsLeaf(this.classes);
+        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
+        treeRoot.setAsLeaf();
         return;
       }
 
-    // 1) Calculate entropy of every attribute a of the data set
-    // 2) Partition set S into subsets using attribute providing minimum
-    //    entropy
-    int splitFeatureIdx = this.findLowestEntropyFeature(sampleIndices);
+    int splitFeatureIdx =
+               this.findLowestEntropyFeature(trainingSampleIndices);
 
     this.retireAttribute(splitFeatureIdx);
-    // 3) Make a decision tree node containing the attribute
+
     List<Node> childNodes = this.createChildren(splitFeatureIdx,
-                                                sampleIndices,
+                                                trainingSampleIndices,
                                                 treeRoot);
     treeRoot.setChildren(childNodes);
-    // 4) Recur on subsets using remaining attributes
+
     for(Node child : childNodes) {
       this.trainHelper(child.getSampleIndices(), child);
     }
@@ -173,6 +181,48 @@ public class ID3Algorithm implements TrainingStrategy {
              attributeIndex));
     }
     this.usedAttributes.add(attributeIndex);
+  }
+
+  private double getLabel(List<Integer> sampleIndices) {
+    double classLabel = 0.0;
+    if(sampleIndices.size() == 0) {
+      classLabel = this.parent.getLabel(classes);
+    }
+    else {
+      int numSamples = sampleIndices.size();
+      Map<Double, Integer> classCounts = new HashMap<>();
+      for(Integer sampleIdx : sampleIndices) {
+        if(sampleIdx == null) {
+          throw new IllegalArgumentException("List of sample indices should not be null");
+        }
+        int i = sampleIdx.intValue();
+        Double label = classes.get(sampleIdx, 0);
+        if(label == null) {
+          throw new IllegalArgumentException("Every class label should be non-null");
+        }
+
+        if(!classCounts.containsKey(label)) {
+          classCounts.put(label, 1);
+        }
+        else {
+          classCounts.put(label, classCounts.get(label).intValue() + 1);
+        }
+
+        Set<Double> allLabels = classCounts.keySet();
+        Iterator<Double> labelIter = allLabels.iterator();
+        Iterator<Double> initializer = allLabels.iterator();
+        classLabel = initializer.next();
+
+        while(labelIter.hasNext()) {
+          Double aLabel = labelIter.next();
+          if(classCounts.get(aLabel) > classCounts.get(classLabel)) {
+            classLabel = aLabel.doubleValue();
+          }
+        }
+      }
+    }
+
+    return 0.0;
   }
 
   /**
