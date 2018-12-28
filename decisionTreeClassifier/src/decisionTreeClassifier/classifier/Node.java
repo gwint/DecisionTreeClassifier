@@ -126,4 +126,12 @@ public class Node implements Linkable, Cloneable {
   public boolean isDummy() {
     return this.nodeId == Node.INVALID_NODE_ID;
   }
+
+  public NDArray<Double> getClasses() {
+    return this.classes;
+  }
+
+  public NDArray<Double> getFeatures() {
+    return this.features;
+  }
 }
