@@ -13,6 +13,9 @@ import util.Interval;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import visitors.LabelVisitor;
+import visitors.HomogenousVisitor;
+import visitors.VisitorI;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
@@ -80,6 +83,9 @@ public class ID3Algorithm implements TrainingStrategy {
     if(this.classes == null) {
       throw new IllegalStateException("Classes should be set to a non-null object before this method is called");
     }
+
+    VisitorI labelFinder = new LabelVisitor();
+    VisitorI homogeneityFinder = new HomogenousVisitor();
 
     // Stopping conditions:
       // 1) If all samples are the same, create leaf node and return.
