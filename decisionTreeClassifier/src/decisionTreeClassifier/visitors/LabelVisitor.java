@@ -9,11 +9,32 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class LabelVisitor implements VisitorI {
+  private static double NO_LABEL_ASSIGNED = Double.NaN;
+  private double label;
+
+  public LabelVisitor() {
+    this.label = LabelVisitor.NO_LABEL_ASSIGNED;
+  }
+
+  public double getLabel() {
+    if(label == LabelVisitor.NO_LABEL_ASSIGNED) {
+      throw new IllegalStateException("label getter should not be called before a Node is visited");
+    }
+    return this.label;
+  }
+
+  public void setLabel(double newLabel) {
+    this.label = newLabel;
+  }
+
   public void visit(Node aNode) {
     List<Integer> sampleIndices = aNode.getSampleIndices();
-    double classLabel = 0.0;
+    double classLabel = LabelVisitor.NO_LABEL_ASSIGNED;
     if(sampleIndices.size() == 0) {
       this.visit(aNode.getParent());
+      if(aNode.getChildren() == null) {
+        aNode.setLabel(this.getLabel());
+      }
     }
     else {
       int numSamples = sampleIndices.size();
@@ -46,6 +67,10 @@ public class LabelVisitor implements VisitorI {
             classLabel = aLabel.doubleValue();
           }
         }
+      }
+      this.setLabel(classLabel);
+      if(aNode.getChildren() == null) {
+        aNode.setLabel(this.getLabel());
       }
     }
   }

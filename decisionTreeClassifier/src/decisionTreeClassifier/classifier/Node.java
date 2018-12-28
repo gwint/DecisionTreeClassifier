@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 import util.NDArray;
+import visitors.VisitorI;
 
 public class Node implements Linkable, Cloneable {
   private static final int INVALID_NODE_ID = -1;
@@ -61,7 +62,7 @@ public class Node implements Linkable, Cloneable {
     return new Node(classLabel);
   }
 
-  public void assignLabel(double labelIn) {
+  public void setLabel(double labelIn) {
     this.label = labelIn;
   }
 
@@ -133,5 +134,9 @@ public class Node implements Linkable, Cloneable {
 
   public NDArray<Double> getFeatures() {
     return this.features;
+  }
+
+  public void accept(VisitorI visitor) {
+    visitor.visit(this);
   }
 }

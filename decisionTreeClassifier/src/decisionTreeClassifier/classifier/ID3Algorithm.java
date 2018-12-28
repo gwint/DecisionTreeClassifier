@@ -84,27 +84,27 @@ public class ID3Algorithm implements TrainingStrategy {
       throw new IllegalStateException("Classes should be set to a non-null object before this method is called");
     }
 
-    VisitorI labelFinder = new LabelVisitor();
+    VisitorI labelAssigner = new LabelVisitor();
     VisitorI homogeneityFinder = new HomogenousVisitor();
 
     // Stopping conditions:
       // 1) If all samples are the same, create leaf node and return.
       if(this.areAllClassesIdentical(treeRoot.getSampleIndices())) {
         System.out.println("All samples have the same class label");
-        treeRoot.assignLabel(this.getLabel(treeRoot));
+        treeRoot.accept(labelAssigner);
         return;
       }
       // 2) If root has no samples, create leaf node w/ random label and
       //    return.
       if(treeRoot.getSampleIndices().size() == 0) {
         System.out.println("Node contains no samples");
-        treeRoot.assignLabel(this.getLabel(treeRoot));
+        treeRoot.accept(labelAssigner);
         return;
       }
       // 3) If no attributes left to use, create leaf node and return.
       if(this.usedAttributes.size() == features.length(1)) {
         System.out.println("All attributes have been used already");
-        treeRoot.assignLabel(this.getLabel(treeRoot));
+        treeRoot.accept(labelAssigner);
         return;
       }
       // 4) If number of samples is below minimum for spltting, create leaf
@@ -112,7 +112,7 @@ public class ID3Algorithm implements TrainingStrategy {
       if(treeRoot.getSampleIndices().size() <
          ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
         System.out.println("Node contains less than the minimum amount needed for a split to occur");
-        treeRoot.assignLabel(this.getLabel(treeRoot));
+        treeRoot.accept(labelAssigner);
         return;
       }
 
