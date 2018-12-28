@@ -57,8 +57,11 @@ public class ID3Algorithm implements TrainingStrategy {
                         List<Integer> trainingSampleIndices) {
     this.setFeatures(features);
     this.setClasses(classes);
-    Node root = new Node(trainingSampleIndices, null);
-    this.trainHelper(trainingSampleIndices, root);
+    Node root = new Node(trainingSampleIndices,
+                         this.features,
+                         this.classes,
+                         null);
+    this.trainHelper(root);
     return root;
   }
 
@@ -67,18 +70,7 @@ public class ID3Algorithm implements TrainingStrategy {
    * tree.  All the arguments are the same as those in train(...) but has
    * another argument to represent the root of the tree to be created.
    */
-  private void trainHelper(List<Integer> trainingSampleIndices,
-                           Node treeRoot) {
-
-    if(features == null) {
-      throw new IllegalArgumentException("Features NDArray must not be null");
-    }
-    if(classes == null) {
-      throw new IllegalArgumentException("Classes NDArray must not be null");
-    }
-    if(trainingSampleIndices == null) {
-      throw new IllegalArgumentException("List of sample indices must not be null");
-    }
+  private void trainHelper(Node treeRoot) {
     if(treeRoot == null) {
       throw new IllegalArgumentException("Decision tree root must not be null");
     }
@@ -91,25 +83,22 @@ public class ID3Algorithm implements TrainingStrategy {
 
     // Stopping conditions:
       // 1) If all samples are the same, create leaf node and return.
-      if(this.areAllClassesIdentical(trainingSampleIndices)) {
+      if(this.areAllClassesIdentical(treeRoot.getSampleIndices())) {
         System.out.println("All samples have the same class label");
-        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
-        treeRoot.setAsLeaf();
+        treeRoot.assignLabel(this.getLabel(treeRoot));
         return;
       }
       // 2) If root has no samples, create leaf node w/ random label and
       //    return.
       if(treeRoot.getSampleIndices().size() == 0) {
         System.out.println("Node contains no samples");
-        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
-        treeRoot.setAsLeaf();
+        treeRoot.assignLabel(this.getLabel(treeRoot));
         return;
       }
       // 3) If no attributes left to use, create leaf node and return.
       if(this.usedAttributes.size() == features.length(1)) {
         System.out.println("All attributes have been used already");
-        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
-        treeRoot.setAsLeaf();
+        treeRoot.assignLabel(this.getLabel(treeRoot));
         return;
       }
       // 4) If number of samples is below minimum for spltting, create leaf
@@ -117,23 +106,20 @@ public class ID3Algorithm implements TrainingStrategy {
       if(treeRoot.getSampleIndices().size() <
          ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
         System.out.println("Node contains less than the minimum amount needed for a split to occur");
-        treeRoot.assignLabel(this.getLabel(treeRoot.getSampleIndices()));
-        treeRoot.setAsLeaf();
+        treeRoot.assignLabel(this.getLabel(treeRoot));
         return;
       }
 
     int splitFeatureIdx =
-               this.findLowestEntropyFeature(trainingSampleIndices);
+               this.findLowestEntropyFeature(treeRoot.getSampleIndices());
 
     this.retireAttribute(splitFeatureIdx);
 
-    List<Node> childNodes = this.createChildren(splitFeatureIdx,
-                                                trainingSampleIndices,
-                                                treeRoot);
+    List<Node> childNodes = this.createChildren(splitFeatureIdx, treeRoot);
     treeRoot.setChildren(childNodes);
 
     for(Node child : childNodes) {
-      this.trainHelper(child.getSampleIndices(), child);
+      this.trainHelper(child);
     }
 
     System.out.println(splitFeatureIdx);
@@ -183,10 +169,11 @@ public class ID3Algorithm implements TrainingStrategy {
     this.usedAttributes.add(attributeIndex);
   }
 
-  private double getLabel(List<Integer> sampleIndices) {
+  private double getLabel(Node aNode) {
+    List<Integer> sampleIndices = aNode.getSampleIndices();
     double classLabel = 0.0;
     if(sampleIndices.size() == 0) {
-      classLabel = this.parent.getLabel(classes);
+      classLabel = this.getLabel(aNode.getParent());
     }
     else {
       int numSamples = sampleIndices.size();
@@ -221,14 +208,12 @@ public class ID3Algorithm implements TrainingStrategy {
         }
       }
     }
-
     return 0.0;
   }
 
   /**
    */
   private List<Node> createChildren(int lowestEntropyFeatureIdx,
-                                    List<Integer> sampleIndices,
                                     Node parent) {
 
     List<Node> childNodes = new ArrayList<>();
@@ -239,14 +224,17 @@ public class ID3Algorithm implements TrainingStrategy {
     List<List<Integer>> partitions =
                  this.partitionSamples(intervals,
                                        lowestEntropyFeatureIdx,
-                                       sampleIndices);
+                                       parent.getSampleIndices());
 
     if(intervals.size() != partitions.size()) {
       throw new IllegalStateException("Number of partitions does not match the number of intervals when creating child nodes");
     }
 
     for(int i = 0; i < intervals.size(); i++) {
-      Node newNode = new Node(partitions.get(i), lowestEntropyFeatureIdx);
+      Node newNode = new Node(partitions.get(i),
+                              this.features,
+                              this.classes,
+                              lowestEntropyFeatureIdx);
       newNode.setParent(parent);
       childNodes.add(newNode);
     }

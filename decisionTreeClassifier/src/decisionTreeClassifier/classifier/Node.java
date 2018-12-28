@@ -18,28 +18,33 @@ public class Node implements Linkable, Cloneable {
   private List<Integer> sampleIndices;
   private double label;
   private Integer splitAttributeIndex;
-  private boolean isLeaf;
   private Node parent;
+  private NDArray<Double> features;
+  private NDArray<Double> classes;
 
-  public Node(List<Integer> sampleIndicesIn, Integer attributeIndex) {
+  public Node(List<Integer> sampleIndicesIn,
+              NDArray<Double> featuresIn,
+              NDArray<Double> classesIn,
+              Integer attributeIndex) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
 
-    this.isLeaf = false;
     this.sampleIndices = sampleIndicesIn;
     this.children = null;
     this.nodeId = Node.nodeCount++;
     this.label = Node.NO_LABEL_ASSIGNED;
     this.splitAttributeIndex = attributeIndex;
+    this.features = featuresIn;
+    this.classes = classesIn;
+  }
+
+  public boolean isLeaf() {
+    return this.children == null;
   }
 
   public static int getNodeCount() {
     return Node.nodeCount;
-  }
-
-  public boolean isLeaf() {
-    return this.isLeaf;
   }
 
   public void setParent(Node parentNode) {
@@ -60,52 +65,6 @@ public class Node implements Linkable, Cloneable {
     this.label = labelIn;
   }
 
-  public void setAsLeaf() {
-    this.isLeaf = true;
-  }
-
-  public double getLabel(NDArray<Double> classes) {
-    double classLabel = (double) Node.NO_LABEL_ASSIGNED;
-    if(this.getSampleIndices().size() == 0) {
-      classLabel = this.parent.getLabel(classes);
-    }
-    else {
-      int numSamples = this.getSampleIndices().size();
-      Map<Double, Integer> classCounts = new HashMap<>();
-      for(Integer sampleIdx : this.getSampleIndices()) {
-        if(sampleIdx == null) {
-          throw new IllegalArgumentException("List of sample indices should not contain any null elements");
-        }
-        int i = sampleIdx.intValue();
-        Double label = classes.get(sampleIdx, 0);
-        if(label == null) {
-          throw new IllegalArgumentException("Every class label should be non-null");
-        }
-
-        if(!classCounts.containsKey(label)) {
-          classCounts.put(label, 1);
-        }
-        else {
-          classCounts.put(label, classCounts.get(label).intValue() + 1);
-        }
-
-        Set<Double> allLabels = classCounts.keySet();
-        Iterator<Double> labelIter = allLabels.iterator();
-        Iterator<Double> initializer = allLabels.iterator();
-        classLabel = initializer.next();
-
-        while(labelIter.hasNext()) {
-          Double aLabel = labelIter.next();
-          if(classCounts.get(aLabel) > classCounts.get(classLabel)) {
-            classLabel = aLabel.doubleValue();
-          }
-        }
-      }
-    }
-
-    return classLabel;
-  }
-
   public List<Integer> getSampleIndices() {
     if(this.sampleIndices == null) {
       throw new UnsupportedOperationException("Cannot get the sample indices of a leaf node");
@@ -113,9 +72,12 @@ public class Node implements Linkable, Cloneable {
     return this.sampleIndices;
   }
 
+  public Node getParent() {
+    return this.parent;
+  }
+
   private Node(double classLabel) {
     this.label = classLabel;
-    this.isLeaf = true;
     this.nodeId = Node.INVALID_NODE_ID;
     this.children = null;
   }
@@ -123,7 +85,7 @@ public class Node implements Linkable, Cloneable {
   @Override
   public String toString() {
     String strForm = String.format("Node Type: %s \n",
-                                   (this.isLeaf) ? "Leaf" : "Non-Leaf");
+                                   (this.isLeaf()) ? "Leaf" : "Non-Leaf");
     return strForm;
   }
 
