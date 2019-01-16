@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.Comparator;
@@ -19,7 +21,7 @@ import visitors.VisitorI;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
-  private static final int MIN_SAMPLES_FOR_SPLIT = 10;
+  private static final int MIN_SAMPLES_FOR_SPLIT = 25;
   private List<Integer> usedAttributes;
   private NDArray<Double> features;
   private NDArray<Double> classes;
@@ -63,7 +65,8 @@ public class ID3Algorithm implements TrainingStrategy {
     Node root = new Node(trainingSampleIndices,
                          this.features,
                          this.classes,
-                         null);
+                         null,
+                         new HashSet<>());
     this.trainHelper(root);
     return root;
   }
@@ -88,33 +91,33 @@ public class ID3Algorithm implements TrainingStrategy {
     VisitorI homogeneityFinder = new HomogenousVisitor();
 
     // Stopping conditions:
-      // 1) If all samples are the same, create leaf node and return.
-      if(this.areAllClassesIdentical(treeRoot.getSampleIndices())) {
-        System.out.println("All samples have the same class label");
-        treeRoot.accept(labelAssigner);
-        return;
-      }
-      // 2) If root has no samples, create leaf node w/ random label and
-      //    return.
-      if(treeRoot.getSampleIndices().size() == 0) {
-        System.out.println("Node contains no samples");
-        treeRoot.accept(labelAssigner);
-        return;
-      }
-      // 3) If no attributes left to use, create leaf node and return.
-      if(this.usedAttributes.size() == features.length(1)) {
-        System.out.println("All attributes have been used already");
-        treeRoot.accept(labelAssigner);
-        return;
-      }
-      // 4) If number of samples is below minimum for spltting, create leaf
-      //    and return.
-      if(treeRoot.getSampleIndices().size() <
-         ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
-        System.out.println("Node contains less than the minimum amount needed for a split to occur");
-        treeRoot.accept(labelAssigner);
-        return;
-      }
+    // 1) If all samples are the same, create leaf node and return.
+    if(this.areAllClassesIdentical(treeRoot.getSampleIndices())) {
+      System.out.println("All samples have the same class label");
+      treeRoot.accept(labelAssigner);
+      return;
+    }
+    // 2) If root has no samples, create leaf node w/ random label and
+    //    return.
+    if(treeRoot.getSampleIndices().size() == 0) {
+      System.out.println("Node contains no samples");
+      treeRoot.accept(labelAssigner);
+      return;
+    }
+    // 3) If no attributes left to use, create leaf node and return.
+    if(this.usedAttributes.size() == features.length(1)) {
+      System.out.println("All attributes have been used already");
+      treeRoot.accept(labelAssigner);
+      return;
+    }
+    // 4) If number of samples is below minimum for spltting, create leaf
+    //    and return.
+    if(treeRoot.getSampleIndices().size() <
+       ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
+      System.out.println("Node contains less than the minimum amount needed for a split to occur");
+      treeRoot.accept(labelAssigner);
+      return;
+    }
 
     int splitFeatureIdx =
                this.findLowestEntropyFeature(treeRoot.getSampleIndices());
@@ -232,6 +235,8 @@ public class ID3Algorithm implements TrainingStrategy {
                                        lowestEntropyFeatureIdx,
                                        parent.getSampleIndices());
 
+    // Add split attribute to parent and use to create child
+
     if(intervals.size() != partitions.size()) {
       throw new IllegalStateException("Number of partitions does not match the number of intervals when creating child nodes");
     }
@@ -240,7 +245,8 @@ public class ID3Algorithm implements TrainingStrategy {
       Node newNode = new Node(partitions.get(i),
                               this.features,
                               this.classes,
-                              lowestEntropyFeatureIdx);
+                              lowestEntropyFeatureIdx,
+                              parent.getUsedAttributes());
       newNode.setParent(parent);
       childNodes.add(newNode);
     }

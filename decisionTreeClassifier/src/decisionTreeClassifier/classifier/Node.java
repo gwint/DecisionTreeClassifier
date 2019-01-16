@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import util.NDArray;
 import visitors.VisitorI;
@@ -22,11 +24,13 @@ public class Node implements Linkable, Cloneable {
   private Node parent;
   private NDArray<Double> features;
   private NDArray<Double> classes;
+  private Set<Integer> usedAttributes;
 
   public Node(List<Integer> sampleIndicesIn,
               NDArray<Double> featuresIn,
               NDArray<Double> classesIn,
-              Integer attributeIndex) {
+              Integer attributeIndex,
+              Set<Integer> usedAttributesIn) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
     }
@@ -38,10 +42,25 @@ public class Node implements Linkable, Cloneable {
     this.splitAttributeIndex = attributeIndex;
     this.features = featuresIn;
     this.classes = classesIn;
+    this.usedAttributes = usedAttributesIn;
   }
 
   public boolean isLeaf() {
     return this.children == null;
+  }
+
+  public Set<Integer> getUsedAttributes() {
+    return this.usedAttributes;
+  }
+
+  public void addUsedAttribute(Integer newAttributeIn) {
+    if(newAttributeIn == null) {
+      throw new IllegalArgumentException("Integer representing used attribute cannot be null");
+    }
+    if(this.getUsedAttributes().contains(newAttributeIn)) {
+      throw new IllegalArgumentException("No attribute should be used twice within the same branch");
+    }
+    this.usedAttributes.add(newAttributeIn);
   }
 
   public static int getNodeCount() {
