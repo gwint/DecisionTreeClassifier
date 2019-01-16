@@ -21,8 +21,8 @@ import visitors.VisitorI;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
-  private static final int MIN_SAMPLES_FOR_SPLIT = 25;
-  private List<Integer> usedAttributes;
+  private static final int MIN_SAMPLES_FOR_SPLIT = 10;
+  //private List<Integer> usedAttributes;
   private NDArray<Double> features;
   private NDArray<Double> classes;
   private List<Integer> trainingSampleIndices;
@@ -30,7 +30,7 @@ public class ID3Algorithm implements TrainingStrategy {
   public ID3Algorithm() {
     this.features = null;
     this.classes = null;
-    this.usedAttributes = new ArrayList<>();
+    //this.usedAttributes = new ArrayList<>();
   }
 
   private void setFeatures(NDArray<Double> featuresIn) {
@@ -65,7 +65,6 @@ public class ID3Algorithm implements TrainingStrategy {
     Node root = new Node(trainingSampleIndices,
                          this.features,
                          this.classes,
-                         null,
                          new HashSet<>());
     this.trainHelper(root);
     return root;
@@ -105,7 +104,7 @@ public class ID3Algorithm implements TrainingStrategy {
       return;
     }
     // 3) If no attributes left to use, create leaf node and return.
-    if(this.usedAttributes.size() == features.length(1)) {
+    if(treeRoot.getUsedAttributes().size() == features.length(1)) {
       System.out.println("All attributes have been used already");
       treeRoot.accept(labelAssigner);
       return;
@@ -120,9 +119,10 @@ public class ID3Algorithm implements TrainingStrategy {
     }
 
     int splitFeatureIdx =
-               this.findLowestEntropyFeature(treeRoot.getSampleIndices());
+               this.findLowestEntropyFeature(treeRoot.getSampleIndices(),
+                                             treeRoot.getUsedAttributes());
 
-    this.retireAttribute(splitFeatureIdx);
+    treeRoot.setSplitAttribute(splitFeatureIdx);
 
     List<Node> childNodes = this.createChildren(splitFeatureIdx, treeRoot);
     treeRoot.setChildren(childNodes);
@@ -167,15 +167,6 @@ public class ID3Algorithm implements TrainingStrategy {
       }
     }
     return areIdentical;
-  }
-
-  private void retireAttribute(int attributeIndex) {
-    if(this.usedAttributes.contains(attributeIndex)) {
-      throw new IllegalArgumentException(String.format(
-             "Cannot retire previously retired attribute: %d",
-             attributeIndex));
-    }
-    this.usedAttributes.add(attributeIndex);
   }
 
   private double getLabel(Node aNode) {
@@ -235,8 +226,6 @@ public class ID3Algorithm implements TrainingStrategy {
                                        lowestEntropyFeatureIdx,
                                        parent.getSampleIndices());
 
-    // Add split attribute to parent and use to create child
-
     if(intervals.size() != partitions.size()) {
       throw new IllegalStateException("Number of partitions does not match the number of intervals when creating child nodes");
     }
@@ -245,8 +234,7 @@ public class ID3Algorithm implements TrainingStrategy {
       Node newNode = new Node(partitions.get(i),
                               this.features,
                               this.classes,
-                              lowestEntropyFeatureIdx,
-                              parent.getUsedAttributes());
+                              new HashSet(parent.getUsedAttributes()));
       newNode.setParent(parent);
       childNodes.add(newNode);
     }
@@ -256,7 +244,8 @@ public class ID3Algorithm implements TrainingStrategy {
 
   /**
    */
-  private int findLowestEntropyFeature(List<Integer> sampleIndices) {
+  private int findLowestEntropyFeature(List<Integer> sampleIndices,
+                                       Set<Integer> usedAttributes) {
 
     Map<Integer, Double> entropies = new HashMap<>();
     Queue<Integer> attributeIndicies = new PriorityQueue<>(new Comparator<Integer>() {
@@ -269,7 +258,7 @@ public class ID3Algorithm implements TrainingStrategy {
     int numAttributes = this.features.length(1);
     for(int attributeIndex = 0; attributeIndex < numAttributes;
         attributeIndex++) {
-      if(!this.usedAttributes.contains(attributeIndex)) {
+      if(!usedAttributes.contains(attributeIndex)) {
         List<Interval> intervals = this.getAttributeIntervals(attributeIndex);
 
         List<List<Integer>> partitions = this.partitionSamples(intervals,

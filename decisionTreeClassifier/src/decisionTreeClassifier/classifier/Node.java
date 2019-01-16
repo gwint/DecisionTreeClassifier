@@ -29,7 +29,6 @@ public class Node implements Linkable, Cloneable {
   public Node(List<Integer> sampleIndicesIn,
               NDArray<Double> featuresIn,
               NDArray<Double> classesIn,
-              Integer attributeIndex,
               Set<Integer> usedAttributesIn) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
@@ -39,7 +38,6 @@ public class Node implements Linkable, Cloneable {
     this.children = null;
     this.nodeId = Node.nodeCount++;
     this.label = Node.NO_LABEL_ASSIGNED;
-    this.splitAttributeIndex = attributeIndex;
     this.features = featuresIn;
     this.classes = classesIn;
     this.usedAttributes = usedAttributesIn;
@@ -53,7 +51,15 @@ public class Node implements Linkable, Cloneable {
     return this.usedAttributes;
   }
 
-  public void addUsedAttribute(Integer newAttributeIn) {
+  public void setSplitAttribute(Integer splitAttributeIn) {
+    if(splitAttributeIn == null) {
+      throw new IllegalArgumentException("Cannot set split attribute to null");
+    }
+    this.splitAttributeIndex = splitAttributeIn;
+    this.addUsedAttribute(splitAttributeIn);
+  }
+
+  private void addUsedAttribute(Integer newAttributeIn) {
     if(newAttributeIn == null) {
       throw new IllegalArgumentException("Integer representing used attribute cannot be null");
     }
