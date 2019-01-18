@@ -22,7 +22,6 @@ import visitors.VisitorI;
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
   private static final int MIN_SAMPLES_FOR_SPLIT = 10;
-  //private List<Integer> usedAttributes;
   private NDArray<Double> features;
   private NDArray<Double> classes;
   private List<Integer> trainingSampleIndices;
@@ -30,7 +29,6 @@ public class ID3Algorithm implements TrainingStrategy {
   public ID3Algorithm() {
     this.features = null;
     this.classes = null;
-    //this.usedAttributes = new ArrayList<>();
   }
 
   private void setFeatures(NDArray<Double> featuresIn) {

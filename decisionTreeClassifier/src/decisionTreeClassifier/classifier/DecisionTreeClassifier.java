@@ -12,6 +12,7 @@ public class DecisionTreeClassifier {
   private List<Integer> trainingSamples;
   private List<Integer> testingSamples;
   private Linkable trainedClassifier;
+  private NDArray<Double> predictedClasses;
 
   public DecisionTreeClassifier(NDArray<Double> allFeaturesIn,
                                 NDArray<Double> allClassesIn) {
@@ -27,6 +28,7 @@ public class DecisionTreeClassifier {
     this.trainedClassifier = null;
     this.trainingSamples = new ArrayList<>();
     this.testingSamples = new ArrayList<>();
+    this.predictedClasses = null;
 
     if(this.features.length(0) != this.classes.length(0)) {
       throw new IllegalArgumentException("Mismatch between number of samples and the number of classes");
@@ -38,6 +40,7 @@ public class DecisionTreeClassifier {
       throw new IllegalArgumentException("Training strategy must not be null");
     }
     this.splitData(proportion);
+    this.predictedClasses = new NDArray<>(1, this.trainingSamples.size());
     this.trainedClassifier = strat.train(this.features, this.classes,
                                          this.trainingSamples);
   }
@@ -46,6 +49,7 @@ public class DecisionTreeClassifier {
   }
 
   public void predict() {
+    
   }
 
   private void splitData(double trainingProportion) {
