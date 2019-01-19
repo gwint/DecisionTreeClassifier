@@ -11,7 +11,7 @@ public class DecisionTreeClassifier {
   private NDArray classes;
   private List<Integer> trainingSamples;
   private List<Integer> testingSamples;
-  private Linkable trainedClassifier;
+  private Node trainedClassifier;
   private NDArray<Double> predictedClasses;
 
   public DecisionTreeClassifier(NDArray<Double> allFeaturesIn,
@@ -49,7 +49,15 @@ public class DecisionTreeClassifier {
   }
 
   public void predict() {
-    
+    int numPredictionsMade = 0;
+    for(Integer testSampleIdx : this.testingSamples) {
+      if(testSampleIdx == null) {
+        throw new IllegalStateException("Test sample indices should never be null");
+      }
+      double sampleLabel = this.getLabel(this.trainedClassifier,
+                                         testSampleIdx.intValue());
+      this.predictedClasses.add(sampleLabel, 0, numPredictionsMade++);
+    }
   }
 
   private void splitData(double trainingProportion) {
@@ -73,6 +81,10 @@ public class DecisionTreeClassifier {
         this.testingSamples.add(sampleIdx);
       }
     }
+  }
+
+  private double getLabel(Node root, int sampleIdx) {
+    return 0.0;
   }
 
   @Override

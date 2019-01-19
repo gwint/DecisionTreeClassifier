@@ -55,7 +55,7 @@ public class ID3Algorithm implements TrainingStrategy {
    * @return A Linkable object representing the head of the newly created
    *         decision tree.
    */
-  public Linkable train(NDArray<Double> features,
+  public Node train(NDArray<Double> features,
                         NDArray<Double> classes,
                         List<Integer> trainingSampleIndices) {
     this.setFeatures(features);
