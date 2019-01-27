@@ -87,9 +87,11 @@ public class ID3Algorithm implements TrainingStrategy {
     VisitorI labelAssigner = new LabelVisitor();
     VisitorI homogeneityFinder = new HomogenousVisitor();
 
+    treeRoot.accept(homogeneityFinder);
+
     // Stopping conditions:
     // 1) If all samples are the same, create leaf node and return.
-    if(this.areAllClassesIdentical(treeRoot.getSampleIndices())) {
+    if(((HomogenousVisitor)homogeneityFinder).isNodeHomogenous()) {
       System.out.println("All samples have the same class label");
       treeRoot.accept(labelAssigner);
       return;
@@ -130,41 +132,6 @@ public class ID3Algorithm implements TrainingStrategy {
     }
 
     System.out.println(splitFeatureIdx);
-  }
-
-  /**
-   * Helper method used to determine if all the samples in a node have the
-   * same class.
-   * @param classes NDArray containing classes for all available samples.
-   * @param sampleIndices List containing indices of relevant samples.
-   * @return true if all samples in the node have the same class label, and
-   *         false otherwise.
-   */
-  private boolean areAllClassesIdentical(List<Integer> sampleIndices) {
-    if(sampleIndices == null) {
-      throw new IllegalArgumentException("List of sample indices must not be null");
-    }
-    if(classes == null) {
-      throw new IllegalArgumentException("NDArray being checked for homegeneity must not be null");
-    }
-
-    boolean areIdentical = sampleIndices.size() > 0;
-    for(Integer indexObj : sampleIndices) {
-      if(indexObj == null) {
-        throw new IllegalStateException("No sample Index should be null");
-      }
-      int i = indexObj.intValue();
-      Double elem = this.classes.get(i, 0);
-      Double nextElem = this.classes.get(i+1, 0);
-      if(elem == null || nextElem == null) {
-        throw new IllegalStateException("No class label should be null");
-      }
-      if(!elem.equals(nextElem)) {
-        areIdentical = false;
-        break;
-      }
-    }
-    return areIdentical;
   }
 
   private double getLabel(Node aNode) {
