@@ -124,7 +124,13 @@ public class ID3Algorithm implements TrainingStrategy {
 
     treeRoot.setSplitAttribute(splitFeatureIdx);
 
-    List<Node> childNodes = this.createChildren(splitFeatureIdx, treeRoot);
+    List<Interval> intervals =
+          this.getAttributeIntervals(splitFeatureIdx);
+
+    treeRoot.setSplitAttributeIntervals(intervals);
+
+    List<Node> childNodes = this.createChildren(splitFeatureIdx, treeRoot,
+                                                intervals);
     treeRoot.setChildren(childNodes);
 
     for(Node child : childNodes) {
@@ -137,12 +143,9 @@ public class ID3Algorithm implements TrainingStrategy {
   /**
    */
   private List<Node> createChildren(int lowestEntropyFeatureIdx,
-                                    Node parent) {
+                                    Node parent, List<Interval> intervals) {
 
     List<Node> childNodes = new ArrayList<>();
-
-    List<Interval> intervals =
-          this.getAttributeIntervals(lowestEntropyFeatureIdx);
 
     List<List<Integer>> partitions =
                  this.partitionSamples(intervals,

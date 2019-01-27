@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Iterator;
 import util.NDArray;
+import util.Interval;
 import visitors.VisitorI;
 
 public class Node implements Linkable, Cloneable {
@@ -25,6 +26,7 @@ public class Node implements Linkable, Cloneable {
   private NDArray<Double> features;
   private NDArray<Double> classes;
   private Set<Integer> usedAttributes;
+  private List<Interval> splitAttributeIntervals;
 
   public Node(List<Integer> sampleIndicesIn,
               NDArray<Double> featuresIn,
@@ -49,6 +51,17 @@ public class Node implements Linkable, Cloneable {
 
   public Set<Integer> getUsedAttributes() {
     return this.usedAttributes;
+  }
+
+  public void setSplitAttributeIntervals(List<Interval> intervalsIn) {
+    if(intervalsIn == null) {
+      throw new IllegalArgumentException("List of intervals must not be null");
+    }
+    this.splitAttributeIntervals = intervalsIn;
+  }
+
+  public List<Interval> getSplitAttributeIntervals() {
+    return this.splitAttributeIntervals;
   }
 
   public void setSplitAttribute(Integer splitAttributeIn) {
