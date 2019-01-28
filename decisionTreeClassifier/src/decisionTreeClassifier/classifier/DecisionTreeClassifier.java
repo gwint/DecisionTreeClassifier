@@ -5,10 +5,11 @@ import util.Linkable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
+import util.Interval;
 
 public class DecisionTreeClassifier {
-  private NDArray features;
-  private NDArray classes;
+  private NDArray<Double> features;
+  private NDArray<Double> classes;
   private List<Integer> trainingSamples;
   private List<Integer> testingSamples;
   private Node trainedClassifier;
@@ -84,8 +85,32 @@ public class DecisionTreeClassifier {
   }
 
   private double getLabel(Node root, int sampleIdx) {
-    
-    return 0.0;
+    List<Node> children = root.getChildren();
+    if(children == null) {
+      return root.getClassNum();
+    }
+
+    List<Interval> intervals = root.getSplitAttributeIntervals();
+    Integer splitAttributeIdx = root.getSplitAttributeIndex();
+    if(splitAttributeIdx == null) {
+      throw new IllegalStateException("Non-leaf node must have a non-null split attribute");
+    }
+    Double sampleSplitAttributeValue =
+              this.classes.get(sampleIdx, splitAttributeIdx.intValue());
+    int i = 0;
+    while(i < intervals.size()) {
+      if(sampleSplitAttributeValue >= intervals.get(i).getStart() &&
+         sampleSplitAttributeValue <= intervals.get(i).getEnd()) {
+        break;
+      }
+      i++;
+    }
+
+    if(i == intervals.size()) {
+      throw new IllegalStateException("Sample cannot be placed into interval");
+    }
+
+    return this.getLabel(children.get(i), sampleIdx);
   }
 
   @Override

@@ -64,6 +64,10 @@ public class Node implements Linkable, Cloneable {
     return this.splitAttributeIntervals;
   }
 
+  public Integer getSplitAttributeIndex() {
+    return this.splitAttributeIndex;
+  }
+
   public void setSplitAttribute(Integer splitAttributeIn) {
     if(splitAttributeIn == null) {
       throw new IllegalArgumentException("Cannot set split attribute to null");
@@ -102,6 +106,10 @@ public class Node implements Linkable, Cloneable {
 
   public void setLabel(double labelIn) {
     this.label = labelIn;
+  }
+
+  public double getClassNum() {
+    return this.label;
   }
 
   public List<Integer> getSampleIndices() {
