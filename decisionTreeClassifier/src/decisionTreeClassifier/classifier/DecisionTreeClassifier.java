@@ -43,6 +43,11 @@ public class DecisionTreeClassifier {
     if(strat == null) {
       throw new IllegalArgumentException("Training strategy must not be null");
     }
+    this.trainedClassifier = null;
+    this.trainingSamples = new ArrayList<>();
+    this.testingSamples = new ArrayList<>();
+    this.predictedClasses = null;
+
     this.splitData(proportion);
     this.predictedClasses = new NDArray<>(1, this.trainingSamples.size());
     this.trainedClassifier = strat.train(this.features, this.classes,

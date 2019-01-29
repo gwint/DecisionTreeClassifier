@@ -1,6 +1,7 @@
 package visitors;
 
 import classifier.DecisionTreeClassifier;
+import classifier.ID3Algorithm;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Set;
 import util.NDArray;
 
 public class PerformanceMetricsVisitor implements ClfVisitorI {
+  private static final int NUM_ITERS = 100;
   private Double accuracy;
 
   public PerformanceMetricsVisitor() {
@@ -31,32 +33,40 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
   }
 
   public void visit(DecisionTreeClassifier trainedClf) {
-    int correctPredictions = 0;
+    int totalCorrectPredictions = 0;
+    int totalNumPredictions = 0;
 
     if(trainedClf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
 
-    NDArray<Double> predictedClasses = trainedClf.getPredictedClasses();
-    NDArray<Double> actualClasses = trainedClf.getClasses();
-    List<Integer> testSampleIndices = trainedClf.getTestingSamples();
+    for(int numIterations = 0;
+        numIterations < PerformanceMetricsVisitor.NUM_ITERS;
+        numIterations++) {
+      trainedClf.train(new ID3Algorithm(), 0.7);
+      trainedClf.predict();
 
-    System.out.println("predictedClasses size: " + actualClasses.length(0));
+      NDArray<Double> predictedClasses = trainedClf.getPredictedClasses();
+      NDArray<Double> actualClasses = trainedClf.getClasses();
+      List<Integer> testSampleIndices = trainedClf.getTestingSamples();
 
-    for(int i = 0; i < testSampleIndices.size(); i++) {
-      Integer testSampleIdx = testSampleIndices.get(i);
-      if(testSampleIdx == null) {
-        throw new IllegalStateException("Test Sample index must not be null");
+      for(int i = 0; i < testSampleIndices.size(); i++) {
+        Integer testSampleIdx = testSampleIndices.get(i);
+        if(testSampleIdx == null) {
+          throw new IllegalStateException("Test Sample index must not be null");
+        }
+        Double predictedClass = predictedClasses.get(0, i);
+        Double actualClass = actualClasses.get(testSampleIdx.intValue(), 0);
+        if(predictedClass.equals(actualClass)) {
+          totalCorrectPredictions++;
+        }
       }
-      Double predictedClass = predictedClasses.get(0, i);
-      Double actualClass = actualClasses.get(testSampleIdx.intValue(), 0);
-      if(predictedClass.equals(actualClass)) {
-        correctPredictions++;
-      }
+      totalNumPredictions += testSampleIndices.size();
     }
-    System.out.println("Num correct: " + correctPredictions);
-    this.setAccuracy(Double.valueOf(((double) correctPredictions) /
-                                    testSampleIndices.size()));
+
+    System.out.println("Num correct: " + totalCorrectPredictions);
+    this.setAccuracy(Double.valueOf(((double) totalCorrectPredictions) /
+                                    totalNumPredictions));
   }
 
   public String toString() {
