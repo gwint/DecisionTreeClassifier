@@ -4,6 +4,8 @@ import util.NDArray;
 import util.Linkable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Random;
 import util.Interval;
 import visitors.ClfVisitorI;
@@ -83,19 +85,25 @@ public class DecisionTreeClassifier {
     int numSamples = this.features.length(0);
     int numTrainingSamples = (int) Math.round(trainingProportion * numSamples);
 
+    Set<Integer> testSet = new HashSet<>();
+    Set<Integer> trainingSet = new HashSet<>();
+
     Random randNumGen = new Random();
-    while(this.trainingSamples.size() < numTrainingSamples) {
+    while(trainingSet.size() < numTrainingSamples) {
       int randInt = Math.abs(randNumGen.nextInt()) % numSamples;
-      if(!this.trainingSamples.contains(randInt)) {
-        this.trainingSamples.add(randInt);
+      if(!trainingSet.contains(randInt)) {
+        trainingSet.add(randInt);
       }
     }
 
     for(int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-      if(!this.trainingSamples.contains(sampleIdx)) {
-        this.testingSamples.add(sampleIdx);
+      if(!trainingSet.contains(sampleIdx)) {
+        testSet.add(sampleIdx);
       }
     }
+
+    this.trainingSamples.addAll(trainingSet);
+    this.testingSamples.addAll(testSet);
 
     int numTestSamples = this.testingSamples.size();
     System.out.println("# training samples: " + numTrainingSamples);
