@@ -30,7 +30,7 @@ public class NDArray<T> {
       this.data.add(null);
     }
 
-    System.out.println(this.dimensions);
+    System.out.println("NDArray dimensions: " + this.dimensions);
   }
 
   public T get(int ... indices) {

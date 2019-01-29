@@ -70,7 +70,7 @@ public class DecisionTreeClassifier {
       }
       double sampleLabel = this.getLabel(this.trainedClassifier,
                                          testSampleIdx.intValue());
-      System.out.println(sampleLabel);
+      //System.out.println(sampleLabel);
       this.predictedClasses.add(sampleLabel, 0, numPredictionsMade++);
     }
   }
@@ -83,7 +83,7 @@ public class DecisionTreeClassifier {
     int numSamples = this.features.length(0);
     int numTrainingSamples = (int) Math.round(trainingProportion * numSamples);
 
-    Random randNumGen = new Random(0);
+    Random randNumGen = new Random();
     while(this.trainingSamples.size() < numTrainingSamples) {
       int randInt = Math.abs(randNumGen.nextInt()) % numSamples;
       if(!this.trainingSamples.contains(randInt)) {
@@ -96,6 +96,11 @@ public class DecisionTreeClassifier {
         this.testingSamples.add(sampleIdx);
       }
     }
+
+    int numTestSamples = this.testingSamples.size();
+    System.out.println("# training samples: " + numTrainingSamples);
+    System.out.println("# testing samples: " + numTestSamples);
+    assert numTrainingSamples + numTestSamples == numSamples;
   }
 
   private double getLabel(Node root, int sampleIdx) {

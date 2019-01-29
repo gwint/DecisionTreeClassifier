@@ -41,6 +41,7 @@ public class HomogenousVisitor implements VisitorI {
     }
 
     boolean areIdentical = false;
+    Double onlyClassPresent = null;
     for(int sampleIndexIndex = 0; sampleIndexIndex < sampleIndices.size() - 1;
         sampleIndexIndex++) {
       Integer indexObj = sampleIndices.get(sampleIndexIndex);
@@ -48,12 +49,16 @@ public class HomogenousVisitor implements VisitorI {
         throw new IllegalStateException("No sample Index should be null");
       }
       int i = indexObj.intValue();
+
+      if(onlyClassPresent == null) {
+        onlyClassPresent = classes.get(i, 0);
+      }
+
       Double elem = classes.get(i, 0);
-      Double nextElem = classes.get(i+1, 0);
-      if(elem == null || nextElem == null) {
+      if(elem == null) {
         throw new IllegalStateException("No class label should be null");
       }
-      if(!elem.equals(nextElem)) {
+      if(!elem.equals(onlyClassPresent)) {
         areIdentical = false;
         break;
       }

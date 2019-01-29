@@ -92,20 +92,20 @@ public class ID3Algorithm implements TrainingStrategy {
     // Stopping conditions:
     // 1) If all samples are the same, create leaf node and return.
     if(((HomogenousVisitor)homogeneityFinder).isNodeHomogenous()) {
-      System.out.println("All samples have the same class label");
+      //System.out.println("All samples have the same class label");
       treeRoot.accept(labelAssigner);
       return;
     }
     // 2) If root has no samples, create leaf node w/ random label and
     //    return.
     if(treeRoot.getSampleIndices().size() == 0) {
-      System.out.println("Node contains no samples");
+      //System.out.println("Node contains no samples");
       treeRoot.accept(labelAssigner);
       return;
     }
     // 3) If no attributes left to use, create leaf node and return.
     if(treeRoot.getUsedAttributes().size() == features.length(1)) {
-      System.out.println("All attributes have been used already");
+      //System.out.println("All attributes have been used already");
       treeRoot.accept(labelAssigner);
       return;
     }
@@ -113,7 +113,7 @@ public class ID3Algorithm implements TrainingStrategy {
     //    and return.
     if(treeRoot.getSampleIndices().size() <
        ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
-      System.out.println("Node contains less than the minimum amount needed for a split to occur");
+      //System.out.println("Node contains less than the minimum amount needed for a split to occur");
       treeRoot.accept(labelAssigner);
       return;
     }
@@ -137,7 +137,7 @@ public class ID3Algorithm implements TrainingStrategy {
       this.trainHelper(child);
     }
 
-    System.out.println(splitFeatureIdx);
+    //System.out.println(splitFeatureIdx);
   }
 
   /**
@@ -214,8 +214,8 @@ public class ID3Algorithm implements TrainingStrategy {
         }
       }
     }
-    System.out.println(String.format("Entropy for attribute: %f",
-                                     entropy));
+    //System.out.println(String.format("Entropy for attribute: %f",
+    //                                 entropy));
     return entropy;
   }
 
