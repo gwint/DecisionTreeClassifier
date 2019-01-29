@@ -9,6 +9,9 @@ import util.MyLogger;
 import util.NDArray;
 import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
+import visitors.ClfVisitorI;
+import visitors.PerformanceMetricsVisitor;
+
 /**
  * @author Gregory Wint
  *
@@ -98,7 +101,9 @@ public class Driver {
 
     clf.predict();
 
-    // Calculate performance metrics and display results
+    ClfVisitorI metricsCalculator = new PerformanceMetricsVisitor();
+    clf.accept(metricsCalculator);
 
+    System.out.println(metricsCalculator);
   }
 }

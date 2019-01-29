@@ -45,10 +45,6 @@ public class Node implements Linkable, Cloneable {
     this.usedAttributes = usedAttributesIn;
   }
 
-  public boolean isLeaf() {
-    return this.children == null;
-  }
-
   public Set<Integer> getUsedAttributes() {
     return this.usedAttributes;
   }
@@ -131,9 +127,7 @@ public class Node implements Linkable, Cloneable {
 
   @Override
   public String toString() {
-    String strForm = String.format("Node Type: %s \n",
-                                   (this.isLeaf()) ? "Leaf" : "Non-Leaf");
-    return strForm;
+    return "";
   }
 
   @Override

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 import util.Interval;
+import visitors.ClfVisitorI;
 
 public class DecisionTreeClassifier {
   private NDArray<Double> features;
@@ -44,6 +45,18 @@ public class DecisionTreeClassifier {
     this.predictedClasses = new NDArray<>(1, this.trainingSamples.size());
     this.trainedClassifier = strat.train(this.features, this.classes,
                                          this.trainingSamples);
+  }
+
+  public List<Integer> getTestingSamples() {
+    return this.testingSamples;
+  }
+
+  public NDArray<Double> getClasses() {
+    return this.classes;
+  }
+
+  public NDArray<Double> getPredictedClasses() {
+    return this.predictedClasses;
   }
 
   public void predict(NDArray features) {
@@ -117,5 +130,9 @@ public class DecisionTreeClassifier {
   @Override
   public String toString() {
     return "";
+  }
+
+  public void accept(ClfVisitorI visitor) {
+    visitor.visit(this);
   }
 }
