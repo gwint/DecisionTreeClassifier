@@ -57,6 +57,7 @@ public class DecisionTreeClassifier {
       }
       double sampleLabel = this.getLabel(this.trainedClassifier,
                                          testSampleIdx.intValue());
+      System.out.println(sampleLabel);
       this.predictedClasses.add(sampleLabel, 0, numPredictionsMade++);
     }
   }
@@ -96,7 +97,7 @@ public class DecisionTreeClassifier {
       throw new IllegalStateException("Non-leaf node must have a non-null split attribute");
     }
     Double sampleSplitAttributeValue =
-              this.classes.get(sampleIdx, splitAttributeIdx.intValue());
+              this.features.get(sampleIdx, splitAttributeIdx.intValue());
     int i = 0;
     while(i < intervals.size()) {
       if(sampleSplitAttributeValue >= intervals.get(i).getStart() &&
