@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import util.NDArray;
 
 public class PerformanceMetricsVisitor implements ClfVisitorI {
@@ -72,7 +73,45 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
   private Map<Double, Set<Integer>>
   getClassMembership(DecisionTreeClassifier clf) {
     Map<Double, Set<Integer>> classMembership = new HashMap<>();
+    NDArray<Double> allClasses = clf.getClasses();
+
+    for(int sampleIdx = 0; sampleIdx < allClasses.length(0); sampleIdx++) {
+      Double classLabel = allClasses.get(sampleIdx, 0);
+      if(classMembership.containsKey(classLabel)) {
+        classMembership.get(classLabel).add(sampleIdx);
+      }
+      else {
+        Set<Integer> indicesOfSamplesWClass = new HashSet<>();
+        indicesOfSamplesWClass.add(sampleIdx);
+        classMembership.put(classLabel, indicesOfSamplesWClass);
+      }
+    }
     return classMembership;
+  }
+
+  private List<Set<Integer>>
+  getKFolds(Map<Double, Set<Integer>> classMembership, int numFolds) {
+    if(classMembership == null) {
+      throw new IllegalArgumentException("Class Membership cannot be null");
+    }
+
+    List<Set<Integer>> folds = new ArrayList<>();
+
+    for(int i = 0; i < numFolds; i++) {
+      folds.add(new HashSet<>());
+    }
+
+    int foldIndex = 0;
+
+    for(Double classLabel : classMembership.keySet()) {
+      Set<Integer> sampleIndices = classMembership.get(classLabel);
+      Iterator<Integer> sampleIndexIterator = sampleIndices.iterator();
+      while(sampleIndexIterator.hasNext()) {
+        folds.get(foldIndex % numFolds).add(sampleIndexIterator.next());
+        foldIndex++;
+      }
+    }
+    return folds;
   }
 
   private void performStratifiedKFoldCV(DecisionTreeClassifier clf,
@@ -82,16 +121,13 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
     }
 
     Map<Double, Set<Integer>> classMembership = this.getClassMembership(clf);
-    // Distribute those elements in a round robbin fashion to the different
-    // folds until they are gone.
-
+    List<Set<Integer>> folds = this.getKFolds(classMembership, numFolds);
   }
 
   public void visit(DecisionTreeClassifier clf) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
-
     this.calculateAccuracy(clf);
     this.performStratifiedKFoldCV(clf, 10);
   }
