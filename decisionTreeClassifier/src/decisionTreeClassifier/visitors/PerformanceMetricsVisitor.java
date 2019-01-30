@@ -32,23 +32,23 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
     this.accuracy = accuracyIn;
   }
 
-  public void visit(DecisionTreeClassifier trainedClf) {
-    int totalCorrectPredictions = 0;
-    int totalNumPredictions = 0;
-
-    if(trainedClf == null) {
+  private void calculateAccuracy(DecisionTreeClassifier clf) {
+    if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
+
+    int totalCorrectPredictions = 0;
+    int totalNumPredictions = 0;
 
     for(int numIterations = 0;
         numIterations < PerformanceMetricsVisitor.NUM_ITERS;
         numIterations++) {
-      trainedClf.train(new ID3Algorithm(), 0.3);
-      trainedClf.predict();
+      clf.train(new ID3Algorithm(), 0.3);
+      clf.predict();
 
-      NDArray<Double> predictedClasses = trainedClf.getPredictedClasses();
-      NDArray<Double> actualClasses = trainedClf.getClasses();
-      List<Integer> testSampleIndices = trainedClf.getTestingSamples();
+      NDArray<Double> predictedClasses = clf.getPredictedClasses();
+      NDArray<Double> actualClasses = clf.getClasses();
+      List<Integer> testSampleIndices = clf.getTestingSamples();
 
       for(int i = 0; i < testSampleIndices.size(); i++) {
         Integer testSampleIdx = testSampleIndices.get(i);
@@ -67,6 +67,33 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
     System.out.println("Num correct: " + totalCorrectPredictions);
     this.setAccuracy(Double.valueOf(((double) totalCorrectPredictions) /
                                     totalNumPredictions));
+  }
+
+  private Map<Double, Set<Integer>>
+  getClassMembership(DecisionTreeClassifier clf) {
+    Map<Double, Set<Integer>> classMembership = new HashMap<>();
+    return classMembership;
+  }
+
+  private void performStratifiedKFoldCV(DecisionTreeClassifier clf,
+                                        int numFolds) {
+    if(clf == null) {
+      throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
+    }
+
+    Map<Double, Set<Integer>> classMembership = this.getClassMembership(clf);
+    // Distribute those elements in a round robbin fashion to the different
+    // folds until they are gone.
+
+  }
+
+  public void visit(DecisionTreeClassifier clf) {
+    if(clf == null) {
+      throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
+    }
+
+    this.calculateAccuracy(clf);
+    this.performStratifiedKFoldCV(clf, 10);
   }
 
   public String toString() {
