@@ -21,7 +21,7 @@ import visitors.VisitorI;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
-  private static final int MIN_SAMPLES_FOR_SPLIT = 10;
+  private static final int MIN_SAMPLES_FOR_SPLIT = 5;
   private NDArray<Double> features;
   private NDArray<Double> classes;
   private List<Integer> trainingSampleIndices;
@@ -202,8 +202,6 @@ public class ID3Algorithm implements TrainingStrategy {
    */
   private double calcEntropy(List<List<Integer>> partitions) {
     double entropy = 0.0;
-
-    assert partitions.size() == 2;
 
     for(List<Integer> sampleIndices : partitions) {
       for(int classLabel : new int[] {0, 1}) {

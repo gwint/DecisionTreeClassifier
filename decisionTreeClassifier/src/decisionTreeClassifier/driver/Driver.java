@@ -97,10 +97,6 @@ public class Driver {
     DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
                                                             trainingClasses);
 
-//    clf.train(new ID3Algorithm(), 0.7);
-
-//    clf.predict();
-
     ClfVisitorI metricsCalculator = new PerformanceMetricsVisitor();
     clf.accept(metricsCalculator);
 

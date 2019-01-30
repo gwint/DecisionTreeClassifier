@@ -48,8 +48,10 @@ public class DecisionTreeClassifier {
     this.testingSamples = new ArrayList<>();
     this.predictedClasses = null;
 
+    int numTestSamples = (int) ((1-proportion) * this.features.length(0));
+
     this.splitData(proportion);
-    this.predictedClasses = new NDArray<>(1, this.trainingSamples.size());
+    this.predictedClasses = new NDArray<>(1, numTestSamples);
     this.trainedClassifier = strat.train(this.features, this.classes,
                                          this.trainingSamples);
   }
@@ -77,7 +79,6 @@ public class DecisionTreeClassifier {
       }
       double sampleLabel = this.getLabel(this.trainedClassifier,
                                          testSampleIdx.intValue());
-      //System.out.println(sampleLabel);
       this.predictedClasses.add(sampleLabel, 0, numPredictionsMade++);
     }
   }
