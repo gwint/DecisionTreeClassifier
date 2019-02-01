@@ -1,0 +1,10 @@
+1) DecisionTreeClassifier constructor should take training strategy as an
+   argument.
+
+2) predict() should return the predictions made instead of storing them
+   internally.
+
+3) Decouple DecisionTreeClassifier from data it uses and pass data to train()
+   method.  This will help cut down on the amount of state information that
+   is being stored in the classifier even after training and testing take
+   place even though it isn't entirely neccesary.
