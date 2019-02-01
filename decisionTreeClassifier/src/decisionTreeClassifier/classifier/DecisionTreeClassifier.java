@@ -19,36 +19,42 @@ public class DecisionTreeClassifier {
   private NDArray<Double> predictedClasses;
   private TrainingStrategy strategy;
 
-  public DecisionTreeClassifier(NDArray<Double> allFeaturesIn,
-                                NDArray<Double> allClassesIn,
-                                TrainingStrategy strategyIn) {
-    if(allFeaturesIn == null) {
-      throw new IllegalArgumentException("Array containing training features must not be null");
-    }
-    if(allClassesIn == null) {
-      throw new IllegalArgumentException("Array containing training classes must not be null");
-    }
+  public DecisionTreeClassifier(TrainingStrategy strategyIn) {
     if(strategyIn == null) {
       throw new IllegalArgumentException("Training strategy must not be null");
     }
-
-    this.features = allFeaturesIn;
-    this.classes = allClassesIn;
-    this.trainedClassifier = null;
-    this.trainingSamples = new ArrayList<>();
-    this.testingSamples = new ArrayList<>();
-    this.predictedClasses = null;
     this.strategy = strategyIn;
-
-    if(this.features.length(0) != this.classes.length(0)) {
-      throw new IllegalArgumentException("Mismatch between number of samples and the number of classes");
-    }
   }
 
-  public void train(double proportion) {
+  public void setFeatures(NDArray<Double> featuresIn) {
+    if(featuresIn == null) {
+      throw new IllegalArgumentException("Array containing training features must not be null");
+    }
+    this.features = featuresIn;
+  }
+
+  public void setClasses(NDArray<Double> classesIn) {
+    if(classesIn == null) {
+      throw new IllegalArgumentException("Array containing training classes must not be null");
+    }
+    this.classes = classesIn;
+  }
+
+  public void train(NDArray<Double> featuresIn,
+                    NDArray<Double> classesIn,
+                    double proportion) {
     if(proportion < 0) {
       throw new IllegalArgumentException("Training proportion must be non-negative");
     }
+    if(features == null) {
+      throw new IllegalArgumentException("Features array must not be null");
+    }
+    if(classes == null) {
+      throw new IllegalArgumentException("Classes array must not be null");
+    }
+
+    this.setFeatures(featuresIn);
+    this.setClasses(classesIn);
 
     this.trainedClassifier = null;
     this.trainingSamples = new ArrayList<>();
@@ -79,7 +85,8 @@ public class DecisionTreeClassifier {
   public void predict(NDArray features) {
   }
 
-  public void predict() {
+  public NDArray<Double> predict() {
+    NDArray<Double> predictions = null;
     int numPredictionsMade = 0;
     for(Integer testSampleIdx : this.testingSamples) {
       if(testSampleIdx == null) {
@@ -89,8 +96,10 @@ public class DecisionTreeClassifier {
                                          testSampleIdx.intValue());
       this.predictedClasses.add(sampleLabel, 0, numPredictionsMade++);
     }
+    return predictions;
   }
 
+  /** Will be removed **/
   private void splitData(double trainingProportion) {
     if(trainingProportion < 0) {
       throw new IllegalArgumentException("Proportion of data to be used for trainging must be non-negative");
@@ -157,9 +166,5 @@ public class DecisionTreeClassifier {
   @Override
   public String toString() {
     return "";
-  }
-
-  public void accept(ClfVisitorI visitor) {
-    visitor.visit(this);
   }
 }

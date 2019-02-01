@@ -91,16 +91,19 @@ public class Driver {
 
     MyLogger.setDebugValue(debugValue);
 
-    NDArray<Double> trainingData = NDArray.readCSV(new FileProcessor(featuresFile));
-    NDArray<Double> trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
+    NDArray<Double> trainingData =
+                       NDArray.readCSV(new FileProcessor(featuresFile));
+    NDArray<Double> trainingClasses =
+                       NDArray.readCSV(new FileProcessor(classesFile));
 
-    DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
-                                                            trainingClasses,
-                                                            new ID3Algorithm());
+    DecisionTreeClassifier clf =
+                       new DecisionTreeClassifier(new ID3Algorithm());
 
-    ClfVisitorI metricsCalculator = new PerformanceMetricsVisitor();
-    clf.accept(metricsCalculator);
+    //ClfVisitorI metricsCalculator =
+    //             new PerformanceMetricsVisitor(trainingData, trainingClasses);
 
-    System.out.println(metricsCalculator);
+    //clf.accept(metricsCalculator);
+
+    //System.out.println(metricsCalculator);
   }
 }

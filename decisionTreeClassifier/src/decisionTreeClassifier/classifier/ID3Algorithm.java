@@ -136,8 +136,6 @@ public class ID3Algorithm implements TrainingStrategy {
     for(Node child : childNodes) {
       this.trainHelper(child);
     }
-
-    //System.out.println(splitFeatureIdx);
   }
 
   /**
