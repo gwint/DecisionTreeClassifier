@@ -44,7 +44,7 @@ public class PerformanceMetricsVisitor implements ClfVisitorI {
     for(int numIterations = 0;
         numIterations < PerformanceMetricsVisitor.NUM_ITERS;
         numIterations++) {
-      clf.train(new ID3Algorithm(), 0.3);
+      clf.train(0.3);
       clf.predict();
 
       NDArray<Double> predictedClasses = clf.getPredictedClasses();

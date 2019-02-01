@@ -17,14 +17,19 @@ public class DecisionTreeClassifier {
   private List<Integer> testingSamples;
   private Node trainedClassifier;
   private NDArray<Double> predictedClasses;
+  private TrainingStrategy strategy;
 
   public DecisionTreeClassifier(NDArray<Double> allFeaturesIn,
-                                NDArray<Double> allClassesIn) {
+                                NDArray<Double> allClassesIn,
+                                TrainingStrategy strategyIn) {
     if(allFeaturesIn == null) {
       throw new IllegalArgumentException("Array containing training features must not be null");
     }
     if(allClassesIn == null) {
       throw new IllegalArgumentException("Array containing training classes must not be null");
+    }
+    if(strategyIn == null) {
+      throw new IllegalArgumentException("Training strategy must not be null");
     }
 
     this.features = allFeaturesIn;
@@ -33,16 +38,18 @@ public class DecisionTreeClassifier {
     this.trainingSamples = new ArrayList<>();
     this.testingSamples = new ArrayList<>();
     this.predictedClasses = null;
+    this.strategy = strategyIn;
 
     if(this.features.length(0) != this.classes.length(0)) {
       throw new IllegalArgumentException("Mismatch between number of samples and the number of classes");
     }
   }
 
-  public void train(TrainingStrategy strat, double proportion) {
-    if(strat == null) {
-      throw new IllegalArgumentException("Training strategy must not be null");
+  public void train(double proportion) {
+    if(proportion < 0) {
+      throw new IllegalArgumentException("Training proportion must be non-negative");
     }
+
     this.trainedClassifier = null;
     this.trainingSamples = new ArrayList<>();
     this.testingSamples = new ArrayList<>();
@@ -52,8 +59,9 @@ public class DecisionTreeClassifier {
 
     this.splitData(proportion);
     this.predictedClasses = new NDArray<>(1, numTestSamples);
-    this.trainedClassifier = strat.train(this.features, this.classes,
-                                         this.trainingSamples);
+    this.trainedClassifier = this.strategy.train(this.features,
+                                                 this.classes,
+                                                 this.trainingSamples);
   }
 
   public List<Integer> getTestingSamples() {

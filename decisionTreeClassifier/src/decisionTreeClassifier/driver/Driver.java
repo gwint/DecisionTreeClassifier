@@ -95,7 +95,8 @@ public class Driver {
     NDArray<Double> trainingClasses = NDArray.readCSV(new FileProcessor(classesFile));
 
     DecisionTreeClassifier clf = new DecisionTreeClassifier(trainingData,
-                                                            trainingClasses);
+                                                            trainingClasses,
+                                                            new ID3Algorithm());
 
     ClfVisitorI metricsCalculator = new PerformanceMetricsVisitor();
     clf.accept(metricsCalculator);
