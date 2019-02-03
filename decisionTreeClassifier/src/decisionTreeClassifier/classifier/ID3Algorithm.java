@@ -158,8 +158,6 @@ public class ID3Algorithm implements TrainingStrategy {
       }
     });
 
-    System.out.println("Size of usedAttributes: " + usedAttributes.size());
-
     int numAttributes = this.dataset.getNumColumns();
     for(int attributeIndex = 0; attributeIndex < numAttributes;
         attributeIndex++) {

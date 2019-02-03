@@ -16,7 +16,7 @@ public class PerformanceMetricsVisitor {
   private static final int NUM_ITERS = 100;
 
   public double calculateAccuracy(DecisionTreeClassifier clf,
-                                   Dataset dataset) {
+                                  Dataset dataset) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
@@ -29,8 +29,8 @@ public class PerformanceMetricsVisitor {
         numIterations++) {
 
       clf.train(dataset, 0.3);
-
       NDArray<Double> predictedClasses = clf.predict();
+
       NDArray<Double> actualClasses = dataset.getClasses();
       List<Integer> testSampleIndices = clf.getTestingSamples();
 
@@ -52,14 +52,32 @@ public class PerformanceMetricsVisitor {
     return ((double) totalCorrectPredictions) / totalNumPredictions;
   }
 
-  private void performStratifiedKFoldCV(DecisionTreeClassifier clf,
-                                        Dataset dataset,
-                                        int numFolds) {
+  public void performStratifiedKFoldCV(DecisionTreeClassifier clf,
+                                       Dataset dataset,
+                                       int numFolds) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
+    if(numFolds < 2) {
+      throw new IllegalArgumentException("Number of folds must be at least 2");
+    }
+    if(dataset == null) {
+      throw new IllegalArgumentException("Dataset must not be null");
+    }
 
-    //Map<Double, Set<Integer>> classMembership = this.getClassMembership(clf);
-    //List<Set<Integer>> folds = this.getKFolds(classMembership, numFolds);
+    List<Set<Integer>> folds = dataset.getKFolds(numFolds);
+    for(int leaveOutFoldIdx = 0; leaveOutFoldIdx < folds.size();
+        leaveOutFoldIdx++) {
+      List<Integer> testingSampleIndices =
+                         new ArrayList<>(folds.get(leaveOutFoldIdx));
+      List<Integer> trainingSampleIndices = new ArrayList<>();
+      for(int foldIdx = 0; foldIdx < folds.size(); foldIdx++) {
+        if(foldIdx != leaveOutFoldIdx) {
+          trainingSampleIndices.addAll(folds.get(foldIdx));
+        }
+      }
+      clf.train(dataset, trainingSampleIndices, testingSampleIndices);
+      // TODO: make predictions and count number correct (make getNumCorrect() method)
+    }
   }
 }

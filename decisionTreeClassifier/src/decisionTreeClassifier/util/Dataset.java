@@ -93,12 +93,11 @@ public class Dataset {
     return classMembership;
   }
 
-  public List<Set<Integer>>
-  getKFolds(Map<Double, Set<Integer>> classMembership, int numFolds) {
-    if(classMembership == null) {
-      throw new IllegalArgumentException("Class Membership cannot be null");
+  public List<Set<Integer>> getKFolds(int numFolds) {
+    if(numFolds < 2) {
+      throw new IllegalArgumentException("Number of folds must be at least 2");
     }
-
+    Map<Double, Set<Integer>> classMembership = this.getClassMembership();
     List<Set<Integer>> folds = new ArrayList<>();
 
     for(int i = 0; i < numFolds; i++) {

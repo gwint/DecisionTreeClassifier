@@ -12,6 +12,8 @@ import visitors.ClfVisitorI;
 import util.Dataset;
 
 public class DecisionTreeClassifier {
+  private static final int TRAINING_SAMPLES = 0;
+  private static final int TESTING_SAMPLES = 1;
   private Dataset dataset;
   private List<Integer> testingSamples;
   private Node trainedClassifier;
@@ -31,6 +33,24 @@ public class DecisionTreeClassifier {
     this.dataset = datasetIn;
   }
 
+  public void train(Dataset dataset,
+                    List<Integer> trainingSamples,
+                    List<Integer> testingSamples) {
+    if(dataset == null) {
+      throw new IllegalArgumentException("Training dataset must not be null");
+    }
+    if(trainingSamples == null) {
+      throw new IllegalArgumentException("Training sample indices must not be null");
+    }
+    if(testingSamples == null) {
+      throw new IllegalArgumentException("Testing sample indices must not be null");
+    }
+
+    this.setDataset(dataset);
+    this.testingSamples = testingSamples;
+    this.trainedClassifier = this.strategy.train(dataset, trainingSamples);
+  }
+
   public void train(Dataset dataset, double proportion) {
     if(proportion < 0) {
       throw new IllegalArgumentException("Training proportion must be non-negative");
@@ -39,13 +59,10 @@ public class DecisionTreeClassifier {
       throw new IllegalArgumentException("Training dataset must not be null");
     }
 
-    this.setDataset(dataset);
     List<List<Integer>> split = dataset.getSplitSampleIndices(proportion);
-
-    List<Integer> trainingSamples = split.get(0);
-    this.testingSamples = split.get(1);
-
-    this.trainedClassifier = this.strategy.train(dataset, trainingSamples);
+    this.train(dataset,
+               split.get(DecisionTreeClassifier.TRAINING_SAMPLES),
+               split.get(DecisionTreeClassifier.TESTING_SAMPLES));
   }
 
   public Dataset getDataset() {
@@ -56,14 +73,16 @@ public class DecisionTreeClassifier {
     return this.testingSamples;
   }
 
-  public void predict(NDArray features) {
+  public NDArray<Double> predict() {
+    return this.predict(this.testingSamples);
   }
 
-  public NDArray<Double> predict() {
+
+  public NDArray<Double> predict(List<Integer> testingSampleIndices) {
     NDArray<Double> predictions =
-                        new NDArray<>(1, this.testingSamples.size());;
+                        new NDArray<>(1, testingSampleIndices.size());;
     int numPredictionsMade = 0;
-    for(Integer testSampleIdx : this.testingSamples) {
+    for(Integer testSampleIdx : testingSampleIndices) {
       if(testSampleIdx == null) {
         throw new IllegalStateException("Test sample indices should never be null");
       }
