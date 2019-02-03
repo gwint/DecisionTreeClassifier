@@ -12,6 +12,7 @@ import java.util.Iterator;
 import util.NDArray;
 import util.Interval;
 import visitors.VisitorI;
+import util.Dataset;
 
 public class Node implements Linkable, Cloneable {
   private static final int INVALID_NODE_ID = -1;
@@ -23,14 +24,12 @@ public class Node implements Linkable, Cloneable {
   private double label;
   private Integer splitAttributeIndex;
   private Node parent;
-  private NDArray<Double> features;
-  private NDArray<Double> classes;
+  private Dataset dataset;
   private Set<Integer> usedAttributes;
   private List<Interval> splitAttributeIntervals;
 
   public Node(List<Integer> sampleIndicesIn,
-              NDArray<Double> featuresIn,
-              NDArray<Double> classesIn,
+              Dataset datasetIn,
               Set<Integer> usedAttributesIn) {
     if(sampleIndicesIn == null) {
       throw new IllegalArgumentException("List of sample indices must not be null");
@@ -40,8 +39,7 @@ public class Node implements Linkable, Cloneable {
     this.children = null;
     this.nodeId = Node.nodeCount++;
     this.label = Node.NO_LABEL_ASSIGNED;
-    this.features = featuresIn;
-    this.classes = classesIn;
+    this.dataset = datasetIn;
     this.usedAttributes = usedAttributesIn;
   }
 
@@ -90,16 +88,6 @@ public class Node implements Linkable, Cloneable {
     this.parent = parentNode;
   }
 
-  /**
-   Creates a dummy Node object that cannot be used for insertion or deletion.
-   It is meant to represent the Node equivalent of null and avoid
-   nullpointerexception when no input.txt is empty.
-   @return A dummy node created via private constructor.
-   */
-  public static Node getLeafNode(double classLabel) {
-    return new Node(classLabel);
-  }
-
   public void setLabel(double labelIn) {
     this.label = labelIn;
   }
@@ -119,10 +107,33 @@ public class Node implements Linkable, Cloneable {
     return this.parent;
   }
 
-  private Node(double classLabel) {
-    this.label = classLabel;
-    this.nodeId = Node.INVALID_NODE_ID;
-    this.children = null;
+  public boolean isHomogenous() {
+    List<Integer> sampleIndices = this.getSampleIndices();
+
+    boolean areIdentical = false;
+    Double onlyClassPresent = null;
+    for(int sampleIndexIndex = 0; sampleIndexIndex < sampleIndices.size() - 1;
+        sampleIndexIndex++) {
+      Integer indexObj = sampleIndices.get(sampleIndexIndex);
+      if(indexObj == null) {
+        throw new IllegalStateException("No sample Index should be null");
+      }
+      int i = indexObj.intValue();
+
+      if(onlyClassPresent == null) {
+        onlyClassPresent = this.dataset.getClassLabel(i);
+      }
+
+      Double elem = this.dataset.getClassLabel(i);
+      if(elem == null) {
+        throw new IllegalStateException("No class label should be null");
+      }
+      if(!elem.equals(onlyClassPresent)) {
+        areIdentical = false;
+        break;
+      }
+    }
+    return areIdentical;
   }
 
   @Override
@@ -168,12 +179,8 @@ public class Node implements Linkable, Cloneable {
     return this.nodeId == Node.INVALID_NODE_ID;
   }
 
-  public NDArray<Double> getClasses() {
-    return this.classes;
-  }
-
-  public NDArray<Double> getFeatures() {
-    return this.features;
+  public Dataset getDataset() {
+    return this.dataset;
   }
 
   public void accept(VisitorI visitor) {

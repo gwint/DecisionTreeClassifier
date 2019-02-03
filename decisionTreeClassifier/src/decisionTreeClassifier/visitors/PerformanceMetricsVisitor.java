@@ -10,32 +10,13 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import util.NDArray;
-import util.TrainingDataset;
+import util.Dataset;
 
 public class PerformanceMetricsVisitor {
   private static final int NUM_ITERS = 100;
-  private Double accuracy;
 
-  public PerformanceMetricsVisitor() {
-    this.accuracy = null;
-  }
-
-  public double getAccuracy() {
-    if(this.accuracy == null) {
-      throw new IllegalArgumentException("Accuracy must be calculated before its value can be queried");
-    }
-    return this.accuracy.doubleValue();
-  }
-
-  private void setAccuracy(Double accuracyIn) {
-    if(accuracyIn == null) {
-      throw new IllegalArgumentException("Accuracy must not be null");
-    }
-    this.accuracy = accuracyIn;
-  }
-
-  private void calculateAccuracy(DecisionTreeClassifier clf,
-                                 TrainingDataset dataset) {
+  public double calculateAccuracy(DecisionTreeClassifier clf,
+                                   Dataset dataset) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
@@ -46,11 +27,11 @@ public class PerformanceMetricsVisitor {
     for(int numIterations = 0;
         numIterations < PerformanceMetricsVisitor.NUM_ITERS;
         numIterations++) {
-      //clf.train(0.3);
-      //clf.predict();
 
-      NDArray<Double> predictedClasses = clf.getPredictedClasses();
-      NDArray<Double> actualClasses = clf.getClasses();
+      clf.train(dataset, 0.3);
+
+      NDArray<Double> predictedClasses = clf.predict();
+      NDArray<Double> actualClasses = dataset.getClasses();
       List<Integer> testSampleIndices = clf.getTestingSamples();
 
       for(int i = 0; i < testSampleIndices.size(); i++) {
@@ -68,12 +49,11 @@ public class PerformanceMetricsVisitor {
     }
 
     System.out.println("Num correct: " + totalCorrectPredictions);
-    this.setAccuracy(Double.valueOf(((double) totalCorrectPredictions) /
-                                    totalNumPredictions));
+    return ((double) totalCorrectPredictions) / totalNumPredictions;
   }
 
   private void performStratifiedKFoldCV(DecisionTreeClassifier clf,
-                                        TrainingDataset dataset,
+                                        Dataset dataset,
                                         int numFolds) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
@@ -81,9 +61,5 @@ public class PerformanceMetricsVisitor {
 
     //Map<Double, Set<Integer>> classMembership = this.getClassMembership(clf);
     //List<Set<Integer>> folds = this.getKFolds(classMembership, numFolds);
-  }
-
-  public String toString() {
-    return String.format("Accuracy: %s", this.getAccuracy());
   }
 }

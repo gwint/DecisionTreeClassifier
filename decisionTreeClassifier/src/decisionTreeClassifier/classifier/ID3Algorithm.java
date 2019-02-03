@@ -16,54 +16,46 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import visitors.LabelVisitor;
-import visitors.HomogenousVisitor;
 import visitors.VisitorI;
+import util.Dataset;
 
 public class ID3Algorithm implements TrainingStrategy {
   private static final int NUM_DATA_PARTITIONS = 2;
   private static final int MIN_SAMPLES_FOR_SPLIT = 5;
-  private NDArray<Double> features;
-  private NDArray<Double> classes;
+  private Dataset dataset;
   private List<Integer> trainingSampleIndices;
 
   public ID3Algorithm() {
-    this.features = null;
-    this.classes = null;
+    this.dataset = null;
   }
 
-  private void setFeatures(NDArray<Double> featuresIn) {
-    if(featuresIn == null) {
-      throw new IllegalArgumentException("NDArray containing features must not be null");
+  private void setDataset(Dataset datasetIn) {
+    if(datasetIn == null) {
+      throw new IllegalArgumentException("Dataset must not be null");
     }
-    this.features = featuresIn;
-  }
-
-  private void setClasses(NDArray<Double> classesIn) {
-    if(classesIn == null) {
-      throw new IllegalArgumentException("NDArray containing classes must not be null");
-    }
-    this.classes = classesIn;
+    this.dataset = datasetIn;
   }
 
   /**
    * Creates a decision tree using using the training data passed to the
    * method.
-   * @param features An NDArray containing the features for all available
-   *                 samples.
    * @param classes An NDArray containing the class label for all available
    *                samples.
    * @return A Linkable object representing the head of the newly created
    *         decision tree.
    */
-  public Node train(NDArray<Double> features,
-                        NDArray<Double> classes,
-                        List<Integer> trainingSampleIndices) {
-    this.setFeatures(features);
-    this.setClasses(classes);
+  public Node train(Dataset dataset, List<Integer> trainingSampleIndices) {
     Node root = new Node(trainingSampleIndices,
-                         this.features,
-                         this.classes,
+                         dataset,
                          new HashSet<>());
+    if(trainingSampleIndices == null) {
+      throw new IllegalArgumentException("List of training sample indices must not be null");
+    }
+    if(dataset == null) {
+      throw new IllegalArgumentException("Dataset must not be null");
+    }
+
+    this.setDataset(dataset);
     this.trainHelper(root);
     return root;
   }
@@ -77,35 +69,23 @@ public class ID3Algorithm implements TrainingStrategy {
     if(treeRoot == null) {
       throw new IllegalArgumentException("Decision tree root must not be null");
     }
-    if(this.features == null) {
-      throw new IllegalStateException("Features should be set to a non-null object before this method is called");
-    }
-    if(this.classes == null) {
-      throw new IllegalStateException("Classes should be set to a non-null object before this method is called");
-    }
 
     VisitorI labelAssigner = new LabelVisitor();
-    VisitorI homogeneityFinder = new HomogenousVisitor();
-
-    treeRoot.accept(homogeneityFinder);
 
     // Stopping conditions:
     // 1) If all samples are the same, create leaf node and return.
-    if(((HomogenousVisitor)homogeneityFinder).isNodeHomogenous()) {
-      //System.out.println("All samples have the same class label");
+    if(treeRoot.isHomogenous()) {
       treeRoot.accept(labelAssigner);
       return;
     }
     // 2) If root has no samples, create leaf node w/ random label and
     //    return.
     if(treeRoot.getSampleIndices().size() == 0) {
-      //System.out.println("Node contains no samples");
       treeRoot.accept(labelAssigner);
       return;
     }
     // 3) If no attributes left to use, create leaf node and return.
-    if(treeRoot.getUsedAttributes().size() == features.length(1)) {
-      //System.out.println("All attributes have been used already");
+    if(treeRoot.getUsedAttributes().size() == this.dataset.getNumColumns()) {
       treeRoot.accept(labelAssigner);
       return;
     }
@@ -113,7 +93,6 @@ public class ID3Algorithm implements TrainingStrategy {
     //    and return.
     if(treeRoot.getSampleIndices().size() <
        ID3Algorithm.MIN_SAMPLES_FOR_SPLIT) {
-      //System.out.println("Node contains less than the minimum amount needed for a split to occur");
       treeRoot.accept(labelAssigner);
       return;
     }
@@ -129,7 +108,8 @@ public class ID3Algorithm implements TrainingStrategy {
 
     treeRoot.setSplitAttributeIntervals(intervals);
 
-    List<Node> childNodes = this.createChildren(splitFeatureIdx, treeRoot,
+    List<Node> childNodes = this.createChildren(splitFeatureIdx,
+                                                treeRoot,
                                                 intervals);
     treeRoot.setChildren(childNodes);
 
@@ -156,8 +136,7 @@ public class ID3Algorithm implements TrainingStrategy {
 
     for(int i = 0; i < intervals.size(); i++) {
       Node newNode = new Node(partitions.get(i),
-                              this.features,
-                              this.classes,
+                              this.dataset,
                               new HashSet(parent.getUsedAttributes()));
       newNode.setParent(parent);
       childNodes.add(newNode);
@@ -179,7 +158,9 @@ public class ID3Algorithm implements TrainingStrategy {
       }
     });
 
-    int numAttributes = this.features.length(1);
+    System.out.println("Size of usedAttributes: " + usedAttributes.size());
+
+    int numAttributes = this.dataset.getNumColumns();
     for(int attributeIndex = 0; attributeIndex < numAttributes;
         attributeIndex++) {
       if(!usedAttributes.contains(attributeIndex)) {
@@ -221,7 +202,7 @@ public class ID3Algorithm implements TrainingStrategy {
     int numSamplesWithLabel = 0;
 
     for(Integer sampleIdx : sampleIndices) {
-      Double classLabel = this.classes.get(sampleIdx.intValue(), 0);
+      Double classLabel = this.dataset.getClassLabel(sampleIdx.intValue());
       if(classLabel == null) {
         System.out.println("sample index value with null class label:" +
                            sampleIdx);
@@ -242,8 +223,9 @@ public class ID3Algorithm implements TrainingStrategy {
 
     List<Interval> intervals = new ArrayList<>();
 
-    for(int sampleIdx = 0; sampleIdx < features.length(0); sampleIdx++) {
-      Double attrValue = this.features.get(sampleIdx, attributeIndex);
+    for(int sampleIdx = 0; sampleIdx < this.dataset.size(); sampleIdx++) {
+      Double attrValue = this.dataset.getFeatureValue(sampleIdx,
+                                                      attributeIndex);
       double associatedDoubleVal = attrValue.doubleValue();
       if(attrValue == null) {
         System.err.println("Attribute value Double object should not be null");
@@ -279,8 +261,8 @@ public class ID3Algorithm implements TrainingStrategy {
 
     for(Integer sampleIndex : sampleIndices) {
       int sampleIndexAsInt = sampleIndex.intValue();
-      Double attributeValue = this.features.get(sampleIndexAsInt,
-                                                attributeIndex);
+      Double attributeValue = this.dataset.getFeatureValue(sampleIndexAsInt,
+                                                           attributeIndex);
       if(attributeValue == null) {
         System.err.println(
             String.format("Attribute at index %d should not be null",

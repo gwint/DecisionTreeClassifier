@@ -9,8 +9,8 @@ import util.MyLogger;
 import util.NDArray;
 import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
-import visitors.ClfVisitorI;
 import visitors.PerformanceMetricsVisitor;
+import util.Dataset;
 
 /**
  * @author Gregory Wint
@@ -95,15 +95,12 @@ public class Driver {
                        NDArray.readCSV(new FileProcessor(featuresFile));
     NDArray<Double> trainingClasses =
                        NDArray.readCSV(new FileProcessor(classesFile));
+    Dataset dataset = new Dataset(trainingData, trainingClasses);
 
-    DecisionTreeClassifier clf =
-                       new DecisionTreeClassifier(new ID3Algorithm());
+    DecisionTreeClassifier clf = new DecisionTreeClassifier(new ID3Algorithm());
 
-    //ClfVisitorI metricsCalculator =
-    //             new PerformanceMetricsVisitor(trainingData, trainingClasses);
-
-    //clf.accept(metricsCalculator);
-
-    //System.out.println(metricsCalculator);
+    PerformanceMetricsVisitor metricsCalculator =
+                                          new PerformanceMetricsVisitor();
+    System.out.println(metricsCalculator.calculateAccuracy(clf, dataset));
   }
 }

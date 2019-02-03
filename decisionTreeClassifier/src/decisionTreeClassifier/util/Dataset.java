@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Iterator;
 
-public class TrainingDataset {
+public class Dataset {
   private NDArray<Double> features;
   private NDArray<Double> classes;
 
-  public TrainingDataset(NDArray<Double> featuresIn,
-                         NDArray<Double> classesIn) {
+  public Dataset(NDArray<Double> featuresIn,
+                 NDArray<Double> classesIn) {
     if(featuresIn == null) {
       throw new IllegalArgumentException("Features array must not be null");
     }
@@ -23,6 +23,14 @@ public class TrainingDataset {
     }
     this.features = featuresIn;
     this.classes = classesIn;
+  }
+
+  public NDArray<Double> getClasses() {
+    return this.classes;
+  }
+
+  public NDArray<Double> getFeatures() {
+    return this.features;
   }
 
   public List<List<Integer>> getSplitSampleIndices(double trainingProportion) {
@@ -108,5 +116,30 @@ public class TrainingDataset {
       }
     }
     return folds;
+  }
+
+  public Double getFeatureValue(int sampleIndex, int featureIndex) {
+    if(sampleIndex < 0 || sampleIndex >= this.features.length(0)) {
+      throw new IllegalArgumentException("Sample index is invalid: " + sampleIndex);
+    }
+    if(featureIndex < 0 || featureIndex >= this.features.length(1)) {
+      throw new IllegalArgumentException("Feature index is invalid: " + featureIndex);
+    }
+    return this.features.get(sampleIndex, featureIndex);
+  }
+
+  public Double getClassLabel(int sampleIndex) {
+    if(sampleIndex < 0 || sampleIndex >= this.classes.length(0)) {
+      throw new IllegalArgumentException("Sample index is invalid: " + sampleIndex);
+    }
+    return this.classes.get(sampleIndex, 0);
+  }
+
+  public int size() {
+    return this.features.length(0);
+  }
+
+  public int getNumColumns() {
+    return this.features.length(1);
   }
 }

@@ -44,7 +44,7 @@ public class LabelVisitor implements VisitorI {
           throw new IllegalArgumentException("List of sample indices should not be null");
         }
         int i = sampleIdx.intValue();
-        Double label = aNode.getClasses().get(sampleIdx, 0);
+        Double label = aNode.getDataset().getClassLabel(sampleIdx);
         if(label == null) {
           throw new IllegalArgumentException("Every class label should be non-null");
         }
