@@ -103,6 +103,8 @@ public class Driver {
                                           new PerformanceMetricsVisitor();
 
     System.out.println(metricsCalculator.calculateAccuracy(clf, dataset));
-    metricsCalculator.performStratifiedKFoldCV(clf, dataset, 10);
+    System.out.println(metricsCalculator.performStratifiedKFoldCV(clf,
+                                                                  dataset,
+                                                                  20));
   }
 }

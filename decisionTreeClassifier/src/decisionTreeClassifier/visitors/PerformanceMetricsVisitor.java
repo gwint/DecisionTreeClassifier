@@ -15,6 +15,38 @@ import util.Dataset;
 public class PerformanceMetricsVisitor {
   private static final int NUM_ITERS = 100;
 
+  private int getNumCorrectPredictions(NDArray<Double> predictions,
+                                       NDArray<Double> actualClasses,
+                                       List<Integer> testSampleIndices) {
+    if(predictions == null) {
+      throw new IllegalArgumentException("Array of predicted classes must not be null");
+    }
+    if(actualClasses == null) {
+      throw new IllegalArgumentException("Array of actual classes must not be null");
+    }
+    if(testSampleIndices == null) {
+      throw new IllegalArgumentException("List of test sample indices must not be null");
+    }
+    if(predictions.length(1) != testSampleIndices.size()) {
+      throw new IllegalStateException("Number of predictions does not match number of actual class labels");
+    }
+
+    int totalCorrectPredictions = 0;
+
+    for(int i = 0; i < testSampleIndices.size(); i++) {
+      Integer testSampleIdx = testSampleIndices.get(i);
+      if(testSampleIdx == null) {
+        throw new IllegalStateException("Test Sample index must not be null");
+      }
+      Double predictedClass = predictions.get(0, i);
+      Double actualClass = actualClasses.get(testSampleIdx.intValue(), 0);
+      if(predictedClass.equals(actualClass)) {
+        totalCorrectPredictions++;
+      }
+    }
+    return totalCorrectPredictions;
+  }
+
   public double calculateAccuracy(DecisionTreeClassifier clf,
                                   Dataset dataset) {
     if(clf == null) {
@@ -28,23 +60,16 @@ public class PerformanceMetricsVisitor {
         numIterations < PerformanceMetricsVisitor.NUM_ITERS;
         numIterations++) {
 
-      clf.train(dataset, 0.3);
-      NDArray<Double> predictedClasses = clf.predict();
+      clf.train(dataset, 0.90);
 
+      NDArray<Double> predictedClasses = clf.predict();
       NDArray<Double> actualClasses = dataset.getClasses();
       List<Integer> testSampleIndices = clf.getTestingSamples();
 
-      for(int i = 0; i < testSampleIndices.size(); i++) {
-        Integer testSampleIdx = testSampleIndices.get(i);
-        if(testSampleIdx == null) {
-          throw new IllegalStateException("Test Sample index must not be null");
-        }
-        Double predictedClass = predictedClasses.get(0, i);
-        Double actualClass = actualClasses.get(testSampleIdx.intValue(), 0);
-        if(predictedClass.equals(actualClass)) {
-          totalCorrectPredictions++;
-        }
-      }
+      totalCorrectPredictions +=
+                this.getNumCorrectPredictions(predictedClasses,
+                                              actualClasses,
+                                              testSampleIndices);
       totalNumPredictions += testSampleIndices.size();
     }
 
@@ -52,9 +77,9 @@ public class PerformanceMetricsVisitor {
     return ((double) totalCorrectPredictions) / totalNumPredictions;
   }
 
-  public void performStratifiedKFoldCV(DecisionTreeClassifier clf,
-                                       Dataset dataset,
-                                       int numFolds) {
+  public double performStratifiedKFoldCV(DecisionTreeClassifier clf,
+                                         Dataset dataset,
+                                         int numFolds) {
     if(clf == null) {
       throw new IllegalArgumentException("Classifier from which statistics are to be collected must not be null");
     }
@@ -64,6 +89,9 @@ public class PerformanceMetricsVisitor {
     if(dataset == null) {
       throw new IllegalArgumentException("Dataset must not be null");
     }
+
+    int totalNumCorrect = 0;
+    int totalPredictionsMade = 0;
 
     List<Set<Integer>> folds = dataset.getKFolds(numFolds);
     for(int leaveOutFoldIdx = 0; leaveOutFoldIdx < folds.size();
@@ -77,7 +105,14 @@ public class PerformanceMetricsVisitor {
         }
       }
       clf.train(dataset, trainingSampleIndices, testingSampleIndices);
-      // TODO: make predictions and count number correct (make getNumCorrect() method)
+      NDArray<Double> predictions = clf.predict();
+      totalNumCorrect += this.getNumCorrectPredictions(predictions,
+                                                       dataset.getClasses(),
+                                                       testingSampleIndices);
+      totalPredictionsMade += testingSampleIndices.size();
     }
+
+    System.out.println("Num correct: " + totalNumCorrect);
+    return ((double) totalNumCorrect) / totalPredictionsMade;
   }
 }
