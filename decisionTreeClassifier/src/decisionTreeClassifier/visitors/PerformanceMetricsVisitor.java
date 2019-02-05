@@ -15,6 +15,14 @@ import util.Dataset;
 public class PerformanceMetricsVisitor {
   private static final int NUM_ITERS = 100;
 
+  public double getPrecision() {
+    return 0.0;
+  }
+
+  public double getRecall() {
+    return 0.0;
+  }
+
   private int getNumCorrectPredictions(NDArray<Double> predictions,
                                        NDArray<Double> actualClasses,
                                        List<Integer> testSampleIndices) {

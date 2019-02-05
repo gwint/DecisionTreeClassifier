@@ -106,5 +106,7 @@ public class Driver {
     System.out.println(metricsCalculator.performStratifiedKFoldCV(clf,
                                                                   dataset,
                                                                   20));
+    System.out.println(metricsCalculator.getPrecision());
+    System.out.println(metricsCalculator.getRecall());
   }
 }
