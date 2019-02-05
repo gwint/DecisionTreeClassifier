@@ -29,8 +29,6 @@ public class NDArray<T> {
     for(int n = 0; n < totalNumElements; n++) {
       this.data.add(null);
     }
-
-    System.out.println("NDArray dimensions: " + this.dimensions);
   }
 
   public T get(int ... indices) {

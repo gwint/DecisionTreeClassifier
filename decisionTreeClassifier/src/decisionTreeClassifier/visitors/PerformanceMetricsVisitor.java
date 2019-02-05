@@ -14,13 +14,86 @@ import util.Dataset;
 
 public class PerformanceMetricsVisitor {
   private static final int NUM_ITERS = 100;
+  public static final int TRUE_POS_ROW = 0;
+  public static final int TRUE_POS_COL = 0;
+  public static final int FALSE_NEG_ROW = 0;
+  public static final int FALSE_NEG_COL = 1;
+  public static final int FALSE_POS_ROW = 1;
+  public static final int FALSE_POS_COL = 0;
+  public static final int TRUE_NEG_ROW = 1;
+  public static final int TRUE_NEG_COL = 1;
 
-  public double getPrecision() {
-    return 0.0;
-  }
+  public List<List<Integer>> getConfusionMatrix(DecisionTreeClassifier clf,
+                                                Dataset dataset) {
+    List<List<Integer>> confusionMatrix = new ArrayList<>();
+    confusionMatrix.add(new ArrayList<>());
+    confusionMatrix.add(new ArrayList<>());
 
-  public double getRecall() {
-    return 0.0;
+    confusionMatrix.get(0).add(0);
+    confusionMatrix.get(0).add(0);
+    confusionMatrix.get(1).add(0);
+    confusionMatrix.get(1).add(0);
+
+    Double positiveClass = 0.0;
+    Double negativeClass = 1.0;
+
+    for(int numIterations = 0;
+        numIterations < PerformanceMetricsVisitor.NUM_ITERS;
+        numIterations++) {
+
+      clf.train(dataset, 0.70);
+
+      NDArray<Double> predictedClasses = clf.predict();
+      NDArray<Double> actualClasses = dataset.getClasses();
+      List<Integer> testSampleIndices = clf.getTestingSamples();
+
+      int predictionIdx = 0;
+      int newCount = 0;
+      for(Integer testSampleIdx = 0; testSampleIdx < testSampleIndices.size();
+          testSampleIdx++) {
+        double predictedClass =
+                 predictedClasses.get(0, predictionIdx).doubleValue();
+        double actualClass =
+                 actualClasses.get(testSampleIdx.intValue(), 0).doubleValue();
+
+        if(predictedClass == positiveClass && actualClass == positiveClass) {
+          newCount =
+            confusionMatrix.get(this.TRUE_POS_ROW)
+                           .get(this.TRUE_POS_COL)
+                           .intValue() + 1;
+          confusionMatrix.get(this.TRUE_POS_ROW)
+                         .set(this.TRUE_POS_COL, newCount);
+        }
+        else if(predictedClass == positiveClass &&
+                actualClass == negativeClass) {
+          newCount =
+            confusionMatrix.get(this.FALSE_POS_ROW)
+                           .get(this.FALSE_POS_COL)
+                           .intValue() + 1;
+          confusionMatrix.get(this.FALSE_POS_ROW)
+                         .set(this.FALSE_POS_COL, newCount);
+        }
+        else if(predictedClass == negativeClass &&
+                actualClass == positiveClass) {
+          newCount =
+            confusionMatrix.get(this.FALSE_NEG_ROW)
+                           .get(this.FALSE_NEG_COL)
+                           .intValue() + 1;
+          confusionMatrix.get(this.FALSE_NEG_ROW)
+                         .set(this.FALSE_NEG_COL, newCount);
+        }
+        else {
+          newCount =
+            confusionMatrix.get(this.TRUE_NEG_ROW)
+                           .get(this.TRUE_NEG_COL)
+                           .intValue() + 1;
+          confusionMatrix.get(this.TRUE_NEG_ROW)
+                         .set(this.TRUE_NEG_COL, newCount);
+        }
+      }
+    }
+
+    return confusionMatrix;
   }
 
   private int getNumCorrectPredictions(NDArray<Double> predictions,
