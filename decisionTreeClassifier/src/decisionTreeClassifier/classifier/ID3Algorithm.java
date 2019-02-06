@@ -44,19 +44,26 @@ public class ID3Algorithm implements TrainingStrategy {
    * @return A Linkable object representing the head of the newly created
    *         decision tree.
    */
-  public Node train(Dataset dataset, List<Integer> trainingSampleIndices) {
-    Node root = new Node(trainingSampleIndices,
-                         dataset,
-                         new HashSet<>());
+  public Node train(Dataset dataset,
+                    List<Integer> trainingSampleIndices,
+                    int maxClassifierHeight) {
+
     if(trainingSampleIndices == null) {
       throw new IllegalArgumentException("List of training sample indices must not be null");
     }
     if(dataset == null) {
       throw new IllegalArgumentException("Dataset must not be null");
     }
+    if(maxClassifierHeight < 1) {
+      throw new IllegalArgumentException("Trained classifier cannot have desired height less than 1");
+    }
+
+    Node root = new Node(trainingSampleIndices,
+                         dataset,
+                         new HashSet<>());
 
     this.setDataset(dataset);
-    this.trainHelper(root);
+    this.trainHelper(root, maxClassifierHeight);
     return root;
   }
 
@@ -65,7 +72,7 @@ public class ID3Algorithm implements TrainingStrategy {
    * tree.  All the arguments are the same as those in train(...) but has
    * another argument to represent the root of the tree to be created.
    */
-  private void trainHelper(Node treeRoot) {
+  private void trainHelper(Node treeRoot, int desiredHeight) {
     if(treeRoot == null) {
       throw new IllegalArgumentException("Decision tree root must not be null");
     }
@@ -73,6 +80,11 @@ public class ID3Algorithm implements TrainingStrategy {
     VisitorI labelAssigner = new LabelVisitor();
 
     // Stopping conditions:
+    // 0) If max height for some node is reached, it becomes a leaf node.
+    if(desiredHeight == 1) {
+      treeRoot.accept(labelAssigner);
+      return;
+    }
     // 1) If all samples are the same, create leaf node and return.
     if(treeRoot.isHomogenous()) {
       treeRoot.accept(labelAssigner);
@@ -114,7 +126,7 @@ public class ID3Algorithm implements TrainingStrategy {
     treeRoot.setChildren(childNodes);
 
     for(Node child : childNodes) {
-      this.trainHelper(child);
+      this.trainHelper(child, desiredHeight - 1);
     }
   }
 

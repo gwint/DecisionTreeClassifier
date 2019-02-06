@@ -18,34 +18,21 @@ public class DecisionTreeClassifier {
   private List<Integer> testingSamples;
   private Node trainedClassifier;
   private TrainingStrategy strategy;
+  private int maxHeight;
 
-  public DecisionTreeClassifier(TrainingStrategy strategyIn) {
+  public DecisionTreeClassifier(TrainingStrategy strategyIn, int maxHeightIn) {
     if(strategyIn == null) {
       throw new IllegalArgumentException("Training strategy must not be null");
     }
+    if(maxHeightIn < 1) {
+      throw new IllegalArgumentException("Max height of trained classifier must be at least 1");
+    }
     this.strategy = strategyIn;
+    this.maxHeight = maxHeightIn;
   }
 
-  public int getMaxHeightHelper(Node root) {
-    if(root == null) {
-      return 0;
-    }
-
-    List<Node> children = root.getChildren();
-    if(children == null) {
-      return 1;
-    }
-
-    int maxChildHeight = 0;
-    for(Node childNode : children) {
-      maxChildHeight = Math.max(maxChildHeight,
-                                this.getMaxHeightHelper(childNode));
-    }
-    return 1 + maxChildHeight;
-  }
-
-  public int getMaxHeight() {
-    return this.getMaxHeightHelper(this.trainedClassifier);
+  public int getDesiredMaxHeight() {
+    return this.maxHeight;
   }
 
   public void setDataset(Dataset datasetIn) {
@@ -70,7 +57,9 @@ public class DecisionTreeClassifier {
 
     this.setDataset(dataset);
     this.testingSamples = testingSamples;
-    this.trainedClassifier = this.strategy.train(dataset, trainingSamples);
+    this.trainedClassifier = this.strategy.train(dataset,
+                                                 trainingSamples,
+                                                 this.getDesiredMaxHeight());
   }
 
   public void train(Dataset dataset, double proportion) {
