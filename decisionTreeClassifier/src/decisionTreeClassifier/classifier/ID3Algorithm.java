@@ -20,8 +20,8 @@ import visitors.VisitorI;
 import util.Dataset;
 
 public class ID3Algorithm implements TrainingStrategy {
-  private static final int NUM_DATA_PARTITIONS = 2;
-  private static final int MIN_SAMPLES_FOR_SPLIT = 5;
+  private static final int NUM_DATA_PARTITIONS = 5;
+  private static final int MIN_SAMPLES_FOR_SPLIT = 10;
   private Dataset dataset;
   private List<Integer> trainingSampleIndices;
 

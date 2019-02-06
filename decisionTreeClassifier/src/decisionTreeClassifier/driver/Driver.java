@@ -11,6 +11,8 @@ import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
 import visitors.PerformanceMetricsVisitor;
 import util.Dataset;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Gregory Wint
@@ -106,6 +108,23 @@ public class Driver {
     System.out.println(metricsCalculator.performStratifiedKFoldCV(clf,
                                                                   dataset,
                                                                   20));
-    System.out.println(metricsCalculator.getConfusionMatrix(clf, dataset));
+    List<List<Integer>> confusionMatrix =
+                metricsCalculator.getConfusionMatrix(clf, dataset);
+
+    int numTruePos = confusionMatrix.get(metricsCalculator.TRUE_POS_ROW)
+                                    .get(metricsCalculator.TRUE_POS_COL);
+    int numFalsePos = confusionMatrix.get(metricsCalculator.FALSE_POS_ROW)
+                                    .get(metricsCalculator.FALSE_POS_COL);
+    double positivePredictiveValue =
+                       ((double) numTruePos) / (numTruePos + numFalsePos);
+    System.out.println("PPV: " + positivePredictiveValue);
+
+    int numTrueNeg = confusionMatrix.get(metricsCalculator.TRUE_NEG_ROW)
+                                    .get(metricsCalculator.TRUE_NEG_COL);
+    int numFalseNeg = confusionMatrix.get(metricsCalculator.FALSE_NEG_ROW)
+                                    .get(metricsCalculator.FALSE_NEG_COL);
+    double negativePredictiveValue =
+                       ((double) numTrueNeg) / (numTrueNeg + numFalseNeg);
+    System.out.println("NPV: " + negativePredictiveValue);
   }
 }

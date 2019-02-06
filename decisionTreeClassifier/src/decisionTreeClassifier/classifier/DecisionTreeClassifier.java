@@ -26,6 +26,28 @@ public class DecisionTreeClassifier {
     this.strategy = strategyIn;
   }
 
+  public int getMaxHeightHelper(Node root) {
+    if(root == null) {
+      return 0;
+    }
+
+    List<Node> children = root.getChildren();
+    if(children == null) {
+      return 1;
+    }
+
+    int maxChildHeight = 0;
+    for(Node childNode : children) {
+      maxChildHeight = Math.max(maxChildHeight,
+                                this.getMaxHeightHelper(childNode));
+    }
+    return 1 + maxChildHeight;
+  }
+
+  public int getMaxHeight() {
+    return this.getMaxHeightHelper(this.trainedClassifier);
+  }
+
   public void setDataset(Dataset datasetIn) {
     if(datasetIn == null) {
       throw new IllegalArgumentException("Training dataset containing training features must not be null");
