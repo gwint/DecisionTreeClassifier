@@ -41,7 +41,7 @@ public class PerformanceMetricsVisitor {
         numIterations < PerformanceMetricsVisitor.NUM_ITERS;
         numIterations++) {
 
-      clf.train(dataset, 0.70);
+      clf.train(dataset, 0.90);
 
       NDArray<Double> predictedClasses = clf.predict();
       NDArray<Double> actualClasses = dataset.getClasses();
@@ -90,6 +90,7 @@ public class PerformanceMetricsVisitor {
           confusionMatrix.get(this.TRUE_NEG_ROW)
                          .set(this.TRUE_NEG_COL, newCount);
         }
+        predictionIdx++;
       }
     }
 

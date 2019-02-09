@@ -112,6 +112,8 @@ public class Driver {
     List<List<Integer>> confusionMatrix =
                 metricsCalculator.getConfusionMatrix(clf, dataset);
 
+    System.out.println(confusionMatrix);
+
     int numTruePos = confusionMatrix.get(metricsCalculator.TRUE_POS_ROW)
                                     .get(metricsCalculator.TRUE_POS_COL);
     int numFalsePos = confusionMatrix.get(metricsCalculator.FALSE_POS_ROW)
