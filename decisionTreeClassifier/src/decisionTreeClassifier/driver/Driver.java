@@ -9,7 +9,7 @@ import util.MyLogger;
 import util.NDArray;
 import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
-import visitors.PerformanceMetricsCalculator;
+import performance_evaluation.PerformanceMetricsCalculator;
 import util.Dataset;
 import java.util.List;
 import java.util.ArrayList;
