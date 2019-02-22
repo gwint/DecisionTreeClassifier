@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Random;
 import util.Interval;
-import visitors.ClfVisitorI;
 import util.Dataset;
 
 public class DecisionTreeClassifier {

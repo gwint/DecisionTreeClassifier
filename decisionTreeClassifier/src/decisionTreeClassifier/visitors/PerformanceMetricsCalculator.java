@@ -12,7 +12,7 @@ import java.util.HashSet;
 import util.NDArray;
 import util.Dataset;
 
-public class PerformanceMetricsVisitor {
+public class PerformanceMetricsCalculator {
   private static final int NUM_ITERS = 100;
   public static final int TRUE_POS_ROW = 0;
   public static final int TRUE_POS_COL = 0;
@@ -22,6 +22,7 @@ public class PerformanceMetricsVisitor {
   public static final int FALSE_POS_COL = 0;
   public static final int TRUE_NEG_ROW = 1;
   public static final int TRUE_NEG_COL = 1;
+  public static final int NUM_TRAINING_SESSIONS_FOR_TIMING = 10;
 
   public List<List<Integer>> getConfusionMatrix(DecisionTreeClassifier clf,
                                                 Dataset dataset) {
@@ -38,7 +39,7 @@ public class PerformanceMetricsVisitor {
     Double negativeClass = 1.0;
 
     for(int numIterations = 0;
-        numIterations < PerformanceMetricsVisitor.NUM_ITERS;
+        numIterations < PerformanceMetricsCalculator.NUM_ITERS;
         numIterations++) {
 
       clf.train(dataset, 0.90);
@@ -97,6 +98,17 @@ public class PerformanceMetricsVisitor {
     return confusionMatrix;
   }
 
+  public int getTrainingTime(Dataset dataset) {
+    if(dataset == null) {
+      throw new IllegalArgumentException("Dataset must not be null");
+    }
+
+    // Do some warmup runs
+    // Time for 10 runs and display average training time in milliseconds
+
+    return 0;
+  }
+
   private int getNumCorrectPredictions(NDArray<Double> predictions,
                                        NDArray<Double> actualClasses,
                                        List<Integer> testSampleIndices) {
@@ -139,7 +151,7 @@ public class PerformanceMetricsVisitor {
     int totalNumPredictions = 0;
 
     for(int numIterations = 0;
-        numIterations < PerformanceMetricsVisitor.NUM_ITERS;
+        numIterations < PerformanceMetricsCalculator.NUM_ITERS;
         numIterations++) {
 
       clf.train(dataset, 0.90);

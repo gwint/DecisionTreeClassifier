@@ -9,7 +9,7 @@ import util.MyLogger;
 import util.NDArray;
 import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
-import visitors.PerformanceMetricsVisitor;
+import visitors.PerformanceMetricsCalculator;
 import util.Dataset;
 import java.util.List;
 import java.util.ArrayList;
@@ -102,8 +102,8 @@ public class Driver {
     DecisionTreeClassifier clf =
              new DecisionTreeClassifier(new ID3Algorithm(), 15);
 
-    PerformanceMetricsVisitor metricsCalculator =
-                                          new PerformanceMetricsVisitor();
+    PerformanceMetricsCalculator metricsCalculator =
+                                          new PerformanceMetricsCalculator();
 
     System.out.println(metricsCalculator.calculateAccuracy(clf, dataset));
     System.out.println(metricsCalculator.performStratifiedKFoldCV(clf,
