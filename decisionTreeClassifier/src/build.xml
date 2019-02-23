@@ -32,7 +32,7 @@
         <mkdir dir="${BUILD}/jar"/>
         <jar destfile="${BUILD}/jar/decisionTreeClassifier.jar" basedir="${BUILD}/classes">
             <manifest>
-                <attribute name="Main-Class" value="decisionTreeClassifier.server.Server"/>
+                <attribute name="Main-Class" value="server.Server"/>
             </manifest>
         </jar>
   </target>  

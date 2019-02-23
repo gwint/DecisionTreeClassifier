@@ -13,7 +13,7 @@ import performance_evaluation.PerformanceMetricsCalculator;
 import util.Dataset;
 import java.util.List;
 import java.util.ArrayList;
-import decisionTreeClassifier.server.Server;
+import server.Server;
 
 /**
  * @author Gregory Wint
