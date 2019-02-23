@@ -7,8 +7,7 @@
 
   <target name="all" depends="compile_all"/>
 
-  <target name="compile_all"
-          depends="decisionTreeClassifier"/>
+  <target name="compile_all" depends="decisionTreeClassifier"/>
 
   <target name="clean">
        <delete dir="${BUILD}"/>
@@ -20,14 +19,23 @@
         <mkdir dir="${classes}"/>
   </target>
 
- <target name="jar">
+  <target name="jar">
         <mkdir dir="${BUILD}/jar"/>
         <jar destfile="${BUILD}/jar/decisionTreeClassifier.jar" basedir="${BUILD}/classes">
             <manifest>
                 <attribute name="Main-Class" value="decisionTreeClassifier.driver.Driver"/>
             </manifest>
         </jar>
- </target>
+  </target>
+
+  <target name="jarServer">
+        <mkdir dir="${BUILD}/jar"/>
+        <jar destfile="${BUILD}/jar/decisionTreeClassifier.jar" basedir="${BUILD}/classes">
+            <manifest>
+                <attribute name="Main-Class" value="decisionTreeClassifier.server.Server"/>
+            </manifest>
+        </jar>
+  </target>  
 
   <!-- ** means all subdirectories as well -->
   <!-- * means all files in the current directory -->
@@ -44,7 +52,7 @@
            deprecation="off"/>
   </target>
 
-<target name="run" depends="jar">
+  <target name="run" depends="jar">
         <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
                 <assertions>
                   <enable/>
@@ -53,5 +61,14 @@
 		<arg value="${arg1}"/>
                 <arg value="${arg2}"/>
         </java>	
-    </target>
+  </target>
+
+  <target name="runServer" depends="jarServer">
+        <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
+                <assertions>
+                  <enable/>
+                </assertions>
+        </java>	
+  </target>
+  
 </project>
