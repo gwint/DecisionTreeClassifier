@@ -1,2 +1,4 @@
 1) Setup http server so that classifier can be used via http requests
+  1.1) Server needs to specify machine on which it's running via command-line
+       arguments.
 2) Why is npv low while ppv is decent?

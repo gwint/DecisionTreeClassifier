@@ -68,6 +68,8 @@
                 <assertions>
                   <enable/>
                 </assertions>
+                <arg value="${arg0}"/>
+                <arg value="${arg1}"/>
         </java>	
   </target>
   
