@@ -23,16 +23,7 @@ public class Server {
     while(true) {
       try {
         Socket conn = serverSocket.accept();
-        // Launch thread to handle request
         (new Thread(new RequestHandler(conn))).start();
-        try {
-          conn.close();
-        }
-        catch(IOException e) {
-          System.err.println(e.getMessage());
-          System.exit(1);
-        }
-        finally {}
       }
       catch(IOException e) {
         System.err.println(e.getMessage());
