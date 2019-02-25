@@ -20,10 +20,17 @@ public class RequestHandler implements Runnable {
     InputStream datasetStream = null;
     try {
       datasetStream = this.clientConnection.getInputStream();
-      // read json from socket representing dataset and samples to classify
-      for(int i = 0; i < 4; i++) {
-        System.out.println((char) datasetStream.read());
+      String datasetString = "";
+
+      int byteRead = datasetStream.read();
+      while(byteRead > -1) {
+        datasetString =
+              datasetString.concat(new String(new byte[] {(byte) byteRead}));
+        byteRead = datasetStream.read();
       }
+
+      System.out.println(datasetString);
+
       try {
         this.clientConnection.close();
       }

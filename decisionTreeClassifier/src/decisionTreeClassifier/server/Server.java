@@ -34,10 +34,7 @@ public class Server {
   }
 
   public static void main(String[] args) {
-    String host = args[0];
-    System.out.println("Server runnning on "  + host);
-
-    String portString = args[1];
+    String portString = args[0];
     int portInt = -1;
     try {
       portInt = Integer.parseInt(portString);
