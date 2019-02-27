@@ -4,6 +4,13 @@
   <property name="src"                  value="src"/>
   <property name="BUILD"                value="src/BUILD"/>
   <property name="classes"              value="${BUILD}/classes"/>
+  <property name="libs.dir"		location="src"/>
+
+  <path id="build-classpath">
+        <fileset dir="${libs.dir}">
+            <include name="*.jar" />
+        </fileset>
+  </path>
 
   <target name="all" depends="compile_all"/>
 
@@ -46,10 +53,11 @@
 	           includes="decisionTreeClassifier/**"
            excludes="**/package.html"
            destdir="${classes}"
-           classpath="${classes}"
            debug="on"
            optimize="on"
-           deprecation="off"/>
+           deprecation="off">
+        <classpath refid="build-classpath"/>
+    </javac>
   </target>
 
   <target name="run" depends="jar">

@@ -2,3 +2,7 @@
   1.1) Server needs to specify machine on which it's running via command-line
        arguments.
 2) Why is npv low while ppv is decent?
+3) classes.txt file needs to be seperated by commas and readCSV() needs to be
+   able to parse a file with that format.
+4) Add ability to parse data from http request to decision tree classifier
+5) Figure out how to format response
