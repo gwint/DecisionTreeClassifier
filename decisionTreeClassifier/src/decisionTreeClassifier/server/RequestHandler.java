@@ -3,7 +3,7 @@ package server;
 import java.net.Socket;
 import java.io.InputStream;
 import java.io.IOException;
-import org.json.*;
+import org.json.JSONObject;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
@@ -32,6 +32,7 @@ public class RequestHandler implements Runnable {
 
       System.out.println(datasetString);
 
+      JSONObject jsonObj = new JSONObject(datasetString);
       // Check that numFeatures is provided
       // Check that at least one test sample index is provided
       // Check that number of classes matches number of attributes provided
