@@ -33,6 +33,7 @@ public class RequestHandler implements Runnable {
       System.out.println(datasetString);
 
       JSONObject jsonObj = new JSONObject(datasetString);
+
       // Check that numFeatures is provided
       // Check that at least one test sample index is provided
       // Check that number of classes matches number of attributes provided
