@@ -71,8 +71,12 @@
         </java>	
   </target>
 
-  <target name="runServer" depends="jarServer">
-        <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
+  <target name="runServer" depends="decisionTreeClassifier">
+        <java fork="true" classname="server.Server">
+                <classpath>
+                  <pathelement location="src/json20180813.jar"/>
+                  <pathelement path="${BUILD}/classes"/>
+                </classpath>
                 <assertions>
                   <enable/>
                 </assertions>
