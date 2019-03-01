@@ -8,7 +8,7 @@
 
   <path id="build-classpath">
         <fileset dir="${libs.dir}">
-            <include name="*.jar" />
+            <include name="json20180813.jar" />
         </fileset>
   </path>
 
