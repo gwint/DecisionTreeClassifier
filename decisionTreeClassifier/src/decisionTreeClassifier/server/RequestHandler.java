@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.io.InputStream;
 import java.io.IOException;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
@@ -14,6 +15,29 @@ public class RequestHandler implements Runnable {
     }
     this.clientConnection = clientConnectionIn;
   }
+
+  public Object getJSONValue(JSONObject jsonObj, String key) {
+    if(jsonObj == null) {
+      throw new IllegalArgumentException("JSON object cannot be null");
+    }
+    if(key == null) {
+      throw new IllegalArgumentException("Key cannot be null");
+    }
+
+    Object associatedObj = null;
+    try {
+      associatedObj = jsonObj.get(key);
+    }
+    catch(JSONException e) {
+      System.err.println(String.format("Unable to find key in json object: %s",
+                                       key));
+      System.exit(1);
+    }
+    finally {}
+
+    return associatedObj;
+  }
+
   public void run() {
     System.out.println("Now handling classifier request...");
     // classify using decision tree classifier
@@ -24,9 +48,16 @@ public class RequestHandler implements Runnable {
       String datasetString = "";
 
       int byteRead = datasetStream.read();
+      boolean jsonEncountered = false;
+
       while(byteRead > -1) {
-        datasetString =
+        if(byteRead == (byte)'{') {
+          jsonEncountered = true;
+        }
+        if(jsonEncountered) {
+          datasetString =
               datasetString.concat(new String(new byte[] {(byte) byteRead}));
+        }
         byteRead = datasetStream.read();
       }
 
@@ -34,9 +65,11 @@ public class RequestHandler implements Runnable {
 
       JSONObject jsonObj = new JSONObject(datasetString);
 
-      // Check that numFeatures is provided
-      // Check that at least one test sample index is provided
-      // Check that number of classes matches number of attributes provided
+      int numTrainingTuples = -1;
+
+      // Verify request validity
+        // Check that at least one test sample index is provided
+        // Check that number of classes matches number of attributes provided
 
       try {
         this.clientConnection.close();
