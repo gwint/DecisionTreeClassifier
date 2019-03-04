@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONArray;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
@@ -66,6 +67,38 @@ public class RequestHandler implements Runnable {
       JSONObject jsonObj = new JSONObject(datasetString);
 
       int numTrainingTuples = -1;
+
+      try {
+        numTrainingTuples = jsonObj.getInt("num_items");
+      }
+      catch(JSONException e) {
+        System.err.println(String.format("Unable to find key in json object: %s",
+                                         "num_items"));
+        System.exit(1);
+      }
+      finally {}
+
+      JSONArray features = null;
+      try {
+        features = jsonObj.getJSONArray("all_features");
+      }
+      catch(JSONException e) {
+        System.err.println(String.format("Unable to find key in json object: %s",
+                                         "all_features"));
+        System.exit(1);
+      }
+      finally {}
+
+      JSONArray classes = null;
+      try {
+        classes = jsonObj.getJSONArray("class_labels");
+      }
+      catch(JSONException e) {
+        System.err.println(String.format("Unable to find key in json object: %s",
+                                         "class_labels"));
+        System.exit(1);
+      }
+      finally {}
 
       // Verify request validity
         // Check that at least one test sample index is provided
