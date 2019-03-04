@@ -2,6 +2,7 @@ package server;
 
 import java.net.Socket;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -41,8 +42,7 @@ public class RequestHandler implements Runnable {
 
   public void run() {
     System.out.println("Now handling classifier request...");
-    // classify using decision tree classifier
-    // return json response to client
+
     InputStream datasetStream = null;
     try {
       datasetStream = this.clientConnection.getInputStream();
@@ -62,49 +62,44 @@ public class RequestHandler implements Runnable {
         byteRead = datasetStream.read();
       }
 
-      System.out.println(datasetString);
-
       JSONObject jsonObj = new JSONObject(datasetString);
 
-      int numTrainingTuples = -1;
+      Integer numTrainingTuplesInteger =
+                     (Integer) this.getJSONValue(jsonObj, "num_items");
+      int numTrainingTuples = numTrainingTuplesInteger.intValue();
+
+      System.out.println("# training tuples: " + numTrainingTuples);
+
+      JSONArray features =
+                     (JSONArray) this.getJSONValue(jsonObj, "all_features");
+
+      JSONArray classes =
+                     (JSONArray) this.getJSONValue(jsonObj, "class_labels");
+
+      JSONArray testSamples =
+                     (JSONArray) this.getJSONValue(jsonObj, "test_samples");
+
+      System.out.println("test_samples: " + testSamples);
+
+      if(testSamples.length() == 0) {
+        throw new IllegalStateException("User must request a class label for at least one sample");
+      }
+
+      if(classes.length() != numTrainingTuples) {
+        throw new IllegalStateException("Number of classes provided does not match stated tuple count");
+      }
+
+      // Classifiy test samples and respond to client
+
+      StringBuilder httpResponse = new StringBuilder();
+      httpResponse.append("HTTP/1.1 200 OK\n\n");
 
       try {
-        numTrainingTuples = jsonObj.getInt("num_items");
-      }
-      catch(JSONException e) {
-        System.err.println(String.format("Unable to find key in json object: %s",
-                                         "num_items"));
-        System.exit(1);
-      }
-      finally {}
-
-      JSONArray features = null;
-      try {
-        features = jsonObj.getJSONArray("all_features");
-      }
-      catch(JSONException e) {
-        System.err.println(String.format("Unable to find key in json object: %s",
-                                         "all_features"));
-        System.exit(1);
-      }
-      finally {}
-
-      JSONArray classes = null;
-      try {
-        classes = jsonObj.getJSONArray("class_labels");
-      }
-      catch(JSONException e) {
-        System.err.println(String.format("Unable to find key in json object: %s",
-                                         "class_labels"));
-        System.exit(1);
-      }
-      finally {}
-
-      // Verify request validity
-        // Check that at least one test sample index is provided
-        // Check that number of classes matches number of attributes provided
-
-      try {
+        OutputStream socketWriteStream =
+                           this.clientConnection.getOutputStream();
+        System.out.println(httpResponse);
+        socketWriteStream.write(httpResponse.toString().getBytes());
+        socketWriteStream.flush();
         this.clientConnection.close();
       }
       catch(IOException e) {
