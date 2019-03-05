@@ -4,6 +4,8 @@ import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -48,19 +50,39 @@ public class RequestHandler implements Runnable {
       datasetStream = this.clientConnection.getInputStream();
       String datasetString = "";
 
-      int byteRead = datasetStream.read();
-      boolean jsonEncountered = false;
+      BufferedReader requestReader =
+             new BufferedReader(new InputStreamReader(datasetStream));
 
-      while(byteRead > -1) {
-        if(byteRead == (byte)'{') {
+      String currentRequestLine = requestReader.readLine();
+
+      boolean jsonEncountered = false;
+      StringBuilder continueResponse = null;
+
+      while(currentRequestLine != null) {
+        System.out.println(currentRequestLine);
+        if(currentRequestLine.length() == 0 && continueResponse == null) {
+          System.out.println("Time to send 100-continue response to client");
+          continueResponse = new StringBuilder();
+          continueResponse.append("HTTP/1.1 100 Continue\r\n\r\n");
+          OutputStream socketWriteStream =
+                             this.clientConnection.getOutputStream();
+          System.out.println(continueResponse);
+          socketWriteStream.write(continueResponse.toString().getBytes());
+          socketWriteStream.flush();
+        }
+        else if(currentRequestLine.length() > 0 && currentRequestLine.charAt(0) == '{') {
           jsonEncountered = true;
         }
+
         if(jsonEncountered) {
           datasetString =
-              datasetString.concat(new String(new byte[] {(byte) byteRead}));
+              datasetString.concat(currentRequestLine);
         }
-        byteRead = datasetStream.read();
+        System.out.println("Attempting to read again");
+        currentRequestLine = requestReader.readLine();
       }
+
+      System.out.println("Done reading");
 
       JSONObject jsonObj = new JSONObject(datasetString);
 
