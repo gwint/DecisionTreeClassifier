@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
+import java.util.Map;
+import java.util.HashMap;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
@@ -53,34 +55,57 @@ public class RequestHandler implements Runnable {
       BufferedReader requestReader =
              new BufferedReader(new InputStreamReader(datasetStream));
 
-      String currentRequestLine = requestReader.readLine();
 
       boolean jsonEncountered = false;
       StringBuilder continueResponse = null;
 
-      while(currentRequestLine != null) {
-        System.out.println(currentRequestLine);
-        if(currentRequestLine.length() == 0 && continueResponse == null) {
-          System.out.println("Time to send 100-continue response to client");
-          continueResponse = new StringBuilder();
-          continueResponse.append("HTTP/1.1 100 Continue\r\n\r\n");
-          OutputStream socketWriteStream =
-                             this.clientConnection.getOutputStream();
-          System.out.println(continueResponse);
-          socketWriteStream.write(continueResponse.toString().getBytes());
-          socketWriteStream.flush();
-        }
-        else if(currentRequestLine.length() > 0 && currentRequestLine.charAt(0) == '{') {
-          jsonEncountered = true;
-        }
+      System.out.println();
 
-        if(jsonEncountered) {
-          datasetString =
-              datasetString.concat(currentRequestLine);
+      Map<String, String> requestHeaderValues = new HashMap<>();
+
+      String currentRequestLine = requestReader.readLine();
+      while(currentRequestLine != null && currentRequestLine.length() > 0) {
+        System.out.println(currentRequestLine);
+        if(currentRequestLine.contains(":")) {
+          String[] keyAndValueTuple = currentRequestLine.split(new String("[' ']?:[' ']?"));
+          requestHeaderValues.put(keyAndValueTuple[0], keyAndValueTuple[1]);
         }
-        System.out.println("Attempting to read again");
         currentRequestLine = requestReader.readLine();
       }
+      System.out.println(requestHeaderValues);
+
+      int bodySizeInBytes = -1;
+      try {
+        bodySizeInBytes =
+               Integer.parseInt(requestHeaderValues.get("Content-Length"));
+      }
+      catch(NumberFormatException e) {
+        System.err.println("Content-Length sent in http request could not be parse as an integer");
+        System.exit(1);
+      }
+      finally {}
+
+      System.out.println(bodySizeInBytes);
+
+      continueResponse = new StringBuilder();
+      continueResponse.append("HTTP/1.1 100 Continue\r\n\r\n");
+      OutputStream socketWriteStream =
+                             this.clientConnection.getOutputStream();
+      socketWriteStream.write(continueResponse.toString().getBytes());
+      socketWriteStream.flush();
+
+      int numBytesRead = 0;
+      int nextByte = datasetStream.read();
+      while(numBytesRead < bodySizeInBytes) {
+        datasetString =
+              datasetString.concat(new String(new byte[]{(byte) nextByte}));
+        numBytesRead++;
+        if(numBytesRead < bodySizeInBytes) {
+          nextByte = datasetStream.read();
+        }
+      }
+
+      System.out.println(datasetString);
 
       System.out.println("Done reading");
 
@@ -117,9 +142,7 @@ public class RequestHandler implements Runnable {
       httpResponse.append("HTTP/1.1 200 OK\n\n");
 
       try {
-        OutputStream socketWriteStream =
-                           this.clientConnection.getOutputStream();
-        System.out.println(httpResponse);
+        socketWriteStream = this.clientConnection.getOutputStream();
         socketWriteStream.write(httpResponse.toString().getBytes());
         socketWriteStream.flush();
         this.clientConnection.close();
