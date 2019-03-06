@@ -15,6 +15,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import util.NDArray;
 import util.Dataset;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import classifier.DecisionTreeClassifier;
+import classifier.ID3Algorithm;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
@@ -84,19 +90,53 @@ public class RequestHandler implements Runnable {
   }
 
   private JSONArray getTestSampleClasses(JSONArray sampleIndices,
-                                         JSONArray all_data,
-                                         JSONArray all_classes) {
+                                         JSONArray allFeatures,
+                                         JSONArray allClasses) {
     if(sampleIndices == null) {
       throw new IllegalArgumentException("Array of sample indices must not be null");
     }
-    if(all_data == null) {
+    if(allFeatures == null) {
       throw new IllegalArgumentException("Array of feature data must not be null");
     }
-    if(all_classes == null) {
+    if(allClasses == null) {
       throw new IllegalArgumentException("Array of class labels must not be null");
     }
 
-    return new JSONArray();
+    Dataset dataset = this.getDataset(allFeatures, allClasses);
+    int numSamples = allClasses.length();
+
+    List<Integer> trainingSampleIndices = new ArrayList<>();
+    List<Integer> testSampleIndices = new ArrayList<>();
+
+    Set<Integer> testIndicesSet = new HashSet<>();
+
+    for(int i = 0; i < sampleIndices.length(); i++) {
+      testIndicesSet.add(sampleIndices.getInt(i));
+    }
+
+    for(int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
+      if(testIndicesSet.contains(sampleIndex)) {
+        testSampleIndices.add(sampleIndex);
+      }
+      else {
+        trainingSampleIndices.add(sampleIndex);
+      }
+    }
+
+    DecisionTreeClassifier clf =
+               new DecisionTreeClassifier(new ID3Algorithm(), 15);
+
+    clf.train(dataset, trainingSampleIndices, testSampleIndices);
+
+    NDArray<Double> predictedClasses = clf.predict(testSampleIndices);
+
+    JSONArray classesJsonArr = new JSONArray();
+
+    for(int i = 0; i < predictedClasses.length(1); i++) {
+      classesJsonArr.put(predictedClasses.get(i).doubleValue());
+    }
+
+    return classesJsonArr;
   }
 
   public Object getJSONValue(JSONObject jsonObj, String key) {
@@ -203,7 +243,11 @@ public class RequestHandler implements Runnable {
         throw new IllegalStateException("Number of classes provided does not match stated tuple count");
       }
 
-      // Classifiy test samples and respond to client
+      JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
+                                                              features,
+                                                              classes);
+
+      System.out.println(testSampleClasses);
 
       StringBuilder httpResponse = new StringBuilder();
       httpResponse.append("HTTP/1.1 200 OK\n\n");
