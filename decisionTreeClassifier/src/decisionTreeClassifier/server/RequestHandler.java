@@ -133,7 +133,7 @@ public class RequestHandler implements Runnable {
     JSONArray classesJsonArr = new JSONArray();
 
     for(int i = 0; i < predictedClasses.length(1); i++) {
-      classesJsonArr.put(predictedClasses.get(i).doubleValue());
+      classesJsonArr.put(predictedClasses.get(0, i).doubleValue());
     }
 
     return classesJsonArr;
