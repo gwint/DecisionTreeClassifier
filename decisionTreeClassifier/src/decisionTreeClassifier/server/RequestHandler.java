@@ -228,10 +228,11 @@ public class RequestHandler implements Runnable {
       System.out.println(requestHeaderValues);
 
       // Actions carried out below this point depend on http verb in request
-      String httpVerb = requestHeaderValues.get("verb");
+      HTTPVerb httpVerb =
+            convertStrToHTTPVerb(requestHeaderValues.get("verb"));
       OutputStream socketWriteStream = null;
 
-      if(httpVerb.equals("POST")) {
+      if(httpVerb == HTTPVerb.POST) {
         int bodySizeInBytes = -1;
         try {
           bodySizeInBytes =
@@ -288,15 +289,16 @@ public class RequestHandler implements Runnable {
                                                                 classes);
         System.out.println(testSampleClasses);
       }
-      else if(httpVerb.equals("GET")) {
+      else if(httpVerb == HTTPVerb.GET) {
       }
-      else if(httpVerb.equals("OPTIONS")) {
+      else if(httpVerb == HTTPVerb.OPTIONS) {
       }
-      else if(httpVerb.equals("PUT")) {
+      else if(httpVerb == HTTPVerb.PUT) {
       }
-      else if(httpVerb.equals("DELETE")) {
+      else if(httpVerb == HTTPVerb.DELETE) {
       }
       else {
+        throw new IllegalStateException("Unexpected http verb provided in request");
       }
 
       StringBuilder httpResponse = new StringBuilder();
