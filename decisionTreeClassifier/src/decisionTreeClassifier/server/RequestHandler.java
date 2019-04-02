@@ -19,11 +19,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 import classifier.DecisionTreeClassifier;
 import classifier.ID3Algorithm;
 
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
+  private static Set<String> allowedMethods =
+             new HashSet<>(Arrays.asList("GET", "POST", "OPTIONS"));
 
   private enum HTTPVerb {
     GET,
@@ -195,6 +198,19 @@ public class RequestHandler implements Runnable {
     return associatedObj;
   }
 
+  private static String getAllowedMethodsField() {
+    String allowedOptions = "Allowed: ";
+    Iterator<String> iter = RequestHandler.allowedMethods.iterator();
+    while(iter.hasNext()) {
+      String option = iter.next();
+      allowedOptions = allowedOptions + option;
+      if(iter.hasNext()) {
+        allowedOptions = allowedOptions + ", ";
+      }
+    }
+    return allowedOptions;
+  }
+
   public void run() {
     InputStream datasetStream = null;
     try {
@@ -227,10 +243,11 @@ public class RequestHandler implements Runnable {
       }
       System.out.println(requestHeaderValues);
 
-      // Actions carried out below this point depend on http verb in request
       HTTPVerb httpVerb =
             convertStrToHTTPVerb(requestHeaderValues.get("verb"));
       OutputStream socketWriteStream = null;
+
+      StringBuilder httpResponse = new StringBuilder();
 
       if(httpVerb == HTTPVerb.POST) {
         int bodySizeInBytes = -1;
@@ -288,21 +305,18 @@ public class RequestHandler implements Runnable {
                                                                 features,
                                                                 classes);
         System.out.println(testSampleClasses);
+        httpResponse.append("HTTP/1.1 200 OK\n\n");
       }
       else if(httpVerb == HTTPVerb.GET) {
       }
       else if(httpVerb == HTTPVerb.OPTIONS) {
-      }
-      else if(httpVerb == HTTPVerb.PUT) {
-      }
-      else if(httpVerb == HTTPVerb.DELETE) {
+        httpResponse.append("HTTP/1.1 200 OK\n");
+        httpResponse.append(this.getAllowedMethodsField() + "\n");
       }
       else {
-        throw new IllegalStateException("Unexpected http verb provided in request");
+        httpResponse.append("HTTP/1.1 405 Method Not Allowed\n");
+        httpResponse.append(this.getAllowedMethodsField() + "\n");
       }
-
-      StringBuilder httpResponse = new StringBuilder();
-      httpResponse.append("HTTP/1.1 200 OK\n\n");
 
       try {
         socketWriteStream = this.clientConnection.getOutputStream();
