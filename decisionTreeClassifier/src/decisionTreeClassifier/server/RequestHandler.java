@@ -25,11 +25,45 @@ import classifier.ID3Algorithm;
 public class RequestHandler implements Runnable {
   private Socket clientConnection;
 
+  private enum HTTPVerb {
+    GET,
+    PUT,
+    DELETE,
+    OPTIONS,
+    POST,
+    UNEXPECTED
+  }
+
   public RequestHandler(Socket clientConnectionIn) {
     if(clientConnectionIn == null) {
       throw new IllegalArgumentException("Client connection socket must not be null");
     }
     this.clientConnection = clientConnectionIn;
+  }
+
+  private HTTPVerb convertStrToHTTPVerb(String httpVerb) {
+    if(httpVerb == null) {
+      throw new IllegalArgumentException("HTTP verb string to convert must not be null");
+    }
+
+    HTTPVerb verb = HTTPVerb.UNEXPECTED;
+    if(httpVerb.equals("GET")) {
+      verb = HTTPVerb.GET;
+    }
+    else if(httpVerb.equals("PUT")) {
+      verb = HTTPVerb.PUT;
+    }
+    else if(httpVerb.equals("DELETE")) {
+      verb = HTTPVerb.DELETE;
+    }
+    else if(httpVerb.equals("OPTIONS")) {
+      verb = HTTPVerb.OPTIONS;
+    }
+    else if(httpVerb.equals("POST")) {
+      verb = HTTPVerb.POST;
+    }
+
+    return verb;
   }
 
   private NDArray<Double> createNDArray(JSONArray arr, int numRows,
@@ -183,71 +217,87 @@ public class RequestHandler implements Runnable {
           String[] keyAndValueTuple = currentRequestLine.split(new String("[' ']?:[' ']?"));
           requestHeaderValues.put(keyAndValueTuple[0], keyAndValueTuple[1]);
         }
+        else {
+          String[] requestTypeInfo = currentRequestLine.split(new String(" "));
+          requestHeaderValues.put("verb", requestTypeInfo[0]);
+          requestHeaderValues.put("relativeUrl", requestTypeInfo[1]);
+          requestHeaderValues.put("protocolVersion", requestTypeInfo[2]);
+        }
         currentRequestLine = requestReader.readLine();
       }
       System.out.println(requestHeaderValues);
 
-      int bodySizeInBytes = -1;
-      try {
-        bodySizeInBytes =
+      // Actions carried out below this point depend on http verb in request
+      String httpVerb = requestHeaderValues.get("verb");
+      OutputStream socketWriteStream = null;
+
+      if(httpVerb.equals("POST")) {
+        int bodySizeInBytes = -1;
+        try {
+          bodySizeInBytes =
                Integer.parseInt(requestHeaderValues.get("Content-Length"));
-      }
-      catch(NumberFormatException e) {
-        System.err.println("Content-Length sent in http request could not be parse as an integer");
-        System.exit(1);
-      }
-      finally {}
-
-      continueResponse = new StringBuilder();
-      continueResponse.append("HTTP/1.1 100 Continue\r\n\r\n");
-      OutputStream socketWriteStream =
-                             this.clientConnection.getOutputStream();
-      socketWriteStream.write(continueResponse.toString().getBytes());
-      socketWriteStream.flush();
-
-      int numBytesRead = 0;
-      int nextByte = datasetStream.read();
-      while(numBytesRead < bodySizeInBytes) {
-        datasetString =
-              datasetString.concat(new String(new byte[]{(byte) nextByte}));
-        numBytesRead++;
-        if(numBytesRead < bodySizeInBytes) {
-          nextByte = datasetStream.read();
         }
-      }
+        catch(NumberFormatException e) {
+          System.err.println("Content-Length sent in http request could not be parse as an integer");
+          System.exit(1);
+        }
+        finally {}
 
-      JSONObject jsonObj = new JSONObject(datasetString);
+        continueResponse = new StringBuilder();
+        continueResponse.append("HTTP/1.1 100 Continue\r\n\r\n");
+        socketWriteStream = this.clientConnection.getOutputStream();
+        socketWriteStream.write(continueResponse.toString().getBytes());
+        socketWriteStream.flush();
 
-      Integer numTrainingTuplesInteger =
+        int numBytesRead = 0;
+        int nextByte = datasetStream.read();
+        while(numBytesRead < bodySizeInBytes) {
+          datasetString =
+              datasetString.concat(new String(new byte[]{(byte) nextByte}));
+          numBytesRead++;
+          if(numBytesRead < bodySizeInBytes) {
+            nextByte = datasetStream.read();
+          }
+        }
+
+        JSONObject jsonObj = new JSONObject(datasetString);
+
+        Integer numTrainingTuplesInteger =
                      (Integer) this.getJSONValue(jsonObj, "num_items");
-      int numTrainingTuples = numTrainingTuplesInteger.intValue();
+        int numTrainingTuples = numTrainingTuplesInteger.intValue();
 
-      System.out.println("# training tuples: " + numTrainingTuples);
-
-      JSONArray features =
+        JSONArray features =
                      (JSONArray) this.getJSONValue(jsonObj, "all_features");
 
-      JSONArray classes =
+        JSONArray classes =
                      (JSONArray) this.getJSONValue(jsonObj, "class_labels");
 
-      JSONArray testSamples =
+        JSONArray testSamples =
                      (JSONArray) this.getJSONValue(jsonObj, "test_samples");
 
-      System.out.println("test_samples: " + testSamples);
+        if(testSamples.length() == 0) {
+          throw new IllegalStateException("User must request a class label for at least one sample");
+        }
 
-      if(testSamples.length() == 0) {
-        throw new IllegalStateException("User must request a class label for at least one sample");
+        if(classes.length() != numTrainingTuples) {
+          throw new IllegalStateException("Number of classes provided does not match stated tuple count");
+        }
+
+        JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
+                                                                features,
+                                                                classes);
+        System.out.println(testSampleClasses);
       }
-
-      if(classes.length() != numTrainingTuples) {
-        throw new IllegalStateException("Number of classes provided does not match stated tuple count");
+      else if(httpVerb.equals("GET")) {
       }
-
-      JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
-                                                              features,
-                                                              classes);
-
-      System.out.println(testSampleClasses);
+      else if(httpVerb.equals("OPTIONS")) {
+      }
+      else if(httpVerb.equals("PUT")) {
+      }
+      else if(httpVerb.equals("DELETE")) {
+      }
+      else {
+      }
 
       StringBuilder httpResponse = new StringBuilder();
       httpResponse.append("HTTP/1.1 200 OK\n\n");
