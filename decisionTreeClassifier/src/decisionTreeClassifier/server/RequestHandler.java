@@ -184,18 +184,12 @@ public class RequestHandler implements Runnable {
       throw new IllegalArgumentException("Key cannot be null");
     }
 
-    Object associatedObj = null;
     try {
-      associatedObj = jsonObj.get(key);
+      return jsonObj.get(key);
     }
     catch(JSONException e) {
-      System.err.println(String.format("Unable to find key in json object: %s",
-                                       key));
-      System.exit(1);
+      return null;
     }
-    finally {}
-
-    return associatedObj;
   }
 
   private static String getAllowedMethodsField() {
@@ -220,8 +214,6 @@ public class RequestHandler implements Runnable {
       BufferedReader requestReader =
              new BufferedReader(new InputStreamReader(datasetStream));
 
-
-      boolean jsonEncountered = false;
       StringBuilder continueResponse = null;
 
       Map<String, String> requestHeaderValues = new HashMap<>();
@@ -241,13 +233,13 @@ public class RequestHandler implements Runnable {
         }
         currentRequestLine = requestReader.readLine();
       }
-      System.out.println(requestHeaderValues);
 
       HTTPVerb httpVerb =
             convertStrToHTTPVerb(requestHeaderValues.get("verb"));
       OutputStream socketWriteStream = null;
 
       StringBuilder httpResponse = new StringBuilder();
+      int numTrainingTuples = 0;
 
       if(httpVerb == HTTPVerb.POST) {
         int bodySizeInBytes = -1;
@@ -280,34 +272,48 @@ public class RequestHandler implements Runnable {
 
         JSONObject jsonObj = new JSONObject(datasetString);
 
-        Integer numTrainingTuplesInteger =
-                     (Integer) this.getJSONValue(jsonObj, "num_items");
-        int numTrainingTuples = numTrainingTuplesInteger.intValue();
-
-        JSONArray features =
-                     (JSONArray) this.getJSONValue(jsonObj, "all_features");
-
-        JSONArray classes =
-                     (JSONArray) this.getJSONValue(jsonObj, "class_labels");
-
         JSONArray testSamples =
                      (JSONArray) this.getJSONValue(jsonObj, "test_samples");
+        if(testSamples != null && testSamples.length() > 0) {
+          Integer numTrainingTuplesInteger =
+                       (Integer) this.getJSONValue(jsonObj, "num_items");
+          if(numTrainingTuplesInteger != null) {
+            // Use user-provided dataset to make predictions
+            numTrainingTuples = numTrainingTuplesInteger.intValue();
 
-        if(testSamples.length() == 0) {
-          throw new IllegalStateException("User must request a class label for at least one sample");
+            JSONArray features =
+                         (JSONArray) this.getJSONValue(jsonObj, "all_features");
+
+            JSONArray classes =
+                         (JSONArray) this.getJSONValue(jsonObj, "class_labels");
+            if(features != null && classes != null &&
+                                classes.length() == numTrainingTuples) {
+
+              JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
+                                                                      features,
+                                                                      classes);
+              System.out.println(testSampleClasses);
+              httpResponse.append("HTTP/1.1 200 OK\n\n");
+            }
+            else {
+              httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");
+            }
+          }
+          else {
+            httpResponse.append("HTTP/1.1 451 Unavailable For Legal Reasons\n\n");
+          }
         }
-
-        if(classes.length() != numTrainingTuples) {
-          throw new IllegalStateException("Number of classes provided does not match stated tuple count");
+        else {
+          httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");
         }
-
-        JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
-                                                                features,
-                                                                classes);
-        System.out.println(testSampleClasses);
-        httpResponse.append("HTTP/1.1 200 OK\n\n");
       }
       else if(httpVerb == HTTPVerb.GET) {
+        httpResponse.append("HTTP/1.1 200 OK\n\n");
+        JSONObject datasetInfo = new JSONObject();
+        datasetInfo.append("Number of Samples", numTrainingTuples);
+        datasetInfo.append("Number of Properties per Sample", "");
+        datasetInfo.append("Training Algorithm", "ID3");
+        httpResponse.append(datasetInfo.toString() + "\n");
       }
       else if(httpVerb == HTTPVerb.OPTIONS) {
         httpResponse.append("HTTP/1.1 200 OK\n");
