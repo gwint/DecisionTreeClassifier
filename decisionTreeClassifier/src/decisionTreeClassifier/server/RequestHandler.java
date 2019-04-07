@@ -211,16 +211,25 @@ public class RequestHandler implements Runnable {
       datasetStream = this.clientConnection.getInputStream();
       String datasetString = "";
 
-      BufferedReader requestReader =
-             new BufferedReader(new InputStreamReader(datasetStream));
+      String headers = "";
+      int b = datasetStream.read();
+      int nextCharRead = datasetStream.read();
+      int nextNextCharRead = datasetStream.read();
+      while(!(b == (int)'\n' && nextCharRead == 13 &&
+                                 nextNextCharRead == (int)'\n')) {
+        headers = headers + new String(new byte[] {(byte)b});
 
-      StringBuilder continueResponse = null;
+        b = nextCharRead;
+        nextCharRead = nextNextCharRead;
+        nextNextCharRead = datasetStream.read();
+      }
+
+      String[] headerLines = headers.split(new String("\n"));
 
       Map<String, String> requestHeaderValues = new HashMap<>();
 
-      String currentRequestLine = requestReader.readLine();
-      while(currentRequestLine != null && currentRequestLine.length() > 0) {
-        System.out.println(currentRequestLine);
+      for(int i = 0; i < headerLines.length; i++) {
+        String currentRequestLine = headerLines[i].trim();
         if(currentRequestLine.contains(":")) {
           String[] keyAndValueTuple = currentRequestLine.split(new String("[' ']?:[' ']?"));
           requestHeaderValues.put(keyAndValueTuple[0], keyAndValueTuple[1]);
@@ -231,8 +240,11 @@ public class RequestHandler implements Runnable {
           requestHeaderValues.put("relativeUrl", requestTypeInfo[1]);
           requestHeaderValues.put("protocolVersion", requestTypeInfo[2]);
         }
-        currentRequestLine = requestReader.readLine();
       }
+
+      System.out.println(requestHeaderValues);
+
+      StringBuilder continueResponse = null;
 
       HTTPVerb httpVerb =
             convertStrToHTTPVerb(requestHeaderValues.get("verb"));

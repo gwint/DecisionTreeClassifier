@@ -15,7 +15,7 @@ def main():
             class_labels.append(float(class_label))
             class_label = classes_file_obj.readline()
         json_obj["num_items"] = num_classes
-        json_obj["class_labels"] = class_labels
+        json_obj["class_labels"] = class_labels[:3]
 
     with open(features_filename, 'r') as features_file_obj:
         all_features = []
@@ -24,11 +24,12 @@ def main():
             sample_features = list(map(float, features.split(",")))
             all_features += sample_features
             features = features_file_obj.readline()
-        json_obj["all_features"] = all_features
+        json_obj["all_features"] = all_features[:3]
 
     json_obj["test_samples"] = [1,2,3,4,5]
 
-    with open("request.json", 'w') as target_file_obj:
-        target_file_obj.write(dumps(json_obj) + '\n')
+    target_file_obj = open("copy.json", 'w')
+    target_file_obj.write(dumps(json_obj) + '\n')
+    target_file_obj.close()
 
 main()
