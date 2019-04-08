@@ -283,37 +283,33 @@ public class RequestHandler implements Runnable {
         }
 
         JSONObject jsonObj = new JSONObject(datasetString);
-
         JSONArray testSamples =
-                     (JSONArray) this.getJSONValue(jsonObj, "test_samples");
-        if(testSamples != null && testSamples.length() > 0) {
-          Integer numTrainingTuplesInteger =
+                  (JSONArray) this.getJSONValue(jsonObj, "test_samples");
+        Integer numTrainingTuplesInteger =
                        (Integer) this.getJSONValue(jsonObj, "num_items");
-          if(numTrainingTuplesInteger != null) {
-            // Use user-provided dataset to make predictions
-            numTrainingTuples = numTrainingTuplesInteger.intValue();
+        JSONArray features =
+                  (JSONArray) this.getJSONValue(jsonObj, "all_features");
 
-            JSONArray features =
-                         (JSONArray) this.getJSONValue(jsonObj, "all_features");
+        JSONArray classes =
+                  (JSONArray) this.getJSONValue(jsonObj, "class_labels");
+        JSONArray userProvidedTestTuples =
+                  (JSONArray) this.getJSONValue(jsonObj, "test_tuples");
 
-            JSONArray classes =
-                         (JSONArray) this.getJSONValue(jsonObj, "class_labels");
-            if(features != null && classes != null &&
-                                classes.length() == numTrainingTuples) {
 
-              JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
-                                                                      features,
-                                                                      classes);
-              System.out.println(testSampleClasses);
-              httpResponse.append("HTTP/1.1 200 OK\n\n");
-            }
-            else {
-              httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");
-            }
-          }
-          else {
-            httpResponse.append("HTTP/1.1 451 Unavailable For Legal Reasons\n\n");
-          }
+        if(testSamples != null && testSamples.length() > 0 &&
+           numTrainingTuplesInteger != null && features != null &&
+           classes != null) {
+
+           numTrainingTuples = numTrainingTuplesInteger.intValue();
+
+           JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
+                                                                   features,
+                                                                   classes);
+           httpResponse.append("HTTP/1.1 200 OK\n\n");
+           httpResponse.append(testSampleClasses.toString());
+        }
+        else if(userProvidedTestTuples != null) {
+          httpResponse.append("HTTP/1.1 501 Not Implemented\n\n");
         }
         else {
           httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");
