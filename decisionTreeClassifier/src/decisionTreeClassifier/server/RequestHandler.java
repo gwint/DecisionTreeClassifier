@@ -30,6 +30,7 @@ public class RequestHandler implements Runnable {
 
   private enum HTTPVerb {
     GET,
+    HEAD,
     PUT,
     DELETE,
     OPTIONS,
