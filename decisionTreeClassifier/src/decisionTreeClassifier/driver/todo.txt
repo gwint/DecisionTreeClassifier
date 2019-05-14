@@ -4,5 +4,5 @@
 2) Why is npv low while ppv is decent?
 3) classes.txt file needs to be seperated by commas and readCSV() needs to be
    able to parse a file with that format.
-4) Add ability to parse data from http request to decision tree classifier
-5) Figure out how to format response
+
+6) Need to be prepared to handle post requests that wish to use built in data set

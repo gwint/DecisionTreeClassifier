@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.File;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import util.FileProcessor;
 import util.NDArray;
 import util.Dataset;
 import java.util.List;
@@ -36,6 +38,58 @@ public class RequestHandler implements Runnable {
     OPTIONS,
     POST,
     UNEXPECTED
+  }
+
+  private static class BuiltInClassifier {
+    private static DecisionTreeClassifier clf = null;
+
+    private BuiltInClassifier() {
+      CharSequence classesFile = "classes.txt";
+      try {
+        File testFile = new File(classesFile.toString());
+        if(!testFile.exists()) {
+          System.err.printf("%s does not exist\n", classesFile.toString());
+          System.exit(1);
+        }
+      }
+      catch(NullPointerException e) {
+        System.err.println("Pathname to input file cannot be null");
+        System.err.println(e);
+        System.exit(1);
+      }
+      finally {}
+
+      CharSequence dataFile = "data.txt";
+      try {
+        File testFile = new File(dataFile.toString());
+        if(!testFile.exists()) {
+          System.err.printf("%s does not exist\n", dataFile.toString());
+          System.exit(1);
+        }
+      }
+      catch(NullPointerException e) {
+        System.err.println("Pathname to input file cannot be null");
+        System.err.println(e);
+        System.exit(1);
+      }
+      finally {}
+
+      NDArray<Double> trainingData =
+                       NDArray.readCSV(new FileProcessor(dataFile));
+      NDArray<Double> trainingClasses =
+                       NDArray.readCSV(new FileProcessor(classesFile));
+      Dataset dataset = new Dataset(trainingData, trainingClasses);
+
+      BuiltInClassifier.clf =
+                new DecisionTreeClassifier(new ID3Algorithm(), 15);
+    }
+
+    public static DecisionTreeClassifier getBuiltInClassifier() {
+      if(BuiltInClassifier.clf == null) {
+        new BuiltInClassifier();
+      }
+      return BuiltInClassifier.clf;
+    }
   }
 
   public RequestHandler(Socket clientConnectionIn) {
