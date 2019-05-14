@@ -24,6 +24,9 @@ can be made.
 <br>
 [This article](https://engineering.purdue.edu/~landgreb/SMC91.pdf) has more information on the theory behind decision trees learning.
 
+## Okay, I know what a decision tree is, but what does it have to do with this project?
+
+
 ## How to run:   
 
 First compile using:   
