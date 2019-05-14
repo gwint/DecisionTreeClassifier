@@ -87,6 +87,11 @@ public class DecisionTreeClassifier {
     return this.predict(this.testingSamples);
   }
 
+  public NDArray<Double> predict(NDArray<Double> testSample) {
+    NDArray<Double> prediction = new NDArray<>(1, 1);
+    double predictedClass = this.getLabel(this.trainedClassifier, testSample);
+    return prediction;
+  }
 
   public NDArray<Double> predict(List<Integer> testingSampleIndices) {
     NDArray<Double> predictions =
@@ -101,6 +106,10 @@ public class DecisionTreeClassifier {
       predictions.add(sampleLabel, 0, numPredictionsMade++);
     }
     return predictions;
+  }
+
+  private double getLabel(Node root, NDArray<Double> testSample) {
+    return 0.0;
   }
 
   private double getLabel(Node root, int sampleIdx) {

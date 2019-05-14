@@ -82,6 +82,8 @@ public class RequestHandler implements Runnable {
 
       BuiltInClassifier.clf =
                 new DecisionTreeClassifier(new ID3Algorithm(), 15);
+
+      BuiltInClassifier.clf.train(dataset, 1);
     }
 
     public static DecisionTreeClassifier getBuiltInClassifier() {
