@@ -1,4 +1,9 @@
-# DecisionTreeClassifier
+<h1 align="center">
+    Predicting Tumor Malignancy With a Decision Tree Classifier
+    <br>
+    <img src="https://www.researchgate.net/profile/Simone_Ludwig/publication/321707228/figure/fig2/AS:588683954647044@1517364600325/Decision-tree-obtained-from-FDT-classifier-for-the-Ovarian-cancer-data-set.png" alt="Raft logo" width="200">
+</h1>
+
 A decision tree created using the ID3 training algorithm.
 
 Data Set: Wisconsin Breast Cancer Diagnostic Data 
