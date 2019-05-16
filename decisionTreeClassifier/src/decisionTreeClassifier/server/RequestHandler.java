@@ -183,6 +183,35 @@ public class RequestHandler implements Runnable {
     return new Dataset(featuresNDArray, classLabelsNDArray);
   }
 
+  private JSONArray getTestSampleClasses(NDArray testSample,
+                                         JSONArray allFeatures,
+                                         JSONArray allClasses) {
+    if(testSample == null) {
+      throw new IllegalArgumentException("Array of test sample must not be null");
+    }
+    if(allFeatures == null) {
+      throw new IllegalArgumentException("Array of feature data must not be null");
+    }
+    if(allClasses == null) {
+      throw new IllegalArgumentException("Array of class labels must not be null");
+    }
+
+    Dataset dataset = this.getDataset(allFeatures, allClasses);
+    DecisionTreeClassifier clf =
+               new DecisionTreeClassifier(new ID3Algorithm(), 15);
+    clf.train(dataset, 1.0);
+
+    NDArray<Double> predictedClasses = clf.predict(testSample);
+
+    JSONArray classesJsonArr = new JSONArray();
+
+    for(int i = 0; i < predictedClasses.length(1); i++) {
+      classesJsonArr.put(predictedClasses.get(0, i).doubleValue());
+    }
+
+    return classesJsonArr;
+  }
+
   private JSONArray getTestSampleClasses(JSONArray sampleIndices,
                                          JSONArray allFeatures,
                                          JSONArray allClasses) {
@@ -354,19 +383,24 @@ public class RequestHandler implements Runnable {
 
 
         if(testSamples != null && testSamples.length() > 0 &&
-           numTrainingTuplesInteger != null && features != null &&
-           classes != null) {
+          numTrainingTuplesInteger != null && features != null &&
+          classes != null) {
 
-           numTrainingTuples = numTrainingTuplesInteger.intValue();
+          numTrainingTuples = numTrainingTuplesInteger.intValue();
 
-           JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
-                                                                   features,
-                                                                   classes);
-           httpResponse.append("HTTP/1.1 200 OK\n\n");
-           httpResponse.append(testSampleClasses.toString());
+          JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
+                                                                  features,
+                                                                  classes);
+          httpResponse.append("HTTP/1.1 200 OK\n\n");
+          httpResponse.append(testSampleClasses.toString());
         }
         else if(userProvidedTestTuples != null) {
-          httpResponse.append("HTTP/1.1 501 Not Implemented\n\n");
+          NDArray<Double> sample = new NDArray<>(1, userProvidedTestTuples.length());
+          JSONArray testSampleClasses = this.getTestSampleClasses(sample,
+                                                                  features,
+                                                                  classes);
+          httpResponse.append("HTTP/1.1 200 OK\n\n");
+          httpResponse.append(testSampleClasses.toString());
         }
         else {
           httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");

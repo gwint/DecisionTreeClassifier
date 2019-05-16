@@ -116,6 +116,11 @@ public class Node implements Linkable, Cloneable {
     return Node.nodeCount;
   }
 
+  /**
+   * Sets the parent node of this node
+   *
+   * @param parentNode The node to set as this node's parent
+   */
   public void setParent(Node parentNode) {
     this.parent = parentNode;
   }
