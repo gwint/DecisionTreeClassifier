@@ -118,10 +118,27 @@ public class DecisionTreeClassifier {
     return this.testingSamples;
   }
 
+  /**
+   * Makes predictions as to the target class of each sample of the testing
+   * set contained within the classifier.
+   *
+   * @return A 1xn dimensional array (where n is the number of samples in the
+   *         test set contained within the classifier) containing doubles
+   *         representing the target class of each sample in the test set
+   */
   public NDArray<Double> predict() {
     return this.predict(this.testingSamples);
   }
 
+  /**
+   * Makes predictions as to the target class of a sample provided by the user
+   *
+   * @param testSample A 1xm dimensional array (m is the number of features
+   *        used to describe the sample)
+   * @return A 1x1 dimensional array (where n is the number of samples in the
+   *         test set contained within the classifier) containing doubles
+   *         representing the target class of each sample in the test set
+   */
   public NDArray<Double> predict(NDArray<Double> testSample) {
     NDArray<Double> prediction = new NDArray<>(1, 1);
     double predictedClass = this.getLabel(this.trainedClassifier, testSample);
@@ -129,6 +146,15 @@ public class DecisionTreeClassifier {
     return prediction;
   }
 
+  /**
+   * Makes predictions as to the target class of a sample provided by the user
+   *
+   * @param testingSampleIndices A list of indices into the dataset used to
+   *     train the classifier that will be used for testing
+   * @return A 1x1 dimensional array (where n is the number of samples in the
+   *         test set contained within the classifier) containing doubles
+   *         representing the target class of each sample in the test set
+   */
   public NDArray<Double> predict(List<Integer> testingSampleIndices) {
     NDArray<Double> predictions =
                         new NDArray<>(1, testingSampleIndices.size());;

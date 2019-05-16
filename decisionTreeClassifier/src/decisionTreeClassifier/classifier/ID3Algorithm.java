@@ -39,6 +39,7 @@ public class ID3Algorithm implements TrainingStrategy {
   /**
    * Creates a decision tree using using the training data passed to the
    * method.
+   *
    * @param classes An NDArray containing the class label for all available
    *                samples.
    * @return A Linkable object representing the head of the newly created
@@ -130,8 +131,6 @@ public class ID3Algorithm implements TrainingStrategy {
     }
   }
 
-  /**
-   */
   private List<Node> createChildren(int lowestEntropyFeatureIdx,
                                     Node parent, List<Interval> intervals) {
 
@@ -157,8 +156,6 @@ public class ID3Algorithm implements TrainingStrategy {
     return childNodes;
   }
 
-  /**
-   */
   private int findLowestEntropyFeature(List<Integer> sampleIndices,
                                        Set<Integer> usedAttributes) {
 
@@ -187,8 +184,6 @@ public class ID3Algorithm implements TrainingStrategy {
     return attributeIndicies.remove();
   }
 
-  /**
-   */
   private double calcEntropy(List<List<Integer>> partitions) {
     double entropy = 0.0;
 
@@ -201,13 +196,9 @@ public class ID3Algorithm implements TrainingStrategy {
         }
       }
     }
-    //System.out.println(String.format("Entropy for attribute: %f",
-    //                                 entropy));
     return entropy;
   }
 
-  /**
-   */
   private double getProportion(int label, List<Integer> sampleIndices) {
     int numSamplesWithLabel = 0;
 
@@ -225,8 +216,6 @@ public class ID3Algorithm implements TrainingStrategy {
     return ((double) numSamplesWithLabel) / sampleIndices.size();
   }
 
-  /**
-   */
   private List<Interval> getAttributeIntervals(int attributeIndex) {
     double minVal = 0;
     double maxVal = 0;

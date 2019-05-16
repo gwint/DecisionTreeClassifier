@@ -43,10 +43,19 @@ public class Node implements Linkable, Cloneable {
     this.usedAttributes = usedAttributesIn;
   }
 
+  /**
+   * Returns the list of attribute indices that have been used as the
+   * split attribute.
+   *
+   * @return A set containing the attributes already used as aplit attributes
+   */
   public Set<Integer> getUsedAttributes() {
     return this.usedAttributes;
   }
 
+  /**
+   * Sets the intervals used for the split attribute
+   */
   public void setSplitAttributeIntervals(List<Interval> intervalsIn) {
     if(intervalsIn == null) {
       throw new IllegalArgumentException("List of intervals must not be null");
@@ -54,6 +63,9 @@ public class Node implements Linkable, Cloneable {
     this.splitAttributeIntervals = intervalsIn;
   }
 
+  /**
+   * 
+   */
   public List<Interval> getSplitAttributeIntervals() {
     return this.splitAttributeIntervals;
   }
