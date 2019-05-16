@@ -64,16 +64,30 @@ public class Node implements Linkable, Cloneable {
   }
 
   /**
-   * 
+   * Returns the intervals used to split node's data
+   *
+   * @return Returns a list of intervals used to split node's data
    */
   public List<Interval> getSplitAttributeIntervals() {
     return this.splitAttributeIntervals;
   }
 
+  /**
+   * Returns the index of the attribute used to split the node's data
+   *
+   * @return Returns the index of the attribute used to split the node's data
+   */
   public Integer getSplitAttributeIndex() {
     return this.splitAttributeIndex;
   }
 
+  /**
+   * Sets the field determining which attribute to use as to split the node's
+   * data.
+   *
+   * @param splitAttributeIn Index of the attribute that will be used to
+   * split the node's data
+   */
   public void setSplitAttribute(Integer splitAttributeIn) {
     if(splitAttributeIn == null) {
       throw new IllegalArgumentException("Cannot set split attribute to null");
@@ -92,6 +106,12 @@ public class Node implements Linkable, Cloneable {
     this.usedAttributes.add(newAttributeIn);
   }
 
+  /**
+   * Returns the total number of nodes that have created to date
+   *
+   * @return The total number of nodes that have been created since the
+   * program began running
+   */
   public static int getNodeCount() {
     return Node.nodeCount;
   }
@@ -162,9 +182,10 @@ public class Node implements Linkable, Cloneable {
   }
 
   /**
-   Two Node objects are equal if they have the same b-number and contain
-   the same classes in the same order.
-   @return true if Nodes are equal, false otherwise.
+   * Two Node objects are equal if they have the same b-number and contain
+   * the same classes in the same order.
+   *
+   * @return true if Nodes are equal, false otherwise.
    */
   @Override
   public boolean equals(Object aNode) {
@@ -183,9 +204,9 @@ public class Node implements Linkable, Cloneable {
   }
 
   /**
-   Determines if Node is valid (meaning it has a valid b-number) or if it is
-   a dummy Node.
-   @return true if this Node has a valid 3 digit b-number, false otherwise
+   * Determines if Node is valid (meaning it has a valid b-number) or if it is
+   * a dummy Node.
+   * @return true if this Node has a valid 3 digit b-number, false otherwise
    */
   public boolean isDummy() {
     return this.nodeId == Node.INVALID_NODE_ID;
