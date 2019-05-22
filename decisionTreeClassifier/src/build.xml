@@ -44,6 +44,13 @@
         </jar>
   </target>  
 
+  <target name="distribute">
+        <mkdir dir="${BUILD}/jar"/>
+        <jar destfile="${BUILD}/jar/dtc.jar" basedir="${BUILD}/classes">
+        </jar>
+  </target>  
+  
+
   <!-- ** means all subdirectories as well -->
   <!-- * means all files in the current directory -->
   <!-- for just java files use *.java -->
@@ -62,12 +69,12 @@
 
   <target name="run" depends="jar">
         <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
-                <assertions>
-                  <enable/>
-                </assertions>
-		<arg value="${arg0}"/>
-		<arg value="${arg1}"/>
-                <arg value="${arg2}"/>
+            <assertions>
+                <enable/>
+            </assertions>
+		    <arg value="${arg0}"/>
+		    <arg value="${arg1}"/>
+            <arg value="${arg2}"/>
         </java>	
   </target>
 
