@@ -125,14 +125,28 @@ public class Node implements Linkable, Cloneable {
     this.parent = parentNode;
   }
 
+  /**
+   * Sets the class of the group of samples contained in the node.
+   *
+   * @param labelIn A double representing the class assigned to each sample
+   * in this node
+   */
   public void setLabel(double labelIn) {
     this.label = labelIn;
   }
 
+  /**
+   * Returns the class label of the samples in the node
+   *
+   * @return The class label of the samples in the node
+   */
   public double getClassNum() {
     return this.label;
   }
 
+  /**
+   * Returns the indices of the samples 
+   */
   public List<Integer> getSampleIndices() {
     if(this.sampleIndices == null) {
       throw new UnsupportedOperationException("Cannot get the sample indices of a leaf node");
