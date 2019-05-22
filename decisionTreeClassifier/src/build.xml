@@ -46,7 +46,7 @@
 
   <target name="distribute">
         <mkdir dir="${BUILD}/jar"/>
-        <jar destfile="${BUILD}/jar/dtc.jar" basedir="${BUILD}/classes">
+        <jar destfile="dtc.jar" basedir="${BUILD}/classes">
         </jar>
   </target>  
   
