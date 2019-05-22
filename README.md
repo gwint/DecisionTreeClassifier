@@ -26,6 +26,8 @@ can be made.
 
 ## Okay, I know what a decision tree is, but what does it have to do with this project?
 
+I created a decision tree using [this](http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data) breast cancer data set 
+describing physical characteristics of both benign and malignant tumors.
 
 ## How to run:   
 
