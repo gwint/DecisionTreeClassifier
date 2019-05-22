@@ -1,6 +1,5 @@
-package visitors;
+package classifier;
 
-import classifier.Node;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;

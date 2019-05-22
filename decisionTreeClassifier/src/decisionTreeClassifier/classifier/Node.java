@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.Iterator;
 import util.NDArray;
 import util.Interval;
-import visitors.VisitorI;
 import util.Dataset;
 
 public class Node implements Linkable, Cloneable {

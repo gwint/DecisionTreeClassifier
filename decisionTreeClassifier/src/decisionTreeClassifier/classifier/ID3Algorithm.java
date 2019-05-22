@@ -15,8 +15,6 @@ import util.Interval;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
-import visitors.LabelVisitor;
-import visitors.VisitorI;
 import util.Dataset;
 
 public class ID3Algorithm implements TrainingStrategy {

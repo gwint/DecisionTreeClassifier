@@ -30,9 +30,11 @@ can be made.
 ## How to run:   
 
 First compile using:   
-ant -buildfile /api/DecisionTreeClassifier/decisionTreeClassifier/src/build.xml all
+ant -buildfile ant -buildfile api/DecisionTreeClassifier/decisionTreeClassifier/src/build.xml all
+(run from directory containing api directory)
 
 Then start server using:
-ant -buildfile api/DecisionTreeClassifier/decisionTreeClassifier/src/build.xml runServer -Darg0=9000
+ant -buildfile api/DecisionTreeClassifier/decisionTreeClassifier/src/build.xml all -Darg0
+(run from directory containing api directory)
 
-*You'll probably need sudo*
+*You might need sudo*
