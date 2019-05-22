@@ -23,7 +23,7 @@ can be made.
 <br>
 <br>
 [This article](https://engineering.purdue.edu/~landgreb/SMC91.pdf) has more information on the theory behind decision trees learning.
-All the code for the decision tree classifier is available via [this jar file](dtc.jar) and can be used with any dataset that the user wishes.
+All the code for the decision tree classifier is available via [this jar file](decisionTreeClassifier/dtc.jar) and can be used with any dataset that the user wishes.
 
 ## Okay, I know what a decision tree is, but what does it have to do with this project?
 
