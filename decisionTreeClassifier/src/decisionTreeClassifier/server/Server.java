@@ -34,18 +34,19 @@ public class Server {
   }
 
   public static void main(String[] args) {
-    String portString = args[0];
-    int portInt = -1;
-    try {
-      portInt = Integer.parseInt(portString);
-    }
-    catch(NumberFormatException e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    }
-    finally {}
+    int portInt = 9090;
 
-    System.out.println("Server listening on port " + portInt);
+    if(args.length == 1) {
+      String portString = args[0];
+      try {
+        portInt = Integer.parseInt(portString);
+      }
+      catch(NumberFormatException e) {
+        System.err.println(e.getMessage());
+        System.exit(1);
+      }
+      finally {}
+    }
 
     Server.start(portInt);
   }

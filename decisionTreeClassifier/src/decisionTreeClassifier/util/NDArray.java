@@ -1,5 +1,11 @@
 package util;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import com.mysql.cj.jdbc.Driver;
 import java.util.List;
 import java.util.ArrayList;
 import util.ProcessorI;
@@ -11,7 +17,7 @@ public class NDArray<T> {
 
   public NDArray(int... dims) {
     if(dims == null) {
-      throw new IllegalArgumentException("N-Dimensional dimensions cannot be gathered from null array");
+      throw new IllegalArgumentException("Dimensions cannot be gathered from null array");
     }
     if(dims.length == 0) {
       throw new IllegalArgumentException("N-Dimensional array must have at least one dimension");
@@ -112,6 +118,35 @@ public class NDArray<T> {
     }
 
     return arr;
+  }
+
+  public static NDArray<Double> readFromMySQLDB(String hostName,
+                                                String userName,
+                                                String password,
+                                                String tableName) throws ClassNotFoundException {
+
+    Class.forName("com.mysql.cj.jdbc.Driver");
+
+    String url = String.format("jdbc:mysql://%s:3306/gwint1", hostName);
+
+    String query = String.format("SELECT * from %s", tableName);
+
+    try(Connection con = DriverManager.getConnection(url, userName, password);
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(query)) {
+
+      if(rs.next()) {
+        System.out.println(rs.getString(1));
+      }
+    }
+    catch(SQLException ex) {
+      System.err.println("Error reading training data from database");
+      System.err.println(ex.toString());
+      ex.printStackTrace();
+      System.exit(1);
+    }
+
+    return null;
   }
 
   public boolean isEmpty() {

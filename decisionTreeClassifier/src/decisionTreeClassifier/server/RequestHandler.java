@@ -44,7 +44,7 @@ public class RequestHandler implements Runnable {
     private static DecisionTreeClassifier clf = null;
 
     private BuiltInClassifier() {
-      CharSequence classesFile = "classes.txt";
+      CharSequence classesFile = "data/classes.txt";
       try {
         File testFile = new File(classesFile.toString());
         if(!testFile.exists()) {
@@ -59,7 +59,7 @@ public class RequestHandler implements Runnable {
       }
       finally {}
 
-      CharSequence dataFile = "data.txt";
+      CharSequence dataFile = "data/data.txt";
       try {
         File testFile = new File(dataFile.toString());
         if(!testFile.exists()) {
@@ -181,6 +181,21 @@ public class RequestHandler implements Runnable {
                                                             desiredNumRows,
                                                             1);
     return new Dataset(featuresNDArray, classLabelsNDArray);
+  }
+
+  private JSONArray getTestSampleClasses(NDArray<Double> testSample) {
+    if(testSample == null) {
+      throw new IllegalArgumentException("Array of test sample must not be null");
+    }
+    DecisionTreeClassifier clf =
+                     RequestHandler.BuiltInClassifier.getBuiltInClassifier();
+
+    NDArray<Double> prediction = clf.predict(testSample);
+
+    JSONArray predictionJSONArr = new JSONArray();
+    predictionJSONArr.put(prediction.get(0, 0));
+
+    return predictionJSONArr;
   }
 
   private JSONArray getTestSampleClasses(NDArray testSample,
@@ -369,38 +384,18 @@ public class RequestHandler implements Runnable {
         }
 
         JSONObject jsonObj = new JSONObject(datasetString);
-        JSONArray testSamples =
-                  (JSONArray) this.getJSONValue(jsonObj, "test_samples");
+
         Integer numTrainingTuplesInteger =
                        (Integer) this.getJSONValue(jsonObj, "num_items");
-        JSONArray features =
-                  (JSONArray) this.getJSONValue(jsonObj, "all_features");
-
-        JSONArray classes =
-                  (JSONArray) this.getJSONValue(jsonObj, "class_labels");
         JSONArray userProvidedTestTuples =
                   (JSONArray) this.getJSONValue(jsonObj, "test_tuples");
 
-
-        if(testSamples != null && testSamples.length() > 0 &&
-          numTrainingTuplesInteger != null && features != null &&
-          classes != null) {
-
-          numTrainingTuples = numTrainingTuplesInteger.intValue();
-
-          JSONArray testSampleClasses = this.getTestSampleClasses(testSamples,
-                                                                  features,
-                                                                  classes);
+        if(userProvidedTestTuples != null) {
+          NDArray<Double> sample =
+                        new NDArray<>(1, userProvidedTestTuples.length());
+          JSONArray testSampleClass = this.getTestSampleClasses(sample);
           httpResponse.append("HTTP/1.1 200 OK\n\n");
-          httpResponse.append(testSampleClasses.toString());
-        }
-        else if(userProvidedTestTuples != null) {
-          NDArray<Double> sample = new NDArray<>(1, userProvidedTestTuples.length());
-          JSONArray testSampleClasses = this.getTestSampleClasses(sample,
-                                                                  features,
-                                                                  classes);
-          httpResponse.append("HTTP/1.1 200 OK\n\n");
-          httpResponse.append(testSampleClasses.toString());
+          httpResponse.append(testSampleClass.toString());
         }
         else {
           httpResponse.append("HTTP/1.1 406 Not Acceptable\n\n");
@@ -415,11 +410,12 @@ public class RequestHandler implements Runnable {
         httpResponse.append(datasetInfo.toString() + "\n");
       }
       else if(httpVerb == HTTPVerb.OPTIONS) {
-        httpResponse.append("HTTP/1.1 200 OK\n");
+        System.out.println("options");
+        httpResponse.append("HTTP/1.1 200 OK\n\n");
         httpResponse.append(this.getAllowedMethodsField() + "\n");
       }
       else {
-        httpResponse.append("HTTP/1.1 405 Method Not Allowed\n");
+        httpResponse.append("HTTP/1.1 405 Method Not Allowed\n\n");
         httpResponse.append(this.getAllowedMethodsField() + "\n");
       }
 

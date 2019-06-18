@@ -27,7 +27,7 @@ public class Driver {
    * that list, and the debug value to use during execution.
    * @return No return value.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ClassNotFoundException {
 
     /*
      * As the build.xml specifies the arguments as argX, in case the
@@ -93,6 +93,9 @@ public class Driver {
     finally {}
 
     MyLogger.setDebugValue(debugValue);
+
+    NDArray.readFromMySQLDB("harvey.binghamton.edu", "gwint1",
+                            "eqI6XM2uVm", "BreastCancerData");
 
     NDArray<Double> trainingData =
                        NDArray.readCSV(new FileProcessor(featuresFile));

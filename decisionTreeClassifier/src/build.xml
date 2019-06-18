@@ -9,6 +9,7 @@
   <path id="build-classpath">
         <fileset dir="${libs.dir}">
             <include name="json20180813.jar" />
+            <include name="mysql-connector-java-8.0.16.jar" />
         </fileset>
   </path>
 
@@ -69,6 +70,10 @@
 
   <target name="run" depends="jar">
         <java jar="${BUILD}/jar/decisionTreeClassifier.jar"  fork="true">
+            <classpath>
+              <pathelement location="src/mysql-connector-java-8.0.16.jar"/>
+              <pathelement path="${BUILD}/classes"/>
+            </classpath>
             <assertions>
                 <enable/>
             </assertions>
@@ -87,7 +92,7 @@
                 <assertions>
                   <enable/>
                 </assertions>
-                <arg value="${arg0}"/>
+                <arg value="9090"/>
         </java>	
   </target>
   
