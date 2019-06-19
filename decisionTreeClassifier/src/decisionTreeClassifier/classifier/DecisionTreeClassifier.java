@@ -140,6 +140,10 @@ public class DecisionTreeClassifier {
    *         representing the target class of each sample in the test set
    */
   public NDArray<Double> predict(NDArray<Double> testSample) {
+    if(testSample == null) {
+      throw new IllegalArgumentException("Test Sample must not be null");
+    }
+    
     NDArray<Double> prediction = new NDArray<>(1, 1);
     double predictedClass = this.getLabel(this.trainedClassifier, testSample);
     prediction.add(predictedClass, 0, 0);

@@ -185,8 +185,9 @@ public class RequestHandler implements Runnable {
 
   private JSONArray getTestSampleClasses(NDArray<Double> testSample) {
     if(testSample == null) {
-      throw new IllegalArgumentException("Array of test sample must not be null");
+      throw new IllegalArgumentException("Test sample must not be null");
     }
+
     DecisionTreeClassifier clf =
                      RequestHandler.BuiltInClassifier.getBuiltInClassifier();
 
@@ -324,7 +325,6 @@ public class RequestHandler implements Runnable {
         nextCharRead = nextNextCharRead;
         nextNextCharRead = datasetStream.read();
       }
-
       String[] headerLines = headers.split(new String("\n"));
 
       Map<String, String> requestHeaderValues = new HashMap<>();
@@ -332,8 +332,10 @@ public class RequestHandler implements Runnable {
       for(int i = 0; i < headerLines.length; i++) {
         String currentRequestLine = headerLines[i].trim();
         if(currentRequestLine.contains(":")) {
-          String[] keyAndValueTuple = currentRequestLine.split(new String("[' ']?:[' ']?"));
-          requestHeaderValues.put(keyAndValueTuple[0], keyAndValueTuple[1]);
+          String[] keyAndValueTuple =
+                     currentRequestLine.split(new String(":[' ']"));
+          requestHeaderValues.put(keyAndValueTuple[0].toLowerCase(),
+                                  keyAndValueTuple[1].toLowerCase());
         }
         else {
           String[] requestTypeInfo = currentRequestLine.split(new String(" "));
@@ -342,8 +344,6 @@ public class RequestHandler implements Runnable {
           requestHeaderValues.put("protocolVersion", requestTypeInfo[2]);
         }
       }
-
-      System.out.println(requestHeaderValues);
 
       StringBuilder continueResponse = null;
 
@@ -358,7 +358,7 @@ public class RequestHandler implements Runnable {
         int bodySizeInBytes = -1;
         try {
           bodySizeInBytes =
-               Integer.parseInt(requestHeaderValues.get("Content-Length"));
+               Integer.parseInt(requestHeaderValues.get("content-length"));
         }
         catch(NumberFormatException e) {
           System.err.println("Content-Length sent in http request could not be parse as an integer");
@@ -393,6 +393,11 @@ public class RequestHandler implements Runnable {
         if(userProvidedTestTuples != null) {
           NDArray<Double> sample =
                         new NDArray<>(1, userProvidedTestTuples.length());
+
+          for(int i = 0; i < userProvidedTestTuples.length(); i++) {
+            sample.add((Double) userProvidedTestTuples.get(i), 0, i);
+          }
+
           JSONArray testSampleClass = this.getTestSampleClasses(sample);
           httpResponse.append("HTTP/1.1 200 OK\n\n");
           httpResponse.append(testSampleClass.toString());
