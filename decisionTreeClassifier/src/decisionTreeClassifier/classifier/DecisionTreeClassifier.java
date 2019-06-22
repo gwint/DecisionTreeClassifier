@@ -143,7 +143,7 @@ public class DecisionTreeClassifier {
     if(testSample == null) {
       throw new IllegalArgumentException("Test Sample must not be null");
     }
-    
+
     NDArray<Double> prediction = new NDArray<>(1, 1);
     double predictedClass = this.getLabel(this.trainedClassifier, testSample);
     prediction.add(predictedClass, 0, 0);
