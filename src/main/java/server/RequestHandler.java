@@ -408,7 +408,7 @@ public class RequestHandler implements Runnable {
       }
       else if(httpVerb == HTTPVerb.GET) {
         httpResponse.append("HTTP/1.1 200 OK\n");
-        httpResponse.append("Access-Control-Allow-Origin: http://localhost\n\n");
+        httpResponse.append("Access-Control-Allow-Origin: *\n\n");
         JSONObject datasetInfo = new JSONObject();
         datasetInfo.append("Number of Samples", numTrainingTuples);
         datasetInfo.append("Number of Properties per Sample", "");

@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import com.mysql.cj.jdbc.Driver;
 import java.util.List;
 import java.util.ArrayList;
 import util.ProcessorI;
@@ -125,7 +124,7 @@ public class NDArray<T> {
                                                 String password,
                                                 String tableName) throws ClassNotFoundException {
 
-    Class.forName("com.mysql.cj.jdbc.Driver");
+    /*Class.forName("com.mysql.cj.jdbc.Driver");
 
     String url = String.format("jdbc:mysql://%s:3306/gwint1", hostName);
 
@@ -145,6 +144,7 @@ public class NDArray<T> {
       ex.printStackTrace();
       System.exit(1);
     }
+    */
 
     return null;
   }
