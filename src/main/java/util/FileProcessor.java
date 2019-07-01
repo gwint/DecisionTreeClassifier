@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class FileProcessor implements ProcessorI, Cloneable {
   private BufferedReader reader;
@@ -13,38 +15,27 @@ public class FileProcessor implements ProcessorI, Cloneable {
   private static int instanceCount = 0;
 
   public FileProcessor(CharSequence fileNameIn) {
-    MyLogger.writeMessage("Now entering FileProcessor constructor",
-                          MyLogger.DebugLevel.CONSTRUCTOR);
+      MyLogger.writeMessage("Now entering FileProcessor constructor",
+                            MyLogger.DebugLevel.CONSTRUCTOR);
 
-    if(fileNameIn == null) {
-      throw new IllegalArgumentException("Cannot create file processor using null file name.");
-    }
-    this.fileName = fileNameIn;
-    File file = null;
-    try {
-      file = new File(fileNameIn.toString());
-      FileReader fileReader = null;
-      try {
-        fileReader = new FileReader(file);
-        this.reader = new BufferedReader(fileReader);
+      if(fileNameIn == null) {
+          throw new IllegalArgumentException("Cannot create file processor using null file name.");
       }
-      catch(FileNotFoundException e) {
-        MyLogger.writeError(
-                    String.format("File %s does not exist!\nNow exiting...",
-                    fileNameIn));
-        System.exit(1);
+
+      this.fileName = fileNameIn;
+
+      try {
+          InputStream inputStream = FileProcessor.class.getResourceAsStream(fileNameIn.toString());
+          this.reader = new BufferedReader(new InputStreamReader(inputStream));
+      }
+      catch(Exception e) {
+          e.printStackTrace();
+          System.exit(1);
       }
       finally {}
-    }
-    catch(NullPointerException e) {
-      MyLogger.writeError(
-          String.format("Null string provided as file name.\nNow exiting...\n",
-          fileNameIn));
-      System.exit(1);
-    }
-    finally {}
-    this.id = FileProcessor.instanceCount;
-    FileProcessor.instanceCount++;
+
+      this.id = FileProcessor.instanceCount;
+      FileProcessor.instanceCount++;
   }
 
   @Override
