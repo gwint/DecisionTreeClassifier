@@ -209,4 +209,29 @@ public class PerformanceMetricsCalculator {
     System.out.println("Num correct: " + totalNumCorrect);
     return ((double) totalNumCorrect) / totalPredictionsMade;
   }
+
+    public static List<Set<Integer>> getKFolds(int numFolds) {
+        if(numFolds < 2) {
+            throw new IllegalArgumentException("Number of folds must be at least 2");
+        }
+        Map<Double, Set<Integer>> classMembership = this.getClassMembership();
+        List<Set<Integer>> folds = new ArrayList<>();
+
+        for(int i = 0; i < numFolds; i++) {
+            folds.add(new HashSet<>());
+        }
+
+        int foldIndex = 0;
+
+        for(Double classLabel : classMembership.keySet()) {
+            Set<Integer> sampleIndices = classMembership.get(classLabel);
+            Iterator<Integer> sampleIndexIterator = sampleIndices.iterator();
+            while(sampleIndexIterator.hasNext()) {
+                folds.get(foldIndex % numFolds).add(sampleIndexIterator.next());
+                foldIndex++;
+            }
+        }
+
+        return folds;
+    }
 }

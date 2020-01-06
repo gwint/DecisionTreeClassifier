@@ -183,9 +183,12 @@ public class RequestHandler implements Runnable {
           String[] keyAndValueTuple = currentRequestLine.split(new String("[' ']?:[' ']?"));
           requestHeaderValues.put(keyAndValueTuple[0], keyAndValueTuple[1]);
         }
+        else {
+          requestHeaderValues.put("verb", currentRequestLine);
+        }
         currentRequestLine = requestReader.readLine();
       }
-      System.out.println(requestHeaderValues);
+      System.out.println("request-header values:" + requestHeaderValues);
 
       int bodySizeInBytes = -1;
       try {

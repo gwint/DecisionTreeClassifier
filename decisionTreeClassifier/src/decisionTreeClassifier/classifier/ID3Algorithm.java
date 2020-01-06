@@ -44,7 +44,7 @@ public class ID3Algorithm implements TrainingStrategy {
    * @return A Linkable object representing the head of the newly created
    *         decision tree.
    */
-  public Node train(Dataset dataset,
+  public Node createModel(Dataset dataset,
                     List<Integer> trainingSampleIndices,
                     int maxClassifierHeight) {
 
