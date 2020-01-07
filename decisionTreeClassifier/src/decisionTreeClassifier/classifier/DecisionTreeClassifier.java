@@ -83,6 +83,13 @@ public class DecisionTreeClassifier {
     }
 
     /**
+     *  Helper method that recursively traverses decision tree to find a leaf
+     *  that corresponds to the sample feauture's class label.
+     *  @param root Node The starting position of the tree traversal.
+     *  @param sampleFeatures NDArray<Double> The n-dimensional array containing
+     *                                        the feature information of the
+     *                                        sample in question.
+     *  @return The class label associted with the sample in question.
      */
     private double getLabelHelper(Node root, NDArray<Double> sampleFeatures) {
         List<Interval> intervals = root.getSplitAttributeIntervals();
@@ -111,7 +118,8 @@ public class DecisionTreeClassifier {
         return this.getLabelHelper(children.get(i), sampleIdx);
     }
 
-    public static List<List<Integer>> getSplitSampleIndices(double trainingProportion, NDArray features, NDArray classes) {
+    public static List<NDArray<Double>>
+    splitData(NDArray<Double> features, NDArray<Double> classes, double trainingProportion) {
         if(trainingProportion < 0) {
             throw new IllegalArgumentException("Proportion of data to be used for trainging must be non-negative");
         }
@@ -119,18 +127,18 @@ public class DecisionTreeClassifier {
         int numSamples = features.length(0);
         int numTrainingSamples = (int) Math.round(trainingProportion * numSamples);
 
-        List<List<Integer>> split = new ArrayList<>();
+        List<NDArray<Double>> split = new ArrayList<>();
 
-        List<Integer> trainingList = new ArrayList<>();
-        List<Integer> testingList = new ArrayList<>();
+        // Create 4 NDArray's of correct size
+
         Set<Integer> trainingSet = new HashSet<>();
-        Set<Integer> testSet = new HashSet<>();
 
         Random randNumGen = new Random();
         while(trainingSet.size() < numTrainingSamples) {
             int randInt = Math.abs(randNumGen.nextInt()) % numSamples;
             if(!trainingSet.contains(randInt)) {
                 trainingSet.add(randInt);
+                // Place training sample
             }
         }
 
@@ -140,14 +148,8 @@ public class DecisionTreeClassifier {
             }
         }
 
-        trainingList.addAll(trainingSet);
-        testingList.addAll(testSet);
-
         split.add(trainingList);
         split.add(testingList);
-
-        int numTestSamples = testingList.size();
-        assert numTrainingSamples + numTestSamples == numSamples;
 
         return split;
     }

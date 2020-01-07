@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import util.ProcessorI;
 import java.util.Arrays;
 
-public class NDArray<T> {
-    private List<Integer> dimensions;
+public class NDArray {
     private Object[] data;
+    private boolean containsData;
 
     public NDArray(int... dims) {
         if(dims == null) {
@@ -16,16 +16,18 @@ public class NDArray<T> {
         if(dims.length == 0) {
             throw new IllegalArgumentException("N-Dimensional array must have at least one dimension");
         }
-        this.dimensions = new ArrayList<>();
-
-        int totalNumElements = 1;
-
-        for(int dim : dims) {
-            totalNumElements *= dim;
-            this.dimensions.add(dim);
+        if(dims.length == 1) {
+            this.containsData = true;
+            this.data = new Object[dims[0]];
+            return;
         }
 
-        this.data = new Object[totalNumElements];
+        this.data = new Object[dims[0]];
+        for(int i = 0; i < dims[0]; i++) {
+            this.data[i] = new NDArray(Arrays.copyOfRange(dims, 1, dims.length));
+        }
+
+        this.containsData = false;
     }
 
     /**
@@ -33,29 +35,25 @@ public class NDArray<T> {
      *  @param indices... int's representing location of element to retrieve.
      *  @return The item retrieved from the ndarray.
      */
-    public T get(int ... indices) {
+    public Object get(int ... indices) {
         if(indices == null) {
             throw new IllegalArgumentException("Indices must be provided to retrieve element");
         }
-        if(indices.length != this.dimensions.size()) {
-            throw new IllegalArgumentException(String.format("%d index values must be provided", this.dimensions.size()));
+        if(indices.length > 1 && this.containsData) {
+            throw new IllegalArgumentException("Too many index values provided");
+        }
+        if(indices[0] >= this.data.length) {
+            throw new IllegalArgumentException(String.format("Invalid index value for axis: %d", indices[0]));
         }
 
-        for(int i = 0; i < indices.length; i++) {
-            if(indices[i] >= this.dimensions.get(i)) {
-                throw new IllegalArgumentException(String.format("Invalid index value for axis %d: %d", i, indices[i]));
-            }
+        Object currArr = this;
+        for(int index : indices) {
+            System.out.println("object: " + currArr);
+            currArr = ((NDArray) currArr).data[index];
         }
 
-        int index1D = 0;
-        int totalNumElements = this.data.length;
-        for(int i = 0; i < indices.length; i++) {
-            // a(x2*x3*x4*...*xn) + b(X3*x4*x5*...*xn) + ... + z
-            totalNumElements /= this.dimensions.get(i);
-            index1D += indices[i] * totalNumElements;
-        }
-
-        return (T) this.data[index1D];
+        System.out.println("type: " + currArr);
+        return currArr;
     }
 
     /**
@@ -64,29 +62,23 @@ public class NDArray<T> {
      *  @param indices int... The location at which to insert the element.
      *  @return None.
      */
-    public void add(T value, int ... indices) {
+    public void add(Object value, int ... indices) {
         if(indices == null) {
             throw new IllegalArgumentException("Indices must be provided to retrieve element");
         }
-        if(indices.length != this.dimensions.size()) {
-            throw new IllegalArgumentException(String.format("%d index values must be provided", this.dimensions.size()));
+        if(indices.length > 1 && this.containsData) {
+            throw new IllegalArgumentException("Too many index values provided");
+        }
+        if(indices[0] >= this.data.length) {
+            throw new IllegalArgumentException(String.format("Invalid index value for axis: %d", indices[0]));
         }
 
-        for(int i = 0; i < indices.length; i++) {
-            if(indices[i] >= this.dimensions.get(i)) {
-                throw new IllegalArgumentException(String.format("Invalid index value for axis %d: %d", i, indices[i]));
-            }
+        if(indices.length == 1) {
+            this.data[indices[0]] = value;
+            return;
         }
 
-        int index1D = 0;
-        int totalNumElements = this.data.length;
-        for(int i = 0; i < indices.length; i++) {
-            // a(x2*x3*x4*...*xn) + b(X3*x4*x5*...*xn) + ... + z
-            totalNumElements /= this.dimensions.get(i);
-            index1D += indices[i] * totalNumElements;
-        }
-
-        this.data[index1D] = value;
+        ((NDArray) this.data[indices[0]]).add(value, Arrays.copyOfRange(indices, 1, indices.length));
     }
 
     /**
@@ -95,7 +87,7 @@ public class NDArray<T> {
      *  @param fileName String Name of file to be read in.
      *  @return An n-dimensional array containing contents of file.
      */
-    public static NDArray<Double> readCSV(String fileName) {
+    public static NDArray readCSV(String fileName) {
         FileProcessor processor = new FileProcessor(fileName);
 
         int numColumns = processor.readNextLine().split(new String(",")).length;
@@ -105,7 +97,7 @@ public class NDArray<T> {
             numRows++;
         }
 
-        NDArray<Double> arr = new NDArray<Double>(numRows, numColumns);
+        NDArray arr = new NDArray(numRows, numColumns);
 
         int currRow = 0;
         int currCol = 0;
@@ -135,8 +127,8 @@ public class NDArray<T> {
      *                  length is desired.
      *  @return The length of the ndarray along the axis in question.
      */
-    public int length(int axis) {
-        return this.dimensions.get(axis);
+    public int length() {
+        return this.data.length;
     }
 
     @Override
