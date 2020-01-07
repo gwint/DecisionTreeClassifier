@@ -67,7 +67,7 @@ public class UtilTests {
     }
 
     @Test
-    public void testNDArrayEquals() {
+    public void testNDArrayEqualsMatch() {
         NDArray arr1 = new NDArray(2, 6);
         double num = 1;
         for(int i = 0; i < 2; i++) {
@@ -80,6 +80,29 @@ public class UtilTests {
         NDArray arr2 = NDArray.readCSV("test.csv");
 
         Assert.assertTrue(arr1.equals(arr2));
+    }
+
+    @Test
+    public void testNDArrayEqualsNoMatch() {
+        NDArray arr1 = new NDArray(2, 6);
+        double num = 1;
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 6; j++) {
+                arr1.add(num, i, j);
+                num = num + 1;
+            }
+        }
+
+        NDArray arr2 = new NDArray(2, 6);
+        num = 2;
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 6; j++) {
+                arr1.add(num, i, j);
+                num = num + 1;
+            }
+        }
+
+        Assert.assertNotEquals(arr1, arr2);
     }
 
     @Test
