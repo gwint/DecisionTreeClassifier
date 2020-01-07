@@ -116,4 +116,28 @@ public class UtilTests {
             }
         }
     }
+
+    @Test
+    public void testGetInnerArray() {
+        NDArray arr1 = new NDArray(2, 6);
+        double num = 1;
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 6; j++) {
+                arr1.add(num, i, j);
+                num = num + 1;
+            }
+        }
+
+        NDArray innerArr = (NDArray) arr1.get(0);
+
+        Assertions.assertAll(
+            () -> Assert.assertTrue(innerArr.get(0).equals(1.0)),
+            () -> Assert.assertTrue(innerArr.get(1).equals(2.0)),
+            () -> Assert.assertTrue(innerArr.get(2).equals(3.0)),
+            () -> Assert.assertTrue(innerArr.get(3).equals(4.0)),
+            () -> Assert.assertTrue(innerArr.get(4).equals(5.0)),
+            () -> Assert.assertTrue(innerArr.get(5).equals(6.0)),
+            () -> Assert.assertEquals(innerArr.length(), 6)
+        );
+    }
 }

@@ -45,15 +45,19 @@ public class NDArray {
         if(indices[0] >= this.data.length) {
             throw new IllegalArgumentException(String.format("Invalid index value for axis: %d", indices[0]));
         }
+        if(indices.length == 1) {
+            return this.data[indices[0]];
+        }
 
+/*
         Object currArr = this;
         for(int index : indices) {
             System.out.println("object: " + currArr);
             currArr = ((NDArray) currArr).data[index];
         }
+*/
 
-        System.out.println("type: " + currArr);
-        return currArr;
+        return ((NDArray) this.data[indices[0]]).get(Arrays.copyOfRange(indices, 1, indices.length));
     }
 
     /**
