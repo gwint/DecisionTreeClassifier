@@ -8,6 +8,7 @@ import java.util.Arrays;
 public class NDArray {
     private Object[] data;
     private boolean containsData;
+    private int[] dimensions;
 
     public NDArray(int... dims) {
         if(dims == null) {
@@ -21,6 +22,8 @@ public class NDArray {
             this.data = new Object[dims[0]];
             return;
         }
+
+        this.dimensions = Arrays.copyOf(dims, dims.length);
 
         this.data = new Object[dims[0]];
         for(int i = 0; i < dims[0]; i++) {
@@ -133,6 +136,10 @@ public class NDArray {
      */
     public int length() {
         return this.data.length;
+    }
+
+    public int[] getDimensions() {
+        return this.dimensions;
     }
 
     @Override
