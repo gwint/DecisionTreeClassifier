@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Iterator;
+
 import util.NDArray;
-import visitors.VisitorI;
 
 public class Node {
     private static final int NO_LABEL_ASSIGNED = -1;
@@ -64,6 +63,14 @@ public class Node {
         return this.indexOfFeatureToUseToSplitSamplesUp;
     }
 
+    public NDArray getFeatures() {
+        return this.features;
+    }
+
+    public NDArray getClasses() {
+        return this.classes;
+    }
+
     public void setParent(Node parentNode) {
         this.parent = parentNode;
     }
@@ -106,39 +113,7 @@ public class Node {
         return haveSameClass;
     }
 
-    public List<Integer> getIntervalsForFeature(int featureColumnIndex, int numIntervals) {
-        List<Integer> intervalStartingValues = new ArrayList<>();
-        double minimumFeatureValue = this.getMinimumValueForGivenFeature(featureColumnIndex);
-        double maximumFeatureValue = this.getMaximumValueForGivenFeature(featureColumnIndex);
-
-        double intervalSize = (maximumFeatureValue - minimumFeatureValue) / numIntervals;
-
-        for(int numIntervalStartsComputed = 0; numIntervalStartsComputed < numIntervals; numIntervalStartsComputed++) {
-            intervalStartingValues.add(minimumFeatureValue + (intervalSize * numIntervalStartsComputed));
-        }
-
-        return intervalStartingValues;
-    }
-
     public List<Node> getChildren() {
         return this.children;
-    }
-
-    private double getMinimumValueForGivenFeature(int relevantColumnIndex) {
-        double minimumFeatureValue = this.features.get(0, relevantColumnIndex);
-        for(int sampleIndex = 1; sampleIndex < this.features.length(); sampleIndex++) {
-            minimumFeatureValue = Math.min(minimumFeatureValue, this.features.get(sampleIndex, relevantColumnIndex));
-        }
-
-        return minimumFeatureValue;
-    }
-
-    private double getMaximumValueForGivenFeature(int relevantColumnIndex) {
-        double maximumFeatureValue = this.features.get(0, relevantColumnIndex);
-        for(int sampleIndex = 1; sampleIndex < this.features.length(); sampleIndex++) {
-            maximumFeatureValue = Math.max(maximumFeatureValue, this.features.get(sampleIndex, relevantColumnIndex));
-        }
-
-        return maximumFeatureValue;
     }
 }
