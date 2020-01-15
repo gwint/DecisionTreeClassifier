@@ -21,8 +21,8 @@ class DecisionTreeClassifier {
 
         int getLabel(const my::single_sample_features&);
         int getLabelHelper(Node *, const my::single_sample_features&);
-        static std::pair<my::features, my::classes>
-        getTrainingAndTestSets(const my::features&, const my::classes&);
+        static std::pair<my::training_data, my::testing_data>
+        getTrainingAndTestSets(const my::features&, const my::classes&, double);
 };
 
 #endif

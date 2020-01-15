@@ -8,6 +8,7 @@
 
 class Node {
     public:
+        static std::unordered_set<int> attributesAlreadyUsedToSplitANode;
         Node(my::features*, my::classes*);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
@@ -23,7 +24,6 @@ class Node {
     private:
         static const int NO_LABEL_ASSIGNED = -1;
         static const int NO_INDEX_ASSIGNED = -1;
-        static std::unordered_set<int> attributesAlreadyUsedToSplitANode;
 
         std::vector<Node*> children;
         int label;
