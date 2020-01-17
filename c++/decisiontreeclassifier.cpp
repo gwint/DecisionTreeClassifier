@@ -5,7 +5,7 @@
 #include "decisiontreeclassifier.hpp"
 #include "TrainingStrategy.hpp"
 
-DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy const * strat, int maxHeight) {
+DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy* strat, int maxHeight) {
     if(strat == NULL) {
         std::cout << "Training strategy must not be null" << std::endl;
         exit(1);
@@ -19,10 +19,15 @@ DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy const * strat, i
     this->maxHeight = maxHeight;
 }
 
-DecisionTreeClassifier DecisionTreeClassifier::train(const my::features& features, const my::classes& classes) {
-    this->decisionTree = this->strategy->createModel(features, classes, this->maxHeight);
+DecisionTreeClassifier DecisionTreeClassifier::train(my::features* features, my::classes* classes) {
+    TrainingStrategy* strategy = this->getStrategy();
+    this->decisionTree = strategy->createModel(features, classes, this->maxHeight);
 
     return *this;
+}
+
+TrainingStrategy* DecisionTreeClassifier::getStrategy() {
+    return this->strategy;
 }
 
 my::classes DecisionTreeClassifier::predict(const my::features& features) {

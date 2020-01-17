@@ -6,7 +6,7 @@
 
 class TrainingStrategy {
     public:
-        virtual Node* createModel(const my::features&, const my::classes&, int) const = 0;
+        virtual Node* createModel(my::features*, my::classes*, int) = 0;
 };
 
 #endif

@@ -19,6 +19,7 @@ class Node {
         void setLabel(int);
         int getLabel();
         std::vector<Node*> getChildren();
+        void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();
 
     private:

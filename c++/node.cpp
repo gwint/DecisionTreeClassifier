@@ -77,3 +77,7 @@ bool Node::doIncludedSamplesAllHaveSameClass() {
 std::vector<Node*> Node::getChildren() {
     return this->children;
 }
+
+void Node::setChildren(const std::vector<Node*>& children) {
+    this->children = children;
+}

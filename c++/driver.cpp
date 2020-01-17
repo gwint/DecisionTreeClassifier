@@ -21,6 +21,7 @@ int main(int argv, char** args) {
     my::classes classes;
 
     DecisionTreeClassifier clf = DecisionTreeClassifier(new ID3Algorithm(), 15);
+    clf = clf.train(&features, &classes);
 
     return 0;
 }
