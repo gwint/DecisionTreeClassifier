@@ -4,6 +4,7 @@
 #include "decisiontreeclassifier.hpp"
 #include "ID3Algorithm.hpp"
 #include "mytypes.hpp"
+#include "helper.hpp"
 
 int main(int argv, char** args) {
     if(argv != 3) {
