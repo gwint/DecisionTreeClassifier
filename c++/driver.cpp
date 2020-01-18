@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdlib>
+#include <string>
+#include <utility>
 
 #include "decisiontreeclassifier.hpp"
 #include "ID3Algorithm.hpp"
@@ -15,14 +17,23 @@ int main(int argv, char** args) {
     char* featuresFileName = args[1];
     char* classesFileName = args[2];
 
-    std::cout << featuresFileName << std::endl;
-    std::cout << classesFileName << std::endl;
+    my::features features = readFeatures(std::string(featuresFileName));
+    my::classes classes = readClasses(std::string(classesFileName));
 
-    my::features features;
-    my::classes classes;
+    std::pair<my::training_data, my::testing_data> splitData =
+            DecisionTreeClassifier::getTrainingAndTestSets(features,
+                                                           classes,
+                                                           0.7);
+
+    my::features trainingFeatures = splitData.first.first;
+    my::classes trainingClasses = splitData.first.second;
+    my::features testingFeatures = splitData.second.first;
+    my::classes testingClasses = splitData.second.second;
 
     DecisionTreeClassifier clf = DecisionTreeClassifier(new ID3Algorithm(), 15);
-    clf = clf.train(&features, &classes);
+    clf = clf.train(&trainingFeatures, &trainingClasses);
+
+    my::classes predictions = clf.predict(testingFeatures);
 
     return 0;
 }

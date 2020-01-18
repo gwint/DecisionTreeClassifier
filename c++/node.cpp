@@ -81,3 +81,7 @@ std::vector<Node*> Node::getChildren() {
 void Node::setChildren(const std::vector<Node*>& children) {
     this->children = children;
 }
+
+bool Node::isLeaf() {
+    return this->children.empty();
+}

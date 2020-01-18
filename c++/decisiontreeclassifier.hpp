@@ -13,6 +13,8 @@ class DecisionTreeClassifier {
         DecisionTreeClassifier(TrainingStrategy*, int);
         DecisionTreeClassifier train(my::features*, my::classes*);
         my::classes predict(const my::features&);
+        static std::pair<my::training_data, my::testing_data>
+        getTrainingAndTestSets(const my::features&, const my::classes&, double);
 
     private:
         Node* decisionTree;
@@ -21,8 +23,6 @@ class DecisionTreeClassifier {
 
         int getLabel(const my::single_sample_features&);
         int getLabelHelper(Node *, const my::single_sample_features&);
-        static std::pair<my::training_data, my::testing_data>
-        getTrainingAndTestSets(const my::features&, const my::classes&, double);
         TrainingStrategy* getStrategy();
 };
 

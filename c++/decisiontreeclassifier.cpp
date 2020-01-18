@@ -4,6 +4,7 @@
 
 #include "decisiontreeclassifier.hpp"
 #include "TrainingStrategy.hpp"
+#include "ID3Algorithm.hpp"
 
 DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy* strat, int maxHeight) {
     if(strat == NULL) {
@@ -32,12 +33,16 @@ TrainingStrategy* DecisionTreeClassifier::getStrategy() {
 
 my::classes DecisionTreeClassifier::predict(const my::features& features) {
     my::classes predictions;
+    for(my::single_sample_features sampleFeatures : features) {
+        predictions.push_back(this->getLabel(sampleFeatures));
+    }
 
     return predictions;
 }
 
 int DecisionTreeClassifier::getLabel(const my::single_sample_features& features) {
     Node* decisionTreeRoot = this->decisionTree;
+    std::cout << "root: " << decisionTreeRoot << std::endl;
     std::vector<Node*> children = decisionTreeRoot->getChildren();
     if(children.empty()) {
         return decisionTreeRoot->getLabel();
@@ -49,7 +54,44 @@ int DecisionTreeClassifier::getLabel(const my::single_sample_features& features)
 
 
 int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_features& features) {
-    return 0;
+    if(root == NULL) {
+        std::cerr << "Node should not be null" << std::endl;
+        exit(1);
+    }
+    if(root->isLeaf()) {
+        return root->getLabel();
+    }
+
+    int indexUsedToSplitSamples =
+                     root->getIndexOfFeatureToUseToSplitSamplesUp();
+    my::intervals intervals =
+         ID3Algorithm::getIntervalsForFeature(
+                                  root->getFeatures(),
+                                  indexUsedToSplitSamples,
+                                  ID3Algorithm::NUM_DATA_PARTITIONS);
+
+    double featureValueAtIndexUsedToSplitSamples =
+                                features.at(indexUsedToSplitSamples);
+    int childIndex = 0;
+    for(my::interval interval : intervals) {
+        std::cout << "feature: " << featureValueAtIndexUsedToSplitSamples << std::endl;
+        std::cout << "start: " << interval.first << std::endl;
+        std::cout << "end: " << interval.second << std::endl;
+        if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
+           featureValueAtIndexUsedToSplitSamples <= interval.second) {
+            std::cout << "in break" << std::endl;
+            break;
+        }
+
+        childIndex++;
+    }
+
+    std::vector<Node*> children = root->getChildren();
+    std::cout << "children size: " << children.size() << std::endl;
+    std::cout << "child index: " << childIndex << std::endl;
+    Node* relevantChild = children.at(childIndex);
+
+    return this->getLabelHelper(relevantChild, features);
 }
 
 std::pair<my::training_data, my::testing_data>

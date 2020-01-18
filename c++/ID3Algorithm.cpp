@@ -23,7 +23,7 @@ Node* ID3Algorithm::createModel(my::features* features,
 
     ID3Algorithm::trainHelper(root, maximumTreeHeight);
 
-    return NULL;
+    return root;
 }
 
 void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
@@ -136,7 +136,8 @@ double ID3Algorithm::getProportion(int targetLabel, const my::classes& classes) 
 
 double
 ID3Algorithm::getMinimumValueForGivenFeature(const my::features* features, int relevantColumnIndex) {
-    double minimumFeatureValue = features->at(0).at(relevantColumnIndex);
+    my::single_sample_features firstSampleFeatures = features->at(0);
+    double minimumFeatureValue = firstSampleFeatures.at(relevantColumnIndex);
     for(int sampleIndex = 1; sampleIndex < features->size(); sampleIndex++) {
         minimumFeatureValue = std::min(minimumFeatureValue, features->at(sampleIndex).at(relevantColumnIndex));
     }
@@ -146,7 +147,8 @@ ID3Algorithm::getMinimumValueForGivenFeature(const my::features* features, int r
 
 double
 ID3Algorithm::getMaximumValueForGivenFeature(const my::features* features, int relevantColumnIndex) {
-    double maximumFeatureValue = features->at(0).at(relevantColumnIndex);
+    my::single_sample_features firstSampleFeatures = features->at(0);
+    double maximumFeatureValue = firstSampleFeatures.at(relevantColumnIndex);
     for(int sampleIndex = 1; sampleIndex < features->size(); sampleIndex++) {
         maximumFeatureValue = std::max(maximumFeatureValue, features->at(sampleIndex).at(relevantColumnIndex));
     }
@@ -163,14 +165,22 @@ ID3Algorithm::getIntervalsForFeature(const my::features* features, int featureCo
     double maximumFeatureValue =
              ID3Algorithm::getMaximumValueForGivenFeature(features, featureColumnIndex);
 
-    double intervalSize =
-         (maximumFeatureValue - minimumFeatureValue) / numIntervals;
+    std::cout << "minimum: " << minimumFeatureValue << std::endl;
+    std::cout << "maximum: " << maximumFeatureValue << std::endl;
 
-    for(int numIntervalsMade = 0; numIntervalsMade < numIntervals-1; numIntervalsMade++) {
-        int start = minimumFeatureValue + (intervalSize * numIntervalsMade);
-        int end = start + intervalSize;
+    double intervalSize =
+      (maximumFeatureValue - minimumFeatureValue) / (numIntervals-2);
+
+    intervals.push_back(std::make_pair(-std::numeric_limits<double>::max(), minimumFeatureValue));
+
+    for(int numIntervalsMade = 0; numIntervalsMade < numIntervals-2; numIntervalsMade++) {
+        double start = minimumFeatureValue + (intervalSize * numIntervalsMade);
+        double end = start + intervalSize;
+        std::cout << "Now adding " << start << " - " << end << '\n';
         intervals.push_back(std::make_pair(start, end));
     }
+
+    intervals.push_back(std::make_pair(maximumFeatureValue, std::numeric_limits<double>::max()));
 
     return intervals;
 }
@@ -218,8 +228,9 @@ int
 ID3Algorithm::findLowestEntropyFeature(const my::features* features, const my::classes* classes) {
     int minEntropyFeature = 0;
     double minEntropy = std::numeric_limits<double>::max();
+    int numColumns = features->at(0).size();
 
-    for(int featureIndex = 0; featureIndex < features->size(); featureIndex++) {
+    for(int featureIndex = 0; featureIndex < numColumns; featureIndex++) {
         if(Node::attributesAlreadyUsedToSplitANode.find(featureIndex) ==
            Node::attributesAlreadyUsedToSplitANode.end()) {
             my::intervals intervals =

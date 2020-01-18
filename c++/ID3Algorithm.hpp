@@ -10,15 +10,15 @@
 class ID3Algorithm : public TrainingStrategy {
     public:
         Node* createModel(my::features*, my::classes*, int) override;
+        static const int NUM_DATA_PARTITIONS = 5;
+        static my::intervals getIntervalsForFeature(const my::features*, int, int);
 
     private:
-        static const int NUM_DATA_PARTITIONS = 5;
         static const int MIN_SAMPLES_FOR_SPLIT = 10;
         static void trainHelper(Node*, int);
         static std::vector<Node*> createChildren(const std::vector<my::training_data>&, const Node*);
         static void labelNode(Node*);
         static double getProportion(int, const my::classes&);
-        static my::intervals getIntervalsForFeature(const my::features*, int, int);
         static double getMinimumValueForGivenFeature(const my::features*, int);
         static double getMaximumValueForGivenFeature(const my::features*, int);
         static std::vector<my::training_data> getPartitionedData(const my::features*, const my::classes*, const my::intervals&, int);

@@ -21,6 +21,7 @@ class Node {
         std::vector<Node*> getChildren();
         void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();
+        bool isLeaf();
 
     private:
         static const int NO_LABEL_ASSIGNED = -1;

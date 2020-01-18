@@ -13,6 +13,7 @@ namespace my {
     typedef std::pair<double, double> interval;
     typedef std::vector<my::interval> intervals;
     typedef std::pair<std::vector<my::features>, std::vector<my::classes>> partitionedDataset;
+    typedef std::pair<std::pair<int, int>, std::pair<int, int>> confusion_matrix;
 };
 
 #endif
