@@ -18,13 +18,16 @@ DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy* strat, int maxH
 
     this->strategy = strat;
     this->maxHeight = maxHeight;
+    this->decisionTree = NULL;
 }
 
-DecisionTreeClassifier DecisionTreeClassifier::train(my::features* features, my::classes* classes) {
+void DecisionTreeClassifier::train(const my::features& features, const my::classes& classes) {
+    if(this->decisionTree != NULL) {
+        delete this->decisionTree;
+    }
+
     TrainingStrategy* strategy = this->getStrategy();
     this->decisionTree = strategy->createModel(features, classes, this->maxHeight);
-
-    return *this;
 }
 
 TrainingStrategy* DecisionTreeClassifier::getStrategy() {
@@ -33,6 +36,11 @@ TrainingStrategy* DecisionTreeClassifier::getStrategy() {
 
 my::classes DecisionTreeClassifier::predict(const my::features& features) {
     my::classes predictions;
+
+    if(this->decisionTree == NULL) {
+        return predictions;
+    }
+
     for(my::single_sample_features sampleFeatures : features) {
         predictions.push_back(this->getLabel(sampleFeatures));
     }
@@ -42,7 +50,6 @@ my::classes DecisionTreeClassifier::predict(const my::features& features) {
 
 int DecisionTreeClassifier::getLabel(const my::single_sample_features& features) {
     Node* decisionTreeRoot = this->decisionTree;
-    std::cout << "root: " << decisionTreeRoot << std::endl;
     std::vector<Node*> children = decisionTreeRoot->getChildren();
     if(children.empty()) {
         return decisionTreeRoot->getLabel();
@@ -74,12 +81,8 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_f
                                 features.at(indexUsedToSplitSamples);
     int childIndex = 0;
     for(my::interval interval : intervals) {
-        std::cout << "feature: " << featureValueAtIndexUsedToSplitSamples << std::endl;
-        std::cout << "start: " << interval.first << std::endl;
-        std::cout << "end: " << interval.second << std::endl;
         if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
            featureValueAtIndexUsedToSplitSamples <= interval.second) {
-            std::cout << "in break" << std::endl;
             break;
         }
 
@@ -87,8 +90,6 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_f
     }
 
     std::vector<Node*> children = root->getChildren();
-    std::cout << "children size: " << children.size() << std::endl;
-    std::cout << "child index: " << childIndex << std::endl;
     Node* relevantChild = children.at(childIndex);
 
     return this->getLabelHelper(relevantChild, features);
@@ -143,4 +144,21 @@ DecisionTreeClassifier::getTrainingAndTestSets(const my::features& features, con
     splitData.second = testingData;
 
     return splitData;
+}
+
+DecisionTreeClassifier::~DecisionTreeClassifier() {
+    if(this->decisionTree != NULL) {
+        delete this->decisionTree;
+    }
+}
+
+DecisionTreeClassifier::DecisionTreeClassifier(const DecisionTreeClassifier& clf) {
+    this->strategy = clf.strategy;
+    this->maxHeight = clf.maxHeight;
+
+    this->decisionTree = NULL;
+    if(clf.decisionTree != NULL) {
+        Node oldTreeRoot = *clf.decisionTree;
+        this->decisionTree = new Node(oldTreeRoot);
+    }
 }

@@ -11,13 +11,15 @@
 class DecisionTreeClassifier {
     public:
         DecisionTreeClassifier(TrainingStrategy*, int);
-        DecisionTreeClassifier train(my::features*, my::classes*);
+        void train(const my::features&, const my::classes&);
         my::classes predict(const my::features&);
         static std::pair<my::training_data, my::testing_data>
         getTrainingAndTestSets(const my::features&, const my::classes&, double);
+        ~DecisionTreeClassifier();
+        DecisionTreeClassifier(const DecisionTreeClassifier&);
+        Node* decisionTree;
 
     private:
-        Node* decisionTree;
         TrainingStrategy* strategy;
         int maxHeight;
 

@@ -9,11 +9,11 @@
 class Node {
     public:
         static std::unordered_set<int> attributesAlreadyUsedToSplitANode;
-        Node(my::features*, my::classes*);
+        Node(const my::features&, const my::classes&);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
-        my::features* getFeatures();
-        my::classes* getClasses();
+        my::features getFeatures();
+        my::classes getClasses();
         void setParent(Node*);
         Node* getParent();
         void setLabel(int);
@@ -22,6 +22,10 @@ class Node {
         void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();
         bool isLeaf();
+        ~Node();
+        Node(const Node&);
+        Node& operator=(const Node&);
+        static int NUM_NODES;
 
     private:
         static const int NO_LABEL_ASSIGNED = -1;
@@ -31,8 +35,8 @@ class Node {
         int label;
         int indexOfFeatureToUseToSplitSamplesUp;
         Node* parent;
-        my::features* features;
-        my::classes* classes;
+        my::features features;
+        my::classes classes;
 };
 
 #endif
