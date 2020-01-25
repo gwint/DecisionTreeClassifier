@@ -53,23 +53,23 @@ Node* Node::getParent() {
 }
 
 bool Node::doIncludedSamplesAllHaveSameClass() {
-    bool haveSameClass = false;
-    int onlyClassPresent = -1;
+    int numSamples = this->classes.size();
 
-    for(int i = 0; i < this->classes.size(); i++) {
-        int currClass = this->classes.at(i);
+    if(numSamples == 0) {
+        return false;
+    }
 
-        if(onlyClassPresent == -1) {
-            onlyClassPresent = currClass;
-        }
+    int onlyClassPresent = this->classes[0];
+
+    for(int i = 1; i < numSamples; i++) {
+        int currClass = this->classes[i];
 
         if(onlyClassPresent != currClass) {
-            haveSameClass = false;
-            break;
+            return false;
         }
     }
 
-    return haveSameClass;
+    return true;
 }
 
 std::vector<Node*> Node::getChildren() {

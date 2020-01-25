@@ -167,7 +167,7 @@ getTrainingTime(DecisionTreeClassifier clf,
 
     t1 = std::chrono::high_resolution_clock::now();
 
-    for(int i = 0; i < 20; i++) {
+    for(int i = 0; i < 1500; i++) {
         clf.train(trainingFeatures, trainingLabels);
     }
 
@@ -175,5 +175,5 @@ getTrainingTime(DecisionTreeClassifier clf,
 
     std::chrono::duration<double> timeSpan = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 
-    return timeSpan.count() / 20;
+    return timeSpan.count() / 1500;
 }

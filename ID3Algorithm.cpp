@@ -36,7 +36,7 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
         return;
     }
 
-    if(treeRoot->doIncludedSamplesAllHaveSameClass()) {
+    if(features.size() < ID3Algorithm::MIN_SAMPLES_FOR_SPLIT) {
         ID3Algorithm::labelNode(treeRoot);
         return;
     }
@@ -46,7 +46,7 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
         return;
     }
 
-    if(features.size() < ID3Algorithm::MIN_SAMPLES_FOR_SPLIT) {
+    if(treeRoot->doIncludedSamplesAllHaveSameClass()) {
         ID3Algorithm::labelNode(treeRoot);
         return;
     }
@@ -85,34 +85,34 @@ void ID3Algorithm::labelNode(Node* node) {
     }
 
     my::multiple_sample_features features = node->getFeatures();
-    if(features.size() == 0) {
+    if(features.empty()) {
         Node* parent = node->getParent();
         if(parent != NULL) {
-            ID3Algorithm::labelNode(node->getParent());
-            node->setLabel(node->getParent()->getLabel());
+            ID3Algorithm::labelNode(parent);
+            node->setLabel(parent->getLabel());
         }
     }
     else {
         my::multiple_sample_classes classes = node->getClasses();
         std::unordered_map<int, int> classCounts;
         int numSamples = classes.size();
-        for(int i = 0; i < numSamples; i++) {
+
+        int mostFrequentLabel = classes[0];
+        int largestFrequency = 1;
+
+        classCounts[mostFrequentLabel] = largestFrequency;
+
+        for(int i = 1; i < numSamples; i++) {
             int label = classes[i];
             if(classCounts.find(label) == classCounts.end()) {
-                classCounts.insert(std::make_pair(label, 1));
+                classCounts[label] = 1;
             }
             else {
                 classCounts[label]++;
-            }
-        }
-
-        std::unordered_map<int, int>::iterator it = classCounts.begin();
-        int mostFrequentLabel = it->first;
-        int largestFrequency = it->second;
-        for(std::unordered_map<int, int>::iterator it; it != classCounts.end(); it++) {
-            if(it->second > largestFrequency) {
-                mostFrequentLabel = it->first;
-                largestFrequency = it->second;
+                if(classCounts[label] > largestFrequency) {
+                    mostFrequentLabel = label;
+                    largestFrequency = classCounts[label];
+                }
             }
         }
 
@@ -136,7 +136,6 @@ double ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_cl
 
 double
 ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    assert(features.size() > 0);
     my::single_sample_features* firstSampleFeatures = features[0];
 
     int numSamples = features.size();
@@ -150,7 +149,6 @@ ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features&
 
 double
 ID3Algorithm::getMaximumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    assert(features.size() > 0);
     my::single_sample_features* firstSampleFeatures = features[0];
     double maximumFeatureValue = firstSampleFeatures->operator[](relevantColumnIndex);
 
