@@ -26,10 +26,10 @@ int main(int argv, char** args) {
     std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier::getTrainingAndTestSets(features,
                                                            classes,
-                                                           0.7);
+                                                           0.9);
 
     TrainingStrategy* strategy = new ID3Algorithm();
-    DecisionTreeClassifier clf = DecisionTreeClassifier(strategy, 15);
+    DecisionTreeClassifier clf = DecisionTreeClassifier(strategy, 5);
 
     double accuracy = calculateAccuracy(clf, features, classes);
 

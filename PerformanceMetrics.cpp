@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 
 #include "PerformanceMetrics.hpp"
 #include "mytypes.hpp"
@@ -91,10 +92,11 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
 my::confusion_matrix
 getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     my::confusion_matrix confusionMatrix;
-    confusionMatrix.first.first = 0;
-    confusionMatrix.first.second = 0;
-    confusionMatrix.second.first = 0;
-    confusionMatrix.second.second = 0;
+
+    confusionMatrix.truePositive = 0;
+    confusionMatrix.falsePositive = 0;
+    confusionMatrix.trueNegative = 0;
+    confusionMatrix.falseNegative = 0;
 
     std::pair<my::training_data, my::testing_data> trainAndTestSets =
        DecisionTreeClassifier::getTrainingAndTestSets(features, classes, 0.70);
@@ -112,16 +114,16 @@ getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_feature
         int actualClass = testingLabels.at(i);
 
         if(predictedClass == actualClass && actualClass == 0) {
-            confusionMatrix.first.first++;
+            confusionMatrix.truePositive++;
         }
         else if(predictedClass != actualClass && actualClass == 0) {
-            confusionMatrix.first.second++;
+            confusionMatrix.falsePositive++;
         }
         else if(predictedClass != actualClass && actualClass == 1) {
-            confusionMatrix.second.first++;
+            confusionMatrix.falseNegative++;
         }
         else {
-            confusionMatrix.second.second++;
+            confusionMatrix.trueNegative++;
         }
     }
 
@@ -130,6 +132,6 @@ getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_feature
 
 void
 printConfusionMatrix(const my::confusion_matrix& matrix) {
-    std::cout << matrix.first.first << " " << matrix.first.second << std::endl;
-    std::cout << matrix.second.first << " " << matrix.second.second << std::endl;
+    printf("TP: %d\tFP: %d\n", matrix.truePositive, matrix.falsePositive);
+    printf("FN: %d\tTN: %d\n", matrix.falseNegative, matrix.trueNegative);
 }

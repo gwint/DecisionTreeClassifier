@@ -5,7 +5,7 @@
 #include "decisiontreeclassifier.hpp"
 
 const int NUM_ITERS = 10;
-const int NUM_FOLDS = 10;
+const int NUM_FOLDS = 5;
 
 double
 calculateAccuracy(DecisionTreeClassifier,

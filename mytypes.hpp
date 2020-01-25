@@ -13,7 +13,12 @@ namespace my {
     typedef std::pair<double, double> interval;
     typedef std::vector<my::interval> intervals;
     typedef std::pair<std::vector<my::multiple_sample_features>, std::vector<my::multiple_sample_classes>> partitionedDataset;
-    typedef std::pair<std::pair<int, int>, std::pair<int, int>> confusion_matrix;
+    typedef struct confusion_matrix {
+        int truePositive;
+        int falsePositive;
+        int trueNegative;
+        int falseNegative;
+    } confusion_matrix;
 };
 
 #endif
