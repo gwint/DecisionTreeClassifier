@@ -20,8 +20,8 @@ int main(int argv, char** args) {
     char* featuresFileName = args[1];
     char* classesFileName = args[2];
 
-    my::features features = readFeatures(std::string(featuresFileName));
-    my::classes classes = readClasses(std::string(classesFileName));
+    my::multiple_sample_features features = readFeatures(std::string(featuresFileName));
+    my::multiple_sample_classes classes = readClasses(std::string(classesFileName));
 
     std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier::getTrainingAndTestSets(features,
@@ -46,6 +46,10 @@ int main(int argv, char** args) {
     printConfusionMatrix(confusionMatrix);
 
     delete strategy;
+
+    for(my::single_sample_features* sampleFeaturePtr : features) {
+        delete sampleFeaturePtr;
+    }
 
     return 0;
 }

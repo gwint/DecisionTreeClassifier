@@ -10,7 +10,7 @@ int Node::NUM_NODES = 0;
 
 std::unordered_set<int> Node::attributesAlreadyUsedToSplitANode;
 
-Node::Node(const my::features& features, const my::classes& classes) {
+Node::Node(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     this->parent = NULL;
     this->label = Node::NO_LABEL_ASSIGNED;
     this->indexOfFeatureToUseToSplitSamplesUp = Node::NO_INDEX_ASSIGNED;
@@ -28,11 +28,11 @@ int Node::getIndexOfFeatureToUseToSplitSamplesUp() {
     return this->indexOfFeatureToUseToSplitSamplesUp;
 }
 
-my::features Node::getFeatures() {
+my::multiple_sample_features Node::getFeatures() {
     return this->features;
 }
 
-my::classes Node::getClasses() {
+my::multiple_sample_classes Node::getClasses() {
     return this->classes;
 }
 

@@ -6,21 +6,23 @@
 
 double
 calculateAccuracy(DecisionTreeClassifier clf,
-                  const my::features& trainingFeatures,
-                  const my::classes& trainingLabels) {
+                  const my::multiple_sample_features& trainingFeatures,
+                  const my::multiple_sample_classes& trainingLabels) {
 
     int totalCorrectPredictions = 0;
     int totalNumPredictions = 0;
 
-    my::classes predictions;
+    my::multiple_sample_classes predictions;
 
     for(int iteration = 0; iteration < NUM_ITERS; iteration++) {
         std::pair<my::training_data, my::testing_data> splitData =
-                 DecisionTreeClassifier::getTrainingAndTestSets(trainingFeatures, trainingLabels, 0.70);
-        my::features trainingFeatures = splitData.first.first;
-        my::classes trainingLabels = splitData.first.second;
-        my::features testingFeatures = splitData.second.first;
-        my::classes testingLabels = splitData.second.second;
+            DecisionTreeClassifier::getTrainingAndTestSets(trainingFeatures,
+                                                           trainingLabels,
+                                                           0.70);
+        my::multiple_sample_features trainingFeatures = splitData.first.first;
+        my::multiple_sample_classes trainingLabels = splitData.first.second;
+        my::multiple_sample_features testingFeatures = splitData.second.first;
+        my::multiple_sample_classes testingLabels = splitData.second.second;
 
         clf.train(trainingFeatures, trainingLabels);
         predictions = clf.predict(testingFeatures);
@@ -43,8 +45,8 @@ calculateAccuracy(DecisionTreeClassifier clf,
 
 double
 performStratifiedKFoldCV(DecisionTreeClassifier clf,
-                                const my::features& features,
-                                const my::classes& classes) {
+                              const my::multiple_sample_features& features,
+                              const my::multiple_sample_classes& classes) {
 
     int totalNumCorrect = 0;
     int totalPredictionsMade = 0;
@@ -56,10 +58,10 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
 
 
     for(int fold = 0; fold < NUM_FOLDS; fold++) {
-        my::features trainingFeatures;
-        my::classes trainingLabels;
-        my::features testingFeatures;
-        my::classes testingLabels;
+        my::multiple_sample_features trainingFeatures;
+        my::multiple_sample_classes trainingLabels;
+        my::multiple_sample_features testingFeatures;
+        my::multiple_sample_classes testingLabels;
 
         for(int sampleIndex = 0; sampleIndex < features.size(); sampleIndex++) {
             if(sampleIndex >= excludeStart && sampleIndex < excludeEnd) {
@@ -73,7 +75,7 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
         }
 
         clf.train(trainingFeatures, trainingLabels);
-        my::classes predictions = clf.predict(testingFeatures);
+        my::multiple_sample_classes predictions = clf.predict(testingFeatures);
 
         for(int i = 0; i < predictions.size(); i++) {
             if(predictions.at(i) == testingLabels.at(i)) {
@@ -87,7 +89,7 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
 }
 
 my::confusion_matrix
-getConfusionMatrix(DecisionTreeClassifier clf, const my::features& features, const my::classes& classes) {
+getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     my::confusion_matrix confusionMatrix;
     confusionMatrix.first.first = 0;
     confusionMatrix.first.second = 0;
@@ -95,15 +97,15 @@ getConfusionMatrix(DecisionTreeClassifier clf, const my::features& features, con
     confusionMatrix.second.second = 0;
 
     std::pair<my::training_data, my::testing_data> trainAndTestSets =
-                DecisionTreeClassifier::getTrainingAndTestSets(features, classes, 0.70);
-    my::features trainingFeatures = trainAndTestSets.first.first;
-    my::classes trainingLabels = trainAndTestSets.first.second;
-    my::features testingFeatures = trainAndTestSets.second.first;
-    my::classes testingLabels = trainAndTestSets.second.second;
+       DecisionTreeClassifier::getTrainingAndTestSets(features, classes, 0.70);
+    my::multiple_sample_features trainingFeatures = trainAndTestSets.first.first;
+    my::multiple_sample_classes trainingLabels = trainAndTestSets.first.second;
+    my::multiple_sample_features testingFeatures = trainAndTestSets.second.first;
+    my::multiple_sample_classes testingLabels = trainAndTestSets.second.second;
 
     clf.train(trainingFeatures, trainingLabels);
 
-    my::classes predictions = clf.predict(testingFeatures);
+    my::multiple_sample_classes predictions = clf.predict(testingFeatures);
 
     for(int i = 0; i < predictions.size(); i++) {
         int predictedClass = predictions.at(i);

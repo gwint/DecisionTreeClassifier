@@ -9,11 +9,11 @@
 class Node {
     public:
         static std::unordered_set<int> attributesAlreadyUsedToSplitANode;
-        Node(const my::features&, const my::classes&);
+        Node(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
-        my::features getFeatures();
-        my::classes getClasses();
+        my::multiple_sample_features getFeatures();
+        my::multiple_sample_classes getClasses();
         void setParent(Node*);
         Node* getParent();
         void setLabel(int);
@@ -35,8 +35,8 @@ class Node {
         int label;
         int indexOfFeatureToUseToSplitSamplesUp;
         Node* parent;
-        my::features features;
-        my::classes classes;
+        my::multiple_sample_features features;
+        my::multiple_sample_classes classes;
 };
 
 #endif

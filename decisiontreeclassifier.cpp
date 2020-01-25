@@ -21,7 +21,7 @@ DecisionTreeClassifier::DecisionTreeClassifier(TrainingStrategy* strat, int maxH
     this->decisionTree = NULL;
 }
 
-void DecisionTreeClassifier::train(const my::features& features, const my::classes& classes) {
+void DecisionTreeClassifier::train(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     if(this->decisionTree != NULL) {
         delete this->decisionTree;
     }
@@ -34,21 +34,21 @@ TrainingStrategy* DecisionTreeClassifier::getStrategy() {
     return this->strategy;
 }
 
-my::classes DecisionTreeClassifier::predict(const my::features& features) {
-    my::classes predictions;
+my::multiple_sample_classes DecisionTreeClassifier::predict(const my::multiple_sample_features& features) {
+    my::multiple_sample_classes predictions;
 
     if(this->decisionTree == NULL) {
         return predictions;
     }
 
-    for(my::single_sample_features sampleFeatures : features) {
+    for(my::single_sample_features* sampleFeatures : features) {
         predictions.push_back(this->getLabel(sampleFeatures));
     }
 
     return predictions;
 }
 
-int DecisionTreeClassifier::getLabel(const my::single_sample_features& features) {
+int DecisionTreeClassifier::getLabel(my::single_sample_features* features) {
     Node* decisionTreeRoot = this->decisionTree;
     std::vector<Node*> children = decisionTreeRoot->getChildren();
     if(children.empty()) {
@@ -60,7 +60,7 @@ int DecisionTreeClassifier::getLabel(const my::single_sample_features& features)
 
 
 
-int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_features& features) {
+int DecisionTreeClassifier::getLabelHelper(Node* root, my::single_sample_features* features) {
     if(root == NULL) {
         std::cerr << "Node should not be null" << std::endl;
         exit(1);
@@ -78,7 +78,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_f
                                   ID3Algorithm::NUM_DATA_PARTITIONS);
 
     double featureValueAtIndexUsedToSplitSamples =
-                                features.at(indexUsedToSplitSamples);
+                                features->at(indexUsedToSplitSamples);
     int childIndex = 0;
     for(my::interval interval : intervals) {
         if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
@@ -96,7 +96,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, const my::single_sample_f
 }
 
 std::pair<my::training_data, my::testing_data>
-DecisionTreeClassifier::getTrainingAndTestSets(const my::features& features, const my::classes& classes, double trainingProportion) {
+DecisionTreeClassifier::getTrainingAndTestSets(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes, double trainingProportion) {
     if(trainingProportion < 0) {
         std::cout << "Training proportion must be non-negative" << std::endl;
         exit(1);
@@ -108,10 +108,10 @@ DecisionTreeClassifier::getTrainingAndTestSets(const my::features& features, con
     int numSamples = features.size();
     int numTrainingSamples = ceil(trainingProportion * numSamples);
 
-    my::features trainingFeatures;
-    my::features testingFeatures;
-    my::classes trainingLabels;
-    my::classes testingLabels;
+    my::multiple_sample_features trainingFeatures;
+    my::multiple_sample_features testingFeatures;
+    my::multiple_sample_classes trainingLabels;
+    my::multiple_sample_classes testingLabels;
 
     std::unordered_set<int> usedSampleIndices;
 

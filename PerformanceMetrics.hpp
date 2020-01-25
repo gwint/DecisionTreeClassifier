@@ -9,18 +9,18 @@ const int NUM_FOLDS = 10;
 
 double
 calculateAccuracy(DecisionTreeClassifier,
-                     const my::features&,
-                     const my::classes&);
+                     const my::multiple_sample_features&,
+                     const my::multiple_sample_classes&);
 
 double
 performStratifiedKFoldCV(DecisionTreeClassifier,
-                                const my::features&,
-                                const my::classes&);
+                                const my::multiple_sample_features&,
+                                const my::multiple_sample_classes&);
 
 my::confusion_matrix
 getConfusionMatrix(DecisionTreeClassifier,
-                     const my::features&,
-                     const my::classes&);
+                     const my::multiple_sample_features&,
+                     const my::multiple_sample_classes&);
 
 void
 printConfusionMatrix(const my::confusion_matrix&);

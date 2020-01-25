@@ -5,7 +5,7 @@
 
 #include "mytypes.hpp"
 
-my::features readFeatures(std::string);
-my::classes readClasses(std::string);
+my::multiple_sample_features readFeatures(std::string);
+my::multiple_sample_classes readClasses(std::string);
 
 #endif
