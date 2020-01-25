@@ -45,6 +45,10 @@ int main(int argv, char** args) {
 
     printConfusionMatrix(confusionMatrix);
 
+    double averageTrainingTime = getTrainingTime(clf, features, classes);
+
+    std::cout << "Average training time = " << averageTrainingTime << "s" << std::endl;
+
     delete strategy;
 
     for(my::single_sample_features* sampleFeaturePtr : features) {

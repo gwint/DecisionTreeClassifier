@@ -1,6 +1,8 @@
 #ifndef PERF_METRICS_H
 #define PERF_METRICS_H
 
+#include <chrono>
+
 #include "mytypes.hpp"
 #include "decisiontreeclassifier.hpp"
 
@@ -24,5 +26,10 @@ getConfusionMatrix(DecisionTreeClassifier,
 
 void
 printConfusionMatrix(const my::confusion_matrix&);
+
+double
+getTrainingTime(DecisionTreeClassifier,
+                    const my::multiple_sample_features&,
+                    const my::multiple_sample_classes&);
 
 #endif

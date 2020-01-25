@@ -78,7 +78,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, my::single_sample_feature
                                   ID3Algorithm::NUM_DATA_PARTITIONS);
 
     double featureValueAtIndexUsedToSplitSamples =
-                                features->at(indexUsedToSplitSamples);
+                                features->operator[](indexUsedToSplitSamples);
     int childIndex = 0;
     for(my::interval interval : intervals) {
         if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
@@ -90,7 +90,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, my::single_sample_feature
     }
 
     std::vector<Node*> children = root->getChildren();
-    Node* relevantChild = children.at(childIndex);
+    Node* relevantChild = children[childIndex];
 
     return this->getLabelHelper(relevantChild, features);
 }
@@ -119,15 +119,15 @@ DecisionTreeClassifier::getTrainingAndTestSets(const my::multiple_sample_feature
         int randSampleIndex = rand() % numSamples;
         if(usedSampleIndices.find(randSampleIndex) == usedSampleIndices.end()) {
             usedSampleIndices.insert(randSampleIndex);
-            trainingFeatures.push_back(features.at(randSampleIndex));
-            trainingLabels.push_back(classes.at(randSampleIndex));
+            trainingFeatures.push_back(features[randSampleIndex]);
+            trainingLabels.push_back(classes[randSampleIndex]);
         }
     }
 
     for(int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
         if(usedSampleIndices.find(sampleIndex) == usedSampleIndices.end()) {
-            testingFeatures.push_back(features.at(sampleIndex));
-            testingLabels.push_back(classes.at(sampleIndex));
+            testingFeatures.push_back(features[sampleIndex]);
+            testingLabels.push_back(classes[sampleIndex]);
         }
     }
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <chrono>
 
 #include "PerformanceMetrics.hpp"
 #include "mytypes.hpp"
@@ -20,6 +21,7 @@ calculateAccuracy(DecisionTreeClassifier clf,
             DecisionTreeClassifier::getTrainingAndTestSets(trainingFeatures,
                                                            trainingLabels,
                                                            0.70);
+
         my::multiple_sample_features trainingFeatures = splitData.first.first;
         my::multiple_sample_classes trainingLabels = splitData.first.second;
         my::multiple_sample_features testingFeatures = splitData.second.first;
@@ -134,4 +136,44 @@ void
 printConfusionMatrix(const my::confusion_matrix& matrix) {
     printf("TP: %d\tFP: %d\n", matrix.truePositive, matrix.falsePositive);
     printf("FN: %d\tTN: %d\n", matrix.falseNegative, matrix.trueNegative);
+
+    double ppv = ((double) matrix.truePositive) / (matrix.truePositive + matrix.falsePositive);
+    double npv = ((double) matrix.trueNegative) / (matrix.trueNegative + matrix.falseNegative);
+
+    printf("PPV: %f\tNPV: %f\n", ppv, npv);
+}
+
+double
+getTrainingTime(DecisionTreeClassifier clf,
+                    const my::multiple_sample_features& features,
+                    const my::multiple_sample_classes& classes) {
+
+
+    std::pair<my::training_data, my::testing_data> splitData =
+            DecisionTreeClassifier::getTrainingAndTestSets(features,
+                                                           classes,
+                                                           0.70);
+
+    my::multiple_sample_features trainingFeatures = splitData.first.first;
+    my::multiple_sample_classes trainingLabels = splitData.first.second;
+    my::multiple_sample_features testingFeatures = splitData.second.first;
+    my::multiple_sample_classes testingLabels = splitData.second.second;
+
+    for(int i = 0; i < 10; i++) {
+        clf.train(trainingFeatures, trainingLabels);
+    }
+
+    std::chrono::high_resolution_clock::time_point t1, t2;
+
+    t1 = std::chrono::high_resolution_clock::now();
+
+    for(int i = 0; i < 20; i++) {
+        clf.train(trainingFeatures, trainingLabels);
+    }
+
+    t2 = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> timeSpan = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+
+    return timeSpan.count() / 20;
 }
