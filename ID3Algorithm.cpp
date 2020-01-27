@@ -199,8 +199,8 @@ ID3Algorithm::getPartitionedData(const my::multiple_sample_features& features,
         double featureVal = features[sampleIndex]->operator[](indexOfFeatureUsedToSplitSamples);
         for(int intervalIndex = 0; intervalIndex < numIntervals; intervalIndex++) {
             if(featureVal <= intervals[intervalIndex].first) {
-                partitionedData[intervalIndex].first.push_back(features[sampleIndex]);
-                partitionedData[intervalIndex].second.push_back(classes[sampleIndex]);
+                partitionedData[intervalIndex].features.push_back(features[sampleIndex]);
+                partitionedData[intervalIndex].classes.push_back(classes[sampleIndex]);
                 break;
             }
         }
@@ -216,7 +216,7 @@ ID3Algorithm::calculateEntropy(const std::vector<my::training_data>& partitioned
     for(int i = 0; i < partitionedData.size(); i++) {
         for(int label : labels) {
             double probability =
-                 ID3Algorithm::getProportion(label, partitionedData[i].second);
+                 ID3Algorithm::getProportion(label, partitionedData[i].classes);
 
             if(probability > 0) {
                 entropy += -probability * log10(probability) / log10(2);
@@ -268,8 +268,8 @@ ID3Algorithm::createChildren(const std::vector<my::training_data>& partitionedDa
     int numPartitions = partitionedData.size();
 
     for(int i = 0; i < numPartitions; i++) {
-        my::multiple_sample_features features = partitionedData[i].first;
-        my::multiple_sample_classes classes = partitionedData[i].second;
+        my::multiple_sample_features features = partitionedData[i].features;
+        my::multiple_sample_classes classes = partitionedData[i].classes;
         children.push_back(new Node(features, classes));
     }
 

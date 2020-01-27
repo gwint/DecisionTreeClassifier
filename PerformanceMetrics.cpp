@@ -22,10 +22,14 @@ calculateAccuracy(DecisionTreeClassifier clf,
                                                            trainingLabels,
                                                            0.70);
 
-        my::multiple_sample_features trainingFeatures = splitData.first.first;
-        my::multiple_sample_classes trainingLabels = splitData.first.second;
-        my::multiple_sample_features testingFeatures = splitData.second.first;
-        my::multiple_sample_classes testingLabels = splitData.second.second;
+        my::multiple_sample_features trainingFeatures =
+                                            splitData.first.features;
+        my::multiple_sample_classes trainingLabels =
+                                            splitData.first.classes;
+        my::multiple_sample_features testingFeatures =
+                                            splitData.second.features;
+        my::multiple_sample_classes testingLabels =
+                                            splitData.second.classes;
 
         clf.train(trainingFeatures, trainingLabels);
         predictions = clf.predict(testingFeatures);
@@ -102,10 +106,15 @@ getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_feature
 
     std::pair<my::training_data, my::testing_data> trainAndTestSets =
        DecisionTreeClassifier::getTrainingAndTestSets(features, classes, 0.70);
-    my::multiple_sample_features trainingFeatures = trainAndTestSets.first.first;
-    my::multiple_sample_classes trainingLabels = trainAndTestSets.first.second;
-    my::multiple_sample_features testingFeatures = trainAndTestSets.second.first;
-    my::multiple_sample_classes testingLabels = trainAndTestSets.second.second;
+
+    my::multiple_sample_features trainingFeatures =
+                                         trainAndTestSets.first.features;
+    my::multiple_sample_classes trainingLabels =
+                                         trainAndTestSets.first.classes;
+    my::multiple_sample_features testingFeatures =
+                                         trainAndTestSets.second.features;
+    my::multiple_sample_classes testingLabels =
+                                         trainAndTestSets.second.classes;
 
     clf.train(trainingFeatures, trainingLabels);
 
@@ -154,10 +163,10 @@ getTrainingTime(DecisionTreeClassifier clf,
                                                            classes,
                                                            0.70);
 
-    my::multiple_sample_features trainingFeatures = splitData.first.first;
-    my::multiple_sample_classes trainingLabels = splitData.first.second;
-    my::multiple_sample_features testingFeatures = splitData.second.first;
-    my::multiple_sample_classes testingLabels = splitData.second.second;
+    my::multiple_sample_features trainingFeatures = splitData.first.features;
+    my::multiple_sample_classes trainingLabels = splitData.first.classes;
+    my::multiple_sample_features testingFeatures = splitData.second.features;
+    my::multiple_sample_classes testingLabels = splitData.second.classes;
 
     for(int i = 0; i < 10; i++) {
         clf.train(trainingFeatures, trainingLabels);

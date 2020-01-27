@@ -134,11 +134,11 @@ DecisionTreeClassifier::getTrainingAndTestSets(const my::multiple_sample_feature
     my::training_data trainingData;
     my::testing_data testingData;
 
-    trainingData.first = trainingFeatures;
-    trainingData.second = trainingLabels;
+    trainingData.features = trainingFeatures;
+    trainingData.classes = trainingLabels;
 
-    testingData.first = testingFeatures;
-    testingData.second = testingLabels;
+    testingData.features = testingFeatures;
+    testingData.classes = testingLabels;
 
     splitData.first = trainingData;
     splitData.second = testingData;
