@@ -52,7 +52,7 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
     }
 
     int columnToUseToSplitSamples =
-        ID3Algorithm::findLowestEntropyFeature(features, classes);
+        ID3Algorithm::findFeatureProvidingLargestInfoGain(features, classes);
     treeRoot->setIndexOfFeatureToUseToSplitSamplesUp(columnToUseToSplitSamples);
 
     my::intervals intervals =
@@ -61,14 +61,14 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
                                   columnToUseToSplitSamples,
                                   ID3Algorithm::NUM_DATA_PARTITIONS);
 
-    std::vector<my::training_data> lowestEntropyPartition =
+    std::vector<my::training_data> maxInfoGainPartition =
          ID3Algorithm::getPartitionedData(features,
                                           classes,
                                           intervals,
                                           columnToUseToSplitSamples);
 
     std::vector<Node*> children =
-                ID3Algorithm::createChildren(lowestEntropyPartition,
+                ID3Algorithm::createChildren(maxInfoGainPartition,
                                              treeRoot);
 
     treeRoot->setChildren(children);
@@ -210,29 +210,27 @@ ID3Algorithm::getPartitionedData(const my::multiple_sample_features& features,
 }
 
 double
-ID3Algorithm::calculateEntropy(const std::vector<my::training_data>& partitionedData) {
-    double entropy = 0.0;
-    int labels[] = {0, 1};
-    for(int i = 0; i < partitionedData.size(); i++) {
-        for(int label : labels) {
-            double probability =
-                 ID3Algorithm::getProportion(label, partitionedData[i].classes);
+ID3Algorithm::calculateEntropy(const my::multiple_sample_classes& classes) {
 
-            if(probability > 0) {
-                entropy += -probability * log10(probability) / log10(2);
-            }
-        }
-    }
+    double class1Proportion = ID3Algorithm::getProportion(0, classes);
+    double class2Proportion = ID3Algorithm::getProportion(1, classes);
 
-    return entropy;
+    return (-class1Proportion * (log10(class1Proportion) / log10(2))) -
+           (class2Proportion * (log10(class2Proportion) / log10(2)));
 }
 
 int
-ID3Algorithm::findLowestEntropyFeature(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
-    int minEntropyFeature = 0;
-    double minEntropy = std::numeric_limits<double>::max();
-    int numColumns = features[0]->size();
+ID3Algorithm::findFeatureProvidingLargestInfoGain(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
+    int maxInformationGainFeature = 0;
+    while(Node::attributesAlreadyUsedToSplitANode.find(maxInformationGainFeature) !=
+                            Node::attributesAlreadyUsedToSplitANode.end()) {
+        maxInformationGainFeature++;
+    }
+    double maxInformationGain = -std::numeric_limits<double>::max();
 
+    double entropy = ID3Algorithm::calculateEntropy(classes);
+
+    int numColumns = features[0]->size();
     for(int featureIndex = 0; featureIndex < numColumns; featureIndex++) {
         if(Node::attributesAlreadyUsedToSplitANode.find(featureIndex) ==
            Node::attributesAlreadyUsedToSplitANode.end()) {
@@ -249,17 +247,36 @@ ID3Algorithm::findLowestEntropyFeature(const my::multiple_sample_features& featu
                                                       intervals,
                                                       featureIndex);
 
-            double resultingEntropy =
-                     ID3Algorithm::calculateEntropy(partitionedData);
+            double resultantInformationGain =
+              ID3Algorithm::calculateInformationGain(partitionedData, entropy);
 
-            if(resultingEntropy < minEntropy) {
-                minEntropy = resultingEntropy;
-                minEntropyFeature = featureIndex;
+            if(resultantInformationGain > maxInformationGain) {
+                maxInformationGain = resultantInformationGain;
+                maxInformationGainFeature = featureIndex;
             }
         }
     }
 
-    return minEntropyFeature;
+    return maxInformationGainFeature;
+}
+
+double
+ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& partitionedData, double entropy) {
+    double totalPartitionEntropy = 0.0;
+    int datasetSize = 0;
+
+    for(const my::training_data& data : partitionedData) {
+        const my::multiple_sample_features& features = data.features;
+        const my::multiple_sample_classes& classes = data.classes;
+
+        int partitionSize = features.size();
+        double partitionEntropy = ID3Algorithm::calculateEntropy(classes);
+
+        totalPartitionEntropy += (partitionSize * partitionEntropy);
+        datasetSize += partitionSize;
+    }
+
+    return entropy - (totalPartitionEntropy / datasetSize);
 }
 
 std::vector<Node*>

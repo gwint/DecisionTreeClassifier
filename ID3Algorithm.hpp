@@ -22,8 +22,9 @@ class ID3Algorithm : public TrainingStrategy {
         static double getMinimumValueForGivenFeature(const my::multiple_sample_features&, int);
         static double getMaximumValueForGivenFeature(const my::multiple_sample_features&, int);
         static std::vector<my::training_data> getPartitionedData(const my::multiple_sample_features&, const my::multiple_sample_classes&, const my::intervals&, int);
-        static double calculateEntropy(const std::vector<my::training_data>&);
-        static int findLowestEntropyFeature(const my::multiple_sample_features&, const my::multiple_sample_classes&);
+        static double calculateEntropy(const my::multiple_sample_classes&);
+        static double calculateInformationGain(const std::vector<my::training_data>&, double);
+        static int findFeatureProvidingLargestInfoGain(const my::multiple_sample_features&, const my::multiple_sample_classes&);
 };
 
 #endif
