@@ -12,8 +12,8 @@ class Node {
         Node(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
-        my::multiple_sample_features getFeatures();
-        my::multiple_sample_classes getClasses();
+        const my::multiple_sample_features& getFeatures();
+        const my::multiple_sample_classes& getClasses();
         void setParent(Node*);
         Node* getParent();
         void setLabel(int);
@@ -25,7 +25,6 @@ class Node {
         ~Node();
         Node(const Node&);
         Node& operator=(const Node&);
-        static int NUM_NODES;
 
     private:
         static const int NO_LABEL_ASSIGNED = -1;

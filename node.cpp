@@ -6,8 +6,6 @@
 #include "node.hpp"
 #include "mytypes.hpp"
 
-int Node::NUM_NODES = 0;
-
 std::unordered_set<int> Node::attributesAlreadyUsedToSplitANode;
 
 Node::Node(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
@@ -16,7 +14,6 @@ Node::Node(const my::multiple_sample_features& features, const my::multiple_samp
     this->indexOfFeatureToUseToSplitSamplesUp = Node::NO_INDEX_ASSIGNED;
     this->features = features;
     this->classes = classes;
-    Node::NUM_NODES++;
 }
 
 void Node::setIndexOfFeatureToUseToSplitSamplesUp(int index) {
@@ -28,11 +25,11 @@ int Node::getIndexOfFeatureToUseToSplitSamplesUp() {
     return this->indexOfFeatureToUseToSplitSamplesUp;
 }
 
-my::multiple_sample_features Node::getFeatures() {
+const my::multiple_sample_features& Node::getFeatures() {
     return this->features;
 }
 
-my::multiple_sample_classes Node::getClasses() {
+const my::multiple_sample_classes& Node::getClasses() {
     return this->classes;
 }
 

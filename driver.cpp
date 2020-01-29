@@ -8,7 +8,6 @@
 #include "mytypes.hpp"
 #include "helper.hpp"
 #include "PerformanceMetrics.hpp"
-#include "TrainingStrategy.hpp"
 #include "node.hpp"
 
 int main(int argv, char** args) {
@@ -24,33 +23,30 @@ int main(int argv, char** args) {
     my::multiple_sample_classes classes = readClasses(std::string(classesFileName));
 
     std::pair<my::training_data, my::testing_data> splitData =
-            DecisionTreeClassifier::getTrainingAndTestSets(features,
+            DecisionTreeClassifier<ID3Algorithm>::getTrainingAndTestSets(features,
                                                            classes,
                                                            0.9);
 
-    TrainingStrategy* strategy = new ID3Algorithm();
-    DecisionTreeClassifier clf = DecisionTreeClassifier(strategy, 25);
+    DecisionTreeClassifier<ID3Algorithm> clf(10);
 
-    double accuracy = calculateAccuracy(clf, features, classes);
+    double accuracy = calculateAccuracy<ID3Algorithm>(clf, features, classes);
 
     std::cout << "Accuracy: " << accuracy << std::endl;
 
-
     double kFoldAccuracy =
-                 performStratifiedKFoldCV(clf, features, classes);
+             performStratifiedKFoldCV<ID3Algorithm>(clf, features, classes);
 
     std::cout << "K-Fold Accuracy: " << kFoldAccuracy << std::endl;
 
     my::confusion_matrix confusionMatrix =
-                      getConfusionMatrix(clf, features, classes);
+                   getConfusionMatrix<ID3Algorithm>(clf, features, classes);
 
     printConfusionMatrix(confusionMatrix);
 
-    double averageTrainingTime = getTrainingTime(clf, features, classes);
+    double averageTrainingTime =
+                     getTrainingTime<ID3Algorithm>(clf, features, classes);
 
     std::cout << "Average training time = " << averageTrainingTime << "s" << std::endl;
-
-    delete strategy;
 
     for(my::single_sample_features* sampleFeaturePtr : features) {
         delete sampleFeaturePtr;

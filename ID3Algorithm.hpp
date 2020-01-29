@@ -3,13 +3,12 @@
 
 #include <vector>
 
-#include "TrainingStrategy.hpp"
 #include "mytypes.hpp"
 #include "node.hpp"
 
-class ID3Algorithm : public TrainingStrategy {
+class ID3Algorithm {
     public:
-        Node* createModel(const my::multiple_sample_features&, const my::multiple_sample_classes&, int) override;
+        Node* createModel(const my::multiple_sample_features&, const my::multiple_sample_classes&, int);
         static const int NUM_DATA_PARTITIONS = 12;
         static my::intervals getIntervalsForFeature(const my::multiple_sample_features&, int, int);
 

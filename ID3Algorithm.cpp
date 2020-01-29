@@ -11,7 +11,8 @@
 #include "node.hpp"
 #include "mytypes.hpp"
 
-Node* ID3Algorithm::createModel(const my::multiple_sample_features& features,
+Node*
+ID3Algorithm::createModel(const my::multiple_sample_features& features,
                                 const my::multiple_sample_classes& classes,
                                 int maximumTreeHeight) {
 
@@ -22,14 +23,15 @@ Node* ID3Algorithm::createModel(const my::multiple_sample_features& features,
     return root;
 }
 
-void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
+void
+ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
     if(treeRoot == NULL) {
         std::cout << "Decision tree root must not be NULL" << std::endl;
         exit(1);
     }
 
-    my::multiple_sample_features features = treeRoot->getFeatures();
-    my::multiple_sample_classes classes = treeRoot->getClasses();
+    const my::multiple_sample_features& features = treeRoot->getFeatures();
+    const my::multiple_sample_classes& classes = treeRoot->getClasses();
 
     if(maximumTreeHeight == 1) {
         ID3Algorithm::labelNode(treeRoot);
@@ -40,12 +42,10 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
         ID3Algorithm::labelNode(treeRoot);
         return;
     }
-
     if(features.empty()) {
         ID3Algorithm::labelNode(treeRoot);
         return;
     }
-
     if(treeRoot->doIncludedSamplesAllHaveSameClass()) {
         ID3Algorithm::labelNode(treeRoot);
         return;
@@ -78,7 +78,8 @@ void ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
     }
 }
 
-void ID3Algorithm::labelNode(Node* node) {
+void
+ID3Algorithm::labelNode(Node* node) {
     if(node == NULL) {
         std::cerr << "Should not be trying to label a NULL node" << std::endl;
         exit(1);
@@ -104,15 +105,10 @@ void ID3Algorithm::labelNode(Node* node) {
 
         for(int i = 1; i < numSamples; i++) {
             int label = classes.at(i);
-            if(classCounts.find(label) == classCounts.end()) {
-                classCounts[label] = 1;
-            }
-            else {
-                classCounts[label]++;
-                if(classCounts[label] > largestFrequency) {
+            classCounts[label]++;
+            if(classCounts[label] > largestFrequency) {
                     mostFrequentLabel = label;
                     largestFrequency = classCounts[label];
-                }
             }
         }
 
@@ -120,7 +116,8 @@ void ID3Algorithm::labelNode(Node* node) {
     }
 }
 
-double ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_classes& classes) {
+double
+ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_classes& classes) {
     int numSamplesWithLabel = 0;
     int numSamples = classes.size();
 
@@ -136,13 +133,12 @@ double ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_cl
 
 double
 ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    my::single_sample_features* firstSampleFeatures = features.at(0);
+    my::single_sample_features* firstSampleFeatures = features[0];
     int numSamples = features.size();
     double minimumFeatureValue = firstSampleFeatures->at(relevantColumnIndex);
     for(int sampleIndex = 1; sampleIndex < numSamples; sampleIndex++) {
-        assert(sampleIndex < numSamples);
-        my::single_sample_features* sampleFeatures = features.at(sampleIndex);
-        minimumFeatureValue = std::min(minimumFeatureValue, sampleFeatures->at(relevantColumnIndex));
+        my::single_sample_features* sampleFeatures = features[sampleIndex];
+        minimumFeatureValue = std::min(minimumFeatureValue, sampleFeatures->operator[](relevantColumnIndex));
     }
 
     return minimumFeatureValue;
@@ -150,12 +146,12 @@ ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features&
 
 double
 ID3Algorithm::getMaximumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    my::single_sample_features* firstSampleFeatures = features.at(0);
+    my::single_sample_features* firstSampleFeatures = features[0];
     double maximumFeatureValue = firstSampleFeatures->at(relevantColumnIndex);
 
     int numSamples = features.size();
     for(int sampleIndex = 1; sampleIndex < numSamples; sampleIndex++) {
-        maximumFeatureValue = std::max(maximumFeatureValue, features.at(sampleIndex)->at(relevantColumnIndex));
+        maximumFeatureValue = std::max(maximumFeatureValue, features[sampleIndex]->operator[](relevantColumnIndex));
     }
 
     return maximumFeatureValue;
@@ -197,11 +193,11 @@ ID3Algorithm::getPartitionedData(const my::multiple_sample_features& features,
     std::vector<my::training_data> partitionedData(numIntervals);
 
     for(int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
-        double featureVal = features[sampleIndex]->at(indexOfFeatureUsedToSplitSamples);
+        double featureVal = features[sampleIndex]->operator[](indexOfFeatureUsedToSplitSamples);
         for(int intervalIndex = 0; intervalIndex < numIntervals; intervalIndex++) {
             if(featureVal <= intervals.at(intervalIndex).first) {
-                partitionedData.at(intervalIndex).features.push_back(features.at(sampleIndex));
-                partitionedData.at(intervalIndex).classes.push_back(classes.at(sampleIndex));
+                partitionedData[intervalIndex].features.push_back(features[sampleIndex]);
+                partitionedData[intervalIndex].classes.push_back(classes[sampleIndex]);
                 break;
             }
         }
@@ -264,14 +260,14 @@ ID3Algorithm::findFeatureProvidingLargestInfoGain(const my::multiple_sample_feat
 double
 ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& partitionedData, double entropy) {
     double totalPartitionEntropy = 0.0;
-    int datasetSize = partitionedData.size();
+    unsigned int datasetSize = partitionedData.size();
 
     if(datasetSize) {
         return 0.0;
     }
 
-    for(unsigned int i = 0; i < partitionedData.size(); i++) {
-        my::multiple_sample_classes classes = partitionedData.at(i).classes;
+    for(unsigned int i = 0; i < datasetSize; i++) {
+        my::multiple_sample_classes classes = partitionedData[i].classes;
 
         int partitionSize = classes.size();
         double partitionEntropy = ID3Algorithm::calculateEntropy(classes);
@@ -289,8 +285,8 @@ ID3Algorithm::createChildren(const std::vector<my::training_data>& partitionedDa
     int numPartitions = partitionedData.size();
 
     for(int i = 0; i < numPartitions; i++) {
-        my::multiple_sample_features features = partitionedData.at(i).features;
-        my::multiple_sample_classes classes = partitionedData.at(i).classes;
+        my::multiple_sample_features features = partitionedData[i].features;
+        my::multiple_sample_classes classes = partitionedData[i].classes;
         children.push_back(new Node(features, classes));
     }
 
