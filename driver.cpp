@@ -29,11 +29,12 @@ int main(int argv, char** args) {
                                                            0.9);
 
     TrainingStrategy* strategy = new ID3Algorithm();
-    DecisionTreeClassifier clf = DecisionTreeClassifier(strategy, 5);
+    DecisionTreeClassifier clf = DecisionTreeClassifier(strategy, 25);
 
     double accuracy = calculateAccuracy(clf, features, classes);
 
     std::cout << "Accuracy: " << accuracy << std::endl;
+
 
     double kFoldAccuracy =
                  performStratifiedKFoldCV(clf, features, classes);

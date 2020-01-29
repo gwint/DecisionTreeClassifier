@@ -10,7 +10,7 @@
 class ID3Algorithm : public TrainingStrategy {
     public:
         Node* createModel(const my::multiple_sample_features&, const my::multiple_sample_classes&, int) override;
-        static const int NUM_DATA_PARTITIONS = 5;
+        static const int NUM_DATA_PARTITIONS = 12;
         static my::intervals getIntervalsForFeature(const my::multiple_sample_features&, int, int);
 
     private:

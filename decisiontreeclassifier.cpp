@@ -25,6 +25,7 @@ void DecisionTreeClassifier::train(const my::multiple_sample_features& features,
     if(this->decisionTree != NULL) {
         delete this->decisionTree;
     }
+    Node::attributesAlreadyUsedToSplitANode.clear();
 
     TrainingStrategy* strategy = this->getStrategy();
     this->decisionTree = strategy->createModel(features, classes, this->maxHeight);
@@ -78,7 +79,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, my::single_sample_feature
                                   ID3Algorithm::NUM_DATA_PARTITIONS);
 
     double featureValueAtIndexUsedToSplitSamples =
-                                features->operator[](indexUsedToSplitSamples);
+                                features->at(indexUsedToSplitSamples);
     int childIndex = 0;
     for(my::interval interval : intervals) {
         if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
@@ -90,7 +91,7 @@ int DecisionTreeClassifier::getLabelHelper(Node* root, my::single_sample_feature
     }
 
     std::vector<Node*> children = root->getChildren();
-    Node* relevantChild = children[childIndex];
+    Node* relevantChild = children.at(childIndex);
 
     return this->getLabelHelper(relevantChild, features);
 }
@@ -115,7 +116,7 @@ DecisionTreeClassifier::getTrainingAndTestSets(const my::multiple_sample_feature
 
     std::unordered_set<int> usedSampleIndices;
 
-    while(usedSampleIndices.size() < numTrainingSamples) {
+    while(usedSampleIndices.size() < (unsigned) numTrainingSamples) {
         int randSampleIndex = rand() % numSamples;
         if(usedSampleIndices.find(randSampleIndex) == usedSampleIndices.end()) {
             usedSampleIndices.insert(randSampleIndex);

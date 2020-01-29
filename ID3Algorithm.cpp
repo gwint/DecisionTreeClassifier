@@ -100,10 +100,10 @@ void ID3Algorithm::labelNode(Node* node) {
         int mostFrequentLabel = classes[0];
         int largestFrequency = 1;
 
-        classCounts[mostFrequentLabel] = largestFrequency;
+        classCounts[mostFrequentLabel] = 1;
 
         for(int i = 1; i < numSamples; i++) {
-            int label = classes[i];
+            int label = classes.at(i);
             if(classCounts.find(label) == classCounts.end()) {
                 classCounts[label] = 1;
             }
@@ -125,7 +125,7 @@ double ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_cl
     int numSamples = classes.size();
 
     for(int i = 0; i < numSamples; i++) {
-        int label = classes[i];
+        int label = classes.at(i);
         if(label == targetLabel) {
             numSamplesWithLabel++;
         }
@@ -136,12 +136,13 @@ double ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_cl
 
 double
 ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    my::single_sample_features* firstSampleFeatures = features[0];
-
+    my::single_sample_features* firstSampleFeatures = features.at(0);
     int numSamples = features.size();
-    double minimumFeatureValue = firstSampleFeatures->operator[](relevantColumnIndex);
+    double minimumFeatureValue = firstSampleFeatures->at(relevantColumnIndex);
     for(int sampleIndex = 1; sampleIndex < numSamples; sampleIndex++) {
-        minimumFeatureValue = std::min(minimumFeatureValue, features[sampleIndex]->operator[](relevantColumnIndex));
+        assert(sampleIndex < numSamples);
+        my::single_sample_features* sampleFeatures = features.at(sampleIndex);
+        minimumFeatureValue = std::min(minimumFeatureValue, sampleFeatures->at(relevantColumnIndex));
     }
 
     return minimumFeatureValue;
@@ -149,12 +150,12 @@ ID3Algorithm::getMinimumValueForGivenFeature(const my::multiple_sample_features&
 
 double
 ID3Algorithm::getMaximumValueForGivenFeature(const my::multiple_sample_features& features, int relevantColumnIndex) {
-    my::single_sample_features* firstSampleFeatures = features[0];
-    double maximumFeatureValue = firstSampleFeatures->operator[](relevantColumnIndex);
+    my::single_sample_features* firstSampleFeatures = features.at(0);
+    double maximumFeatureValue = firstSampleFeatures->at(relevantColumnIndex);
 
     int numSamples = features.size();
     for(int sampleIndex = 1; sampleIndex < numSamples; sampleIndex++) {
-        maximumFeatureValue = std::max(maximumFeatureValue, features[sampleIndex]->operator[](relevantColumnIndex));
+        maximumFeatureValue = std::max(maximumFeatureValue, features.at(sampleIndex)->at(relevantColumnIndex));
     }
 
     return maximumFeatureValue;
@@ -196,11 +197,11 @@ ID3Algorithm::getPartitionedData(const my::multiple_sample_features& features,
     std::vector<my::training_data> partitionedData(numIntervals);
 
     for(int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
-        double featureVal = features[sampleIndex]->operator[](indexOfFeatureUsedToSplitSamples);
+        double featureVal = features[sampleIndex]->at(indexOfFeatureUsedToSplitSamples);
         for(int intervalIndex = 0; intervalIndex < numIntervals; intervalIndex++) {
-            if(featureVal <= intervals[intervalIndex].first) {
-                partitionedData[intervalIndex].features.push_back(features[sampleIndex]);
-                partitionedData[intervalIndex].classes.push_back(classes[sampleIndex]);
+            if(featureVal <= intervals.at(intervalIndex).first) {
+                partitionedData.at(intervalIndex).features.push_back(features.at(sampleIndex));
+                partitionedData.at(intervalIndex).classes.push_back(classes.at(sampleIndex));
                 break;
             }
         }
@@ -211,7 +212,6 @@ ID3Algorithm::getPartitionedData(const my::multiple_sample_features& features,
 
 double
 ID3Algorithm::calculateEntropy(const my::multiple_sample_classes& classes) {
-
     double class1Proportion = ID3Algorithm::getProportion(0, classes);
     double class2Proportion = ID3Algorithm::getProportion(1, classes);
 
@@ -226,11 +226,12 @@ ID3Algorithm::findFeatureProvidingLargestInfoGain(const my::multiple_sample_feat
                             Node::attributesAlreadyUsedToSplitANode.end()) {
         maxInformationGainFeature++;
     }
+
     double maxInformationGain = -std::numeric_limits<double>::max();
 
     double entropy = ID3Algorithm::calculateEntropy(classes);
 
-    int numColumns = features[0]->size();
+    int numColumns = features.at(0)->size();
     for(int featureIndex = 0; featureIndex < numColumns; featureIndex++) {
         if(Node::attributesAlreadyUsedToSplitANode.find(featureIndex) ==
            Node::attributesAlreadyUsedToSplitANode.end()) {
@@ -263,13 +264,16 @@ ID3Algorithm::findFeatureProvidingLargestInfoGain(const my::multiple_sample_feat
 double
 ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& partitionedData, double entropy) {
     double totalPartitionEntropy = 0.0;
-    int datasetSize = 0;
+    int datasetSize = partitionedData.size();
 
-    for(const my::training_data& data : partitionedData) {
-        const my::multiple_sample_features& features = data.features;
-        const my::multiple_sample_classes& classes = data.classes;
+    if(datasetSize) {
+        return 0.0;
+    }
 
-        int partitionSize = features.size();
+    for(unsigned int i = 0; i < partitionedData.size(); i++) {
+        my::multiple_sample_classes classes = partitionedData.at(i).classes;
+
+        int partitionSize = classes.size();
         double partitionEntropy = ID3Algorithm::calculateEntropy(classes);
 
         totalPartitionEntropy += (partitionSize * partitionEntropy);
@@ -285,8 +289,8 @@ ID3Algorithm::createChildren(const std::vector<my::training_data>& partitionedDa
     int numPartitions = partitionedData.size();
 
     for(int i = 0; i < numPartitions; i++) {
-        my::multiple_sample_features features = partitionedData[i].features;
-        my::multiple_sample_classes classes = partitionedData[i].classes;
+        my::multiple_sample_features features = partitionedData.at(i).features;
+        my::multiple_sample_classes classes = partitionedData.at(i).classes;
         children.push_back(new Node(features, classes));
     }
 

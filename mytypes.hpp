@@ -25,6 +25,6 @@ namespace my {
         int trueNegative;
         int falseNegative;
     } confusion_matrix;
-};
+}
 
 #endif

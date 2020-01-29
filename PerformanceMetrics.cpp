@@ -34,7 +34,7 @@ calculateAccuracy(DecisionTreeClassifier clf,
         clf.train(trainingFeatures, trainingLabels);
         predictions = clf.predict(testingFeatures);
 
-        for(int i = 0; i < predictions.size(); i++) {
+        for(unsigned int i = 0; i < predictions.size(); i++) {
             if(predictions.at(i) == testingLabels.at(i)) {
                 totalCorrectPredictions++;
             }
@@ -70,8 +70,8 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
         my::multiple_sample_features testingFeatures;
         my::multiple_sample_classes testingLabels;
 
-        for(int sampleIndex = 0; sampleIndex < features.size(); sampleIndex++) {
-            if(sampleIndex >= excludeStart && sampleIndex < excludeEnd) {
+        for(unsigned int sampleIndex = 0; sampleIndex < features.size(); sampleIndex++) {
+            if(sampleIndex >= (unsigned) excludeStart && sampleIndex < (unsigned) excludeEnd) {
                 testingFeatures.push_back(features.at(sampleIndex));
                 testingLabels.push_back(classes.at(sampleIndex));
             }
@@ -84,7 +84,7 @@ performStratifiedKFoldCV(DecisionTreeClassifier clf,
         clf.train(trainingFeatures, trainingLabels);
         my::multiple_sample_classes predictions = clf.predict(testingFeatures);
 
-        for(int i = 0; i < predictions.size(); i++) {
+        for(unsigned int i = 0; i < predictions.size(); i++) {
             if(predictions.at(i) == testingLabels.at(i)) {
                 totalNumCorrect++;
             }
@@ -120,7 +120,7 @@ getConfusionMatrix(DecisionTreeClassifier clf, const my::multiple_sample_feature
 
     my::multiple_sample_classes predictions = clf.predict(testingFeatures);
 
-    for(int i = 0; i < predictions.size(); i++) {
+    for(unsigned int i = 0; i < predictions.size(); i++) {
         int predictedClass = predictions.at(i);
         int actualClass = testingLabels.at(i);
 

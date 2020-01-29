@@ -86,10 +86,9 @@ bool Node::isLeaf() {
 
 Node::~Node() {
     std::vector<Node*> children = this->getChildren();
-    for(int i = 0; i < children.size(); i++) {
+    for(unsigned int i = 0; i < children.size(); i++) {
         delete children.at(i);
     }
-    Node::NUM_NODES--;
 }
 
 Node& Node::operator=(const Node& node) {
@@ -100,7 +99,7 @@ Node& Node::operator=(const Node& node) {
     this->indexOfFeatureToUseToSplitSamplesUp =
                          node.indexOfFeatureToUseToSplitSamplesUp;
 
-    for(int i = 0; i < node.children.size(); i++) {
+    for(unsigned int i = 0; i < node.children.size(); i++) {
         Node oldNode = *node.children.at(i);
         Node* newNode = new Node(oldNode);
         newNode->setParent(this);
@@ -118,7 +117,7 @@ Node::Node(const Node& node) {
     this->indexOfFeatureToUseToSplitSamplesUp =
                          node.indexOfFeatureToUseToSplitSamplesUp;
 
-    for(int i = 0; i < node.children.size(); i++) {
+    for(unsigned int i = 0; i < node.children.size(); i++) {
         Node oldNode = *node.children.at(i);
         Node* newNode = new Node(oldNode);
         newNode->setParent(this);
