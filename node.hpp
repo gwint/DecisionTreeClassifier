@@ -8,7 +8,6 @@
 
 class Node {
     public:
-        static std::unordered_set<int> attributesAlreadyUsedToSplitANode;
         Node(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
@@ -18,7 +17,7 @@ class Node {
         Node* getParent();
         void setLabel(int);
         int getLabel();
-        std::vector<Node*> getChildren();
+        const std::vector<Node*>& getChildren();
         void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();
         bool isLeaf();

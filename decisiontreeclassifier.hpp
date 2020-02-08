@@ -4,15 +4,17 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include <unordered_set>
 
 #include "mytypes.hpp"
 #include "node.hpp"
 #include "ID3Algorithm.hpp"
 
+
 template <typename T>
 class DecisionTreeClassifier {
     public:
-        DecisionTreeClassifier(int);
+        DecisionTreeClassifier(int, int, int);
         void train(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         my::multiple_sample_classes predict(const my::multiple_sample_features&);
         static std::pair<my::training_data, my::testing_data>
@@ -24,30 +26,38 @@ class DecisionTreeClassifier {
     private:
         T strategy;
         int maxHeight;
+        int numDataPartitions;
+        int minimumSamplesForSplit;
         int getLabel(my::single_sample_features*);
         int getLabelHelper(Node *, my::single_sample_features*);
 };
 
 template <typename T>
-DecisionTreeClassifier<T>::DecisionTreeClassifier(int maxHeight) {
+DecisionTreeClassifier<T>::DecisionTreeClassifier(int maxHeight,
+                                                  int numDataPartitions,
+                                                  int minimumSamplesForSplit) {
+
     if(maxHeight < 1) {
         std::cout << "Maximum height of decision tree must be at least 1" << std::endl;
         exit(1);
     }
 
     this->maxHeight = maxHeight;
+    this->numDataPartitions = numDataPartitions;
+    this->minimumSamplesForSplit = minimumSamplesForSplit;
     this->decisionTree = NULL;
+    this->strategy = T(maxHeight, numDataPartitions, minimumSamplesForSplit);
 }
 
 template <typename T>
 void
-DecisionTreeClassifier<T>::train(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
+DecisionTreeClassifier<T>::train(const my::multiple_sample_features& features,
+                                 const my::multiple_sample_classes& classes) {
     if(this->decisionTree != NULL) {
         delete this->decisionTree;
     }
-    Node::attributesAlreadyUsedToSplitANode.clear();
 
-    this->decisionTree = this->strategy.createModel(features, classes, this->maxHeight);
+    this->decisionTree = this->strategy.createModel(features, classes);
 }
 
 template <typename T>
@@ -70,7 +80,7 @@ template <typename T>
 int
 DecisionTreeClassifier<T>::getLabel(my::single_sample_features* features) {
     Node* decisionTreeRoot = this->decisionTree;
-    std::vector<Node*> children = decisionTreeRoot->getChildren();
+    const std::vector<Node*>& children = decisionTreeRoot->getChildren();
     if(children.empty()) {
         return decisionTreeRoot->getLabel();
     }
@@ -93,15 +103,15 @@ DecisionTreeClassifier<T>::getLabelHelper(Node* root, my::single_sample_features
     int indexUsedToSplitSamples =
                      root->getIndexOfFeatureToUseToSplitSamplesUp();
     my::intervals intervals =
-         ID3Algorithm::getIntervalsForFeature(
+         this->strategy.getIntervalsForFeature(
                                   root->getFeatures(),
-                                  indexUsedToSplitSamples,
-                                  ID3Algorithm::NUM_DATA_PARTITIONS);
+                                  indexUsedToSplitSamples);
 
     double featureValueAtIndexUsedToSplitSamples =
                                 features->at(indexUsedToSplitSamples);
     int childIndex = 0;
     for(const my::interval& interval : intervals) {
+
         if(featureValueAtIndexUsedToSplitSamples >= interval.first &&
            featureValueAtIndexUsedToSplitSamples <= interval.second) {
             break;
@@ -110,7 +120,7 @@ DecisionTreeClassifier<T>::getLabelHelper(Node* root, my::single_sample_features
         childIndex++;
     }
 
-    std::vector<Node*> children = root->getChildren();
+    const std::vector<Node*>& children = root->getChildren();
     Node* relevantChild = children.at(childIndex);
 
     return this->getLabelHelper(relevantChild, features);
@@ -176,9 +186,13 @@ DecisionTreeClassifier<T>::~DecisionTreeClassifier() {
 }
 
 template <typename T>
-DecisionTreeClassifier<T>::DecisionTreeClassifier(const DecisionTreeClassifier<T>& clf) {
+DecisionTreeClassifier<T>::DecisionTreeClassifier(
+                            const DecisionTreeClassifier<T>& clf) {
     this->maxHeight = clf.maxHeight;
+    this->numDataPartitions = clf.numDataPartitions;
+    this->minimumSamplesForSplit = clf.minimumSamplesForSplit;
     this->decisionTree = NULL;
+    this->strategy = clf.strategy;
     if(clf.decisionTree != NULL) {
         this->decisionTree = new Node(*clf.decisionTree);
     }

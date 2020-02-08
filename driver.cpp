@@ -25,9 +25,9 @@ int main(int argv, char** args) {
     std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier<ID3Algorithm>::getTrainingAndTestSets(features,
                                                            classes,
-                                                           0.9);
+                                                           0.8);
 
-    DecisionTreeClassifier<ID3Algorithm> clf(10);
+    DecisionTreeClassifier<ID3Algorithm> clf(10, 3, 2);
 
     double accuracy = calculateAccuracy<ID3Algorithm>(clf, features, classes);
 

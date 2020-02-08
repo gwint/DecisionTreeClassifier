@@ -8,7 +8,7 @@
 #include "mytypes.hpp"
 #include "decisiontreeclassifier.hpp"
 
-const int NUM_ITERS = 10;
+const int NUM_ITERS = 1;
 const int NUM_FOLDS = 5;
 
 template <typename T>
@@ -52,8 +52,8 @@ calculateAccuracy(DecisionTreeClassifier<T> clf,
     for(int iteration = 0; iteration < NUM_ITERS; iteration++) {
         std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier<T>::getTrainingAndTestSets(trainingFeatures,
-                                                           trainingLabels,
-                                                           0.70);
+                                                              trainingLabels,
+                                                              0.80);
 
         my::multiple_sample_features trainingFeatures =
                                             splitData.first.features;

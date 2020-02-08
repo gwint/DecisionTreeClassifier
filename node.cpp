@@ -6,8 +6,6 @@
 #include "node.hpp"
 #include "mytypes.hpp"
 
-std::unordered_set<int> Node::attributesAlreadyUsedToSplitANode;
-
 Node::Node(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     this->parent = NULL;
     this->label = Node::NO_LABEL_ASSIGNED;
@@ -18,7 +16,6 @@ Node::Node(const my::multiple_sample_features& features, const my::multiple_samp
 
 void Node::setIndexOfFeatureToUseToSplitSamplesUp(int index) {
     this->indexOfFeatureToUseToSplitSamplesUp = index;
-    Node::attributesAlreadyUsedToSplitANode.insert(index);
 }
 
 int Node::getIndexOfFeatureToUseToSplitSamplesUp() {
@@ -69,7 +66,7 @@ bool Node::doIncludedSamplesAllHaveSameClass() {
     return true;
 }
 
-std::vector<Node*> Node::getChildren() {
+const std::vector<Node*>& Node::getChildren() {
     return this->children;
 }
 
