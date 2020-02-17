@@ -143,6 +143,10 @@ ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_classes& 
     int numSamplesWithLabel = 0;
     int numSamples = classes.size();
 
+    if(numSamples == 0) {
+        return 0.0;
+    }
+
     for(int i = 0; i < numSamples; i++) {
         int label = classes.at(i);
         if(label == targetLabel) {
@@ -236,6 +240,10 @@ ID3Algorithm::calculateEntropy(const my::multiple_sample_classes& classes) {
     double class1Proportion = ID3Algorithm::getProportion(0, classes);
     double class2Proportion = ID3Algorithm::getProportion(1, classes);
 
+    if(class1Proportion == 0.0 || class2Proportion == 0.0) {
+        return 0.0;
+    }
+
     return (-class1Proportion * (log10(class1Proportion) / log10(2))) -
            (class2Proportion * (log10(class2Proportion) / log10(2)));
 }
@@ -291,21 +299,23 @@ ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& par
     double totalPartitionEntropy = 0.0;
     unsigned int datasetSize = partitionedData.size();
 
-    if(datasetSize) {
+    if(datasetSize == 0) {
         return 0.0;
     }
 
+    int totalNumberOfSamplesInParent = 0;
+
     for(unsigned int i = 0; i < datasetSize; i++) {
-        my::multiple_sample_classes classes = partitionedData[i].classes;
+        my::multiple_sample_classes classes = partitionedData.at(i).classes;
 
         int partitionSize = classes.size();
         double partitionEntropy = this->calculateEntropy(classes);
 
         totalPartitionEntropy += (partitionSize * partitionEntropy);
-        datasetSize += partitionSize;
+        totalNumberOfSamplesInParent += partitionSize;
     }
 
-    return entropy - (totalPartitionEntropy / datasetSize);
+    return entropy - (totalPartitionEntropy / totalNumberOfSamplesInParent);
 }
 
 std::vector<Node*>

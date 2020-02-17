@@ -27,7 +27,7 @@ int main(int argv, char** args) {
                                                            classes,
                                                            0.8);
 
-    DecisionTreeClassifier<ID3Algorithm> clf(10, 3, 2);
+    DecisionTreeClassifier<ID3Algorithm> clf(10, 7, 10);
 
     double accuracy = calculateAccuracy<ID3Algorithm>(clf, features, classes);
 
