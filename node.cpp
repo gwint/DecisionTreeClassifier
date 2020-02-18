@@ -14,45 +14,53 @@ Node::Node(const my::multiple_sample_features& features, const my::multiple_samp
     this->classes = classes;
 }
 
-void Node::setIndexOfFeatureToUseToSplitSamplesUp(int index) {
+void
+Node::setIndexOfFeatureToUseToSplitSamplesUp(int index) {
     this->indexOfFeatureToUseToSplitSamplesUp = index;
 }
 
-int Node::getIndexOfFeatureToUseToSplitSamplesUp() {
+int
+Node::getIndexOfFeatureToUseToSplitSamplesUp() {
     return this->indexOfFeatureToUseToSplitSamplesUp;
 }
 
-const my::multiple_sample_features& Node::getFeatures() {
+const my::multiple_sample_features&
+Node::getFeatures() {
     return this->features;
 }
 
-const my::multiple_sample_classes& Node::getClasses() {
+const my::multiple_sample_classes&
+Node::getClasses() {
     return this->classes;
 }
 
-void Node::setParent(Node* parentNode) {
+void
+Node::setParent(Node* parentNode) {
     this->parent = parentNode;
 }
 
-void Node::setLabel(int labelIn) {
+void
+Node::setLabel(int labelIn) {
     this->label = labelIn;
 }
 
-int Node::getLabel() {
+int
+Node::getLabel() {
     return this->label;
 }
 
-Node* Node::getParent() {
+Node*
+Node::getParent() {
     return this->parent;
 }
 
-bool Node::doIncludedSamplesAllHaveSameClass() {
-    int numSamples = this->classes.size();
-
-    if(numSamples == 0) {
+bool
+Node::doIncludedSamplesAllHaveSameClass() {
+    if(this->classes.empty()) {
         return false;
     }
 
+    int numSamples = this->classes.size();
     int onlyClassPresent = this->classes[0];
 
     for(int i = 1; i < numSamples; i++) {
@@ -66,15 +74,18 @@ bool Node::doIncludedSamplesAllHaveSameClass() {
     return true;
 }
 
-const std::vector<Node*>& Node::getChildren() {
+const std::vector<Node*>&
+Node::getChildren() {
     return this->children;
 }
 
-void Node::setChildren(const std::vector<Node*>& children) {
+void
+Node::setChildren(const std::vector<Node*>& children) {
     this->children = children;
 }
 
-bool Node::isLeaf() {
+bool
+Node::isLeaf() {
     return this->children.empty();
 }
 
@@ -85,7 +96,8 @@ Node::~Node() {
     }
 }
 
-Node& Node::operator=(const Node& node) {
+Node&
+Node::operator=(const Node& node) {
     this->parent = NULL;
     this->label = node.label;
     this->features = node.features;
