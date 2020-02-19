@@ -33,7 +33,7 @@ class DecisionTreeClassifier {
         unsigned int numDataPartitions;
         unsigned int minimumSamplesForSplit;
         int getLabel(my::single_sample_features*);
-        int getLabelHelper(Node *, my::single_sample_features*);
+        int getLabelHelper(const Node * const, my::single_sample_features*);
 };
 
 template <typename T>
@@ -100,7 +100,7 @@ DecisionTreeClassifier<T>::predict(const my::multiple_sample_features& features)
 template <typename T>
 int
 DecisionTreeClassifier<T>::getLabel(my::single_sample_features* features) {
-    Node* decisionTreeRoot = this->decisionTree;
+    const Node* const decisionTreeRoot = this->decisionTree;
     const std::vector<Node*>& children = decisionTreeRoot->getChildren();
     if(children.empty()) {
         return decisionTreeRoot->getLabel();
@@ -112,7 +112,7 @@ DecisionTreeClassifier<T>::getLabel(my::single_sample_features* features) {
 
 template <typename T>
 int
-DecisionTreeClassifier<T>::getLabelHelper(Node* root, my::single_sample_features* features) {
+DecisionTreeClassifier<T>::getLabelHelper(const Node* const root, my::single_sample_features* features) {
     if(root == NULL) {
         std::cerr << "Node should not be null" << std::endl;
         exit(1);

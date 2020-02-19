@@ -5,6 +5,8 @@
 #include <thread>
 #include <stack>
 
+#include "aws/lambda-runtime/runtime.h"
+
 #include "decisiontreeclassifier.hpp"
 #include "ID3Algorithm.hpp"
 #include "mytypes.hpp"
@@ -13,7 +15,7 @@
 #include "node.hpp"
 
 std::vector<Node*> nodesToDelete;
-std::stack<Node*> nodeBucket;
+std::stack<Node> nodeBucket;
 
 int main(int argv, char** args) {
     if(argv != 3) {
@@ -27,11 +29,9 @@ int main(int argv, char** args) {
     my::multiple_sample_features features = readFeatures(std::string(featuresFileName));
     my::multiple_sample_classes classes = readClasses(std::string(classesFileName));
 
-/*
     for(int i = 0; i < 1000000; i++) {
-        nodeBucket.push(new Node());
+        nodeBucket.push(Node());
     }
-*/
 
     std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier<ID3Algorithm>::getTrainingAndTestSets(features,

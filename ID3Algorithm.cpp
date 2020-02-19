@@ -16,9 +16,9 @@
 std::unordered_set<int> ID3Algorithm::unusedAttributeIndices;
 extern std::stack<Node*> nodeBucket;
 
-ID3Algorithm::ID3Algorithm(unsigned int maxTreeHeight,
-                           unsigned int numDataPartitions,
-                           unsigned int minimumSamplesForSplit) {
+ID3Algorithm::ID3Algorithm(const unsigned int maxTreeHeight,
+                           const unsigned int numDataPartitions,
+                           const unsigned int minimumSamplesForSplit) {
 
     this->maxTreeHeight = maxTreeHeight;
     this->numDataPartitions = numDataPartitions;
@@ -38,7 +38,7 @@ ID3Algorithm::createModel(const my::multiple_sample_features& features,
 }
 
 void
-ID3Algorithm::populateUnusedAttributeIndices(int numAttributes) {
+ID3Algorithm::populateUnusedAttributeIndices(const unsigned int numAttributes) {
     ID3Algorithm::unusedAttributeIndices.clear();
     auto insert = [](const int& index) {
         ID3Algorithm::unusedAttributeIndices.insert(index);
@@ -50,7 +50,7 @@ ID3Algorithm::populateUnusedAttributeIndices(int numAttributes) {
 }
 
 void
-ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
+ID3Algorithm::trainHelper(Node* treeRoot, const unsigned int maximumTreeHeight) {
 
     if(treeRoot == NULL) {
         std::cout << "Decision tree root must not be NULL" << std::endl;
@@ -73,7 +73,7 @@ ID3Algorithm::trainHelper(Node* treeRoot, int maximumTreeHeight) {
         return;
     }
 
-    int columnToUseToSplitSamples =
+    const unsigned int columnToUseToSplitSamples =
             this->findFeatureProvidingLargestInfoGain(features, classes);
     treeRoot->setIndexOfFeatureToUseToSplitSamplesUp(columnToUseToSplitSamples);
 
@@ -136,8 +136,8 @@ ID3Algorithm::labelNode(Node* node) {
 }
 
 double
-ID3Algorithm::getProportion(int targetLabel, const my::multiple_sample_classes& classes) {
-    int numSamples = classes.size();
+ID3Algorithm::getProportion(const int targetLabel, const my::multiple_sample_classes& classes) {
+    const int numSamples = classes.size();
 
     if(numSamples == 0) {
         return 0.0;
@@ -171,8 +171,8 @@ ID3Algorithm::getMaximumValueForGivenFeature(const my::multiple_sample_features&
     my::single_sample_features* firstSampleFeatures = features[0];
     double maximumFeatureValue = firstSampleFeatures->at(relevantColumnIndex);
 
-    int numSamples = features.size();
-    for(int sampleIndex = 1; sampleIndex < numSamples; ++sampleIndex) {
+    const unsigned int numSamples = features.size();
+    for(unsigned int sampleIndex = 1; sampleIndex < numSamples; ++sampleIndex) {
         maximumFeatureValue = std::max(maximumFeatureValue, features[sampleIndex]->operator[](relevantColumnIndex));
     }
 
@@ -182,7 +182,7 @@ ID3Algorithm::getMaximumValueForGivenFeature(const my::multiple_sample_features&
 my::intervals
 ID3Algorithm::getIntervalsForFeature(
                              const my::multiple_sample_features& features,
-                             int featureColumnIndex) {
+                             const unsigned int featureColumnIndex) {
 
     std::vector<my::interval> intervals;
 
@@ -292,7 +292,7 @@ ID3Algorithm::findFeatureProvidingLargestInfoGain(
 }
 
 double
-ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& partitionedData, double entropy) {
+ID3Algorithm::calculateInformationGain(const std::vector<my::training_data>& partitionedData, const double entropy) {
     double totalPartitionEntropy = 0.0;
     auto datasetSize = partitionedData.size();
 
@@ -321,12 +321,7 @@ ID3Algorithm::createChildren(const std::vector<my::training_data>& partitionedDa
 
     for(auto trainingDataIter = partitionedData.begin();
              trainingDataIter != partitionedData.end(); ++trainingDataIter) {
-        //Node* childNode = nodeBucket.top();
-        //nodeBucket.pop();
         Node* childNode = new Node(trainingDataIter->features, trainingDataIter->classes);
-        //childNode->setFeatures(trainingDataIter->features);
-        //childNode->setClasses(trainingDataIter->classes);
-               //new Node(trainingDataIter->features, trainingDataIter->classes);
         children.push_back(childNode);
     }
 

@@ -21,22 +21,22 @@ Node::Node(const my::multiple_sample_features& features, const my::multiple_samp
 }
 
 void
-Node::setIndexOfFeatureToUseToSplitSamplesUp(int index) {
+Node::setIndexOfFeatureToUseToSplitSamplesUp(const unsigned int index) {
     this->indexOfFeatureToUseToSplitSamplesUp = index;
 }
 
-int
-Node::getIndexOfFeatureToUseToSplitSamplesUp() {
+unsigned int
+Node::getIndexOfFeatureToUseToSplitSamplesUp() const {
     return this->indexOfFeatureToUseToSplitSamplesUp;
 }
 
 const my::multiple_sample_features&
-Node::getFeatures() {
+Node::getFeatures() const {
     return this->features;
 }
 
 const my::multiple_sample_classes&
-Node::getClasses() {
+Node::getClasses() const {
     return this->classes;
 }
 
@@ -51,7 +51,7 @@ Node::setLabel(int labelIn) {
 }
 
 int
-Node::getLabel() {
+Node::getLabel() const {
     return this->label;
 }
 
@@ -92,7 +92,7 @@ Node::doIncludedSamplesAllHaveSameClass() {
 }
 
 const std::vector<Node*>&
-Node::getChildren() {
+Node::getChildren() const {
     return this->children;
 }
 
@@ -102,7 +102,7 @@ Node::setChildren(const std::vector<Node*>& children) {
 }
 
 bool
-Node::isLeaf() {
+Node::isLeaf() const {
     return this->children.empty();
 }
 

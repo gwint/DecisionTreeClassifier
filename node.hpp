@@ -10,20 +10,20 @@ class Node {
     public:
         Node();
         Node(const my::multiple_sample_features&, const my::multiple_sample_classes&);
-        void setIndexOfFeatureToUseToSplitSamplesUp(int);
-        int getIndexOfFeatureToUseToSplitSamplesUp();
-        const my::multiple_sample_features& getFeatures();
-        const my::multiple_sample_classes& getClasses();
+        void setIndexOfFeatureToUseToSplitSamplesUp(const unsigned int);
+        unsigned int getIndexOfFeatureToUseToSplitSamplesUp() const;
+        const my::multiple_sample_features& getFeatures() const;
+        const my::multiple_sample_classes& getClasses() const;
         void setParent(Node*);
         Node* getParent();
-        void setLabel(int);
-        int getLabel();
+        void setLabel(const int);
+        int getLabel() const;
         void setFeatures(const my::multiple_sample_features&);
         void setClasses(const my::multiple_sample_classes&);
-        const std::vector<Node*>& getChildren();
+        const std::vector<Node*>& getChildren() const;
         void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();
-        bool isLeaf();
+        bool isLeaf() const;
         ~Node();
         Node(const Node&);
         Node& operator=(const Node&);
@@ -34,7 +34,7 @@ class Node {
 
         std::vector<Node*> children;
         int label;
-        int indexOfFeatureToUseToSplitSamplesUp;
+        unsigned int indexOfFeatureToUseToSplitSamplesUp;
         Node* parent;
         my::multiple_sample_features features;
         my::multiple_sample_classes classes;
