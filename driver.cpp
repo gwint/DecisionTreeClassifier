@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <string>
 #include <utility>
+#include <thread>
+#include <stack>
 
 #include "decisiontreeclassifier.hpp"
 #include "ID3Algorithm.hpp"
@@ -9,6 +11,9 @@
 #include "helper.hpp"
 #include "PerformanceMetrics.hpp"
 #include "node.hpp"
+
+std::vector<Node*> nodesToDelete;
+std::stack<Node*> nodeBucket;
 
 int main(int argv, char** args) {
     if(argv != 3) {
@@ -22,12 +27,22 @@ int main(int argv, char** args) {
     my::multiple_sample_features features = readFeatures(std::string(featuresFileName));
     my::multiple_sample_classes classes = readClasses(std::string(classesFileName));
 
+/*
+    for(int i = 0; i < 1000000; i++) {
+        nodeBucket.push(new Node());
+    }
+*/
+
     std::pair<my::training_data, my::testing_data> splitData =
             DecisionTreeClassifier<ID3Algorithm>::getTrainingAndTestSets(features,
                                                            classes,
                                                            0.8);
 
-    DecisionTreeClassifier<ID3Algorithm> clf(10, 7, 10);
+    DecisionTreeClassifier<ID3Algorithm> clf =
+                 DecisionTreeClassifier<ID3Algorithm>()
+                                              .setMaxTreeHeight(11)
+                                              .setNumDataPartitions(13)
+                                              .setMinimumSamplesForSplit(10);
 
     double accuracy = calculateAccuracy<ID3Algorithm>(clf, features, classes);
 
@@ -52,5 +67,10 @@ int main(int argv, char** args) {
         delete sampleFeaturePtr;
     }
 
+/*
+    for(Node* node : nodesToDelete) {
+        delete node;
+    }
+*/
     return 0;
 }

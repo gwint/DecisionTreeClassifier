@@ -8,6 +8,7 @@
 
 class Node {
     public:
+        Node();
         Node(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         void setIndexOfFeatureToUseToSplitSamplesUp(int);
         int getIndexOfFeatureToUseToSplitSamplesUp();
@@ -17,6 +18,8 @@ class Node {
         Node* getParent();
         void setLabel(int);
         int getLabel();
+        void setFeatures(const my::multiple_sample_features&);
+        void setClasses(const my::multiple_sample_classes&);
         const std::vector<Node*>& getChildren();
         void setChildren(const std::vector<Node*>&);
         bool doIncludedSamplesAllHaveSameClass();

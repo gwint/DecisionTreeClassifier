@@ -7,16 +7,18 @@
 #include <limits>
 #include <cassert>
 #include <numeric>
+#include <stack>
 
 #include "ID3Algorithm.hpp"
 #include "node.hpp"
 #include "mytypes.hpp"
 
 std::unordered_set<int> ID3Algorithm::unusedAttributeIndices;
+extern std::stack<Node*> nodeBucket;
 
-ID3Algorithm::ID3Algorithm(int maxTreeHeight,
-                           int numDataPartitions,
-                           int minimumSamplesForSplit) {
+ID3Algorithm::ID3Algorithm(unsigned int maxTreeHeight,
+                           unsigned int numDataPartitions,
+                           unsigned int minimumSamplesForSplit) {
 
     this->maxTreeHeight = maxTreeHeight;
     this->numDataPartitions = numDataPartitions;
@@ -194,7 +196,7 @@ ID3Algorithm::getIntervalsForFeature(
 
     intervals.push_back(std::make_pair(-std::numeric_limits<double>::max(), minimumFeatureValue));
 
-    for(int numIntervalsMade = 0; numIntervalsMade < this->numDataPartitions-2; ++numIntervalsMade) {
+    for(unsigned int numIntervalsMade = 0; numIntervalsMade < this->numDataPartitions-2; ++numIntervalsMade) {
         double start = minimumFeatureValue + (intervalSize * numIntervalsMade);
         double end = start + intervalSize;
         intervals.push_back(std::make_pair(start, end));
@@ -319,8 +321,12 @@ ID3Algorithm::createChildren(const std::vector<my::training_data>& partitionedDa
 
     for(auto trainingDataIter = partitionedData.begin();
              trainingDataIter != partitionedData.end(); ++trainingDataIter) {
-        auto childNode =
-               new Node(trainingDataIter->features, trainingDataIter->classes);
+        //Node* childNode = nodeBucket.top();
+        //nodeBucket.pop();
+        Node* childNode = new Node(trainingDataIter->features, trainingDataIter->classes);
+        //childNode->setFeatures(trainingDataIter->features);
+        //childNode->setClasses(trainingDataIter->classes);
+               //new Node(trainingDataIter->features, trainingDataIter->classes);
         children.push_back(childNode);
     }
 

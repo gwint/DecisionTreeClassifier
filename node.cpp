@@ -6,6 +6,12 @@
 #include "node.hpp"
 #include "mytypes.hpp"
 
+Node::Node() {
+    this->parent = NULL;
+    this->label = Node::NO_LABEL_ASSIGNED;
+    this->indexOfFeatureToUseToSplitSamplesUp = Node::NO_INDEX_ASSIGNED;
+}
+
 Node::Node(const my::multiple_sample_features& features, const my::multiple_sample_classes& classes) {
     this->parent = NULL;
     this->label = Node::NO_LABEL_ASSIGNED;
@@ -53,6 +59,17 @@ Node*
 Node::getParent() {
     return this->parent;
 }
+
+void
+Node::setFeatures(const my::multiple_sample_features& features) {
+    this->features = features;
+}
+
+void
+Node::setClasses(const my::multiple_sample_classes& classes) {
+    this->classes = classes;
+}
+
 
 bool
 Node::doIncludedSamplesAllHaveSameClass() {

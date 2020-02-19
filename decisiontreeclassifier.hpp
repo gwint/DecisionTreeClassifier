@@ -10,11 +10,12 @@
 #include "node.hpp"
 #include "ID3Algorithm.hpp"
 
+extern std::vector<Node*> nodesToDelete;
 
 template <typename T>
 class DecisionTreeClassifier {
     public:
-        DecisionTreeClassifier(int, int, int);
+        DecisionTreeClassifier();
         void train(const my::multiple_sample_features&, const my::multiple_sample_classes&);
         my::multiple_sample_classes predict(const my::multiple_sample_features&);
         static std::pair<my::training_data, my::testing_data>
@@ -22,40 +23,60 @@ class DecisionTreeClassifier {
         ~DecisionTreeClassifier();
         DecisionTreeClassifier(const DecisionTreeClassifier<T>&);
         Node* decisionTree;
+        DecisionTreeClassifier<T>& setMaxTreeHeight(const unsigned int);
+        DecisionTreeClassifier<T>& setNumDataPartitions(const unsigned int);
+        DecisionTreeClassifier<T>& setMinimumSamplesForSplit(const unsigned int);
 
     private:
         T strategy;
-        int maxHeight;
-        int numDataPartitions;
-        int minimumSamplesForSplit;
+        unsigned int maxHeight;
+        unsigned int numDataPartitions;
+        unsigned int minimumSamplesForSplit;
         int getLabel(my::single_sample_features*);
         int getLabelHelper(Node *, my::single_sample_features*);
 };
 
 template <typename T>
-DecisionTreeClassifier<T>::DecisionTreeClassifier(int maxHeight,
-                                                  int numDataPartitions,
-                                                  int minimumSamplesForSplit) {
-
-    if(maxHeight < 1) {
-        std::cout << "Maximum height of decision tree must be at least 1" << std::endl;
-        exit(1);
-    }
-
-    this->maxHeight = maxHeight;
-    this->numDataPartitions = numDataPartitions;
-    this->minimumSamplesForSplit = minimumSamplesForSplit;
+DecisionTreeClassifier<T>::DecisionTreeClassifier() {
+    this->maxHeight = 10;
+    this->numDataPartitions = 11;
+    this->minimumSamplesForSplit = 10;
     this->decisionTree = NULL;
-    this->strategy = T(maxHeight, numDataPartitions, minimumSamplesForSplit);
+}
+
+template <typename T>
+DecisionTreeClassifier<T>&
+DecisionTreeClassifier<T>::setMaxTreeHeight(const unsigned int maxTreeHeight) {
+    this->maxHeight = maxTreeHeight;
+    return *this;
+}
+
+template <typename T>
+DecisionTreeClassifier<T>&
+DecisionTreeClassifier<T>::setNumDataPartitions(const unsigned int numDataPartitions) {
+    this->numDataPartitions = numDataPartitions;
+    return *this;
+}
+
+template <typename T>
+DecisionTreeClassifier<T>&
+DecisionTreeClassifier<T>::setMinimumSamplesForSplit(const unsigned int minimumNumSamples) {
+    this->minimumSamplesForSplit = minimumNumSamples;
+    return *this;
 }
 
 template <typename T>
 void
 DecisionTreeClassifier<T>::train(const my::multiple_sample_features& features,
                                  const my::multiple_sample_classes& classes) {
+
     if(this->decisionTree != NULL) {
-        delete this->decisionTree;
+        nodesToDelete.push_back(this->decisionTree);
     }
+
+    this->strategy = T(this->maxHeight,
+                       this->numDataPartitions,
+                       this->minimumSamplesForSplit);
 
     this->decisionTree = this->strategy.createModel(features, classes);
 }
