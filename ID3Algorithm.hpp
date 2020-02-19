@@ -9,15 +9,15 @@
 class ID3Algorithm {
     public:
         ID3Algorithm() {}
-        ID3Algorithm(int, int, int);
+        ID3Algorithm(unsigned int, unsigned int, unsigned int);
         Node* createModel(const my::multiple_sample_features&,
                           const my::multiple_sample_classes&);
         my::intervals getIntervalsForFeature(const my::multiple_sample_features&, int);
 
     private:
-        int maxTreeHeight;
-        int numDataPartitions;
-        int minimumSamplesForSplit;
+        unsigned int maxTreeHeight;
+        unsigned int numDataPartitions;
+        unsigned int minimumSamplesForSplit;
 
         void trainHelper(Node*, int);
         std::vector<Node*> createChildren(const std::vector<my::training_data>&, const Node*);
