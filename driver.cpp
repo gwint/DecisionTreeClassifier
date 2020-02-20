@@ -5,7 +5,7 @@
 #include <thread>
 #include <stack>
 
-#include "aws/lambda-runtime/runtime.h"
+#include <aws/lambda-runtime/runtime.h>
 
 #include "decisiontreeclassifier.hpp"
 #include "ID3Algorithm.hpp"
@@ -17,7 +17,17 @@
 std::vector<Node*> nodesToDelete;
 std::stack<Node> nodeBucket;
 
+using aws::lambda_runtime::invocation_response;
+using aws::lambda_runtime::invocation_request;
+
+invocation_response handler(invocation_request const& request) {
+    return invocation_response::success(request.payload, "application/json");
+}
+
 int main(int argv, char** args) {
+    run_handler(handler);
+    return 0;
+
     if(argv != 3) {
         std::cout << "Usage: ./main <features file> <classes file>" << std::endl;
         exit(1);

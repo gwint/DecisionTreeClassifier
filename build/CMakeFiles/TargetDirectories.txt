@@ -1,0 +1,4 @@
+/home/gregory/Projects/DecisionTreeClassifier/build/CMakeFiles/rebuild_cache.dir
+/home/gregory/Projects/DecisionTreeClassifier/build/CMakeFiles/decisiontreeclassifier.dir
+/home/gregory/Projects/DecisionTreeClassifier/build/CMakeFiles/edit_cache.dir
+/home/gregory/Projects/DecisionTreeClassifier/build/CMakeFiles/aws-lambda-package-decisiontreeclassifier.dir

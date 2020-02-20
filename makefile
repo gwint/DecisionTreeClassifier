@@ -1,7 +1,7 @@
 all:	main
 
 main:	driver.o node.o ID3Algorithm.o FileProcessor.o helper.o
-	g++ driver.o node.o ID3Algorithm.o FileProcessor.o helper.o -o main -g
+	g++ driver.o node.o ID3Algorithm.o FileProcessor.o helper.o -o main -g -I../../aws-lambda-cpp/include
 
 driver.o:	driver.cpp
 	g++ -g -pedantic -Wall -c driver.cpp -O3 -I../../aws-lambda-cpp/include
