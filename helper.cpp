@@ -7,7 +7,7 @@
 #include "mytypes.hpp"
 #include "FileProcessor.hpp"
 
-my::multiple_sample_features readFeatures(std::string featuresFileName) {
+my::multiple_sample_features readFeatures(const std::string& featuresFileName) {
     my::multiple_sample_features features;
     FileProcessor processor(featuresFileName);
 
@@ -27,7 +27,7 @@ my::multiple_sample_features readFeatures(std::string featuresFileName) {
     return features;
 }
 
-my::multiple_sample_classes readClasses(std::string classesFileName) {
+my::multiple_sample_classes readClasses(const std::string& classesFileName) {
     my::multiple_sample_classes classes;
     FileProcessor processor(classesFileName);
 
@@ -42,28 +42,47 @@ my::multiple_sample_classes readClasses(std::string classesFileName) {
 
 std::string get(const std::string& url) {
     char buffer[128];
+    const std::string command = std::string("wget ") + url;
     std::string result = "";
-    FILE* pipe = popen(url.c_str(), "r");
+    FILE* pipe = popen(command.c_str(), "r");
     if(pipe == NULL) {
         std::cerr << "popen() call failed!\n";
         exit(1);
     }
 
     try {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+        while(fgets(buffer, sizeof buffer, pipe) != NULL) {
             result += buffer;
         }
-    } catch (...) {
+    }
+    catch(...) {
         pclose(pipe);
         throw;
     }
+
     pclose(pipe);
 
-    return "";
+    return result;
 }
 
 my::training_data getData(const std::string& url) {
     my::training_data data;
+
+    const std::string urlContents = get(url);
+    std::string currentLine;
+    while(std::getline(std::stringstream(urlContents), currentLine)) {
+        my::single_sample_features* sampleFeatures = new my::single_sample_features;
+        std::string val;
+        while(std::getline(std::stringstream(currentLine), val, ',')) {
+            if(val.find("\n") != std::string::npos) {
+                data.classes.push_back(std::stoi(val));
+            }
+            else {
+                sampleFeatures->push_back(std::stod(val));
+            }
+        }
+        data.features.push_back(sampleFeatures);
+    }
 
     return data;
 }

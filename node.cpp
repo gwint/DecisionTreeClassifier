@@ -72,7 +72,7 @@ Node::setClasses(const my::multiple_sample_classes& classes) {
 
 
 bool
-Node::doIncludedSamplesAllHaveSameClass() {
+Node::doIncludedSamplesAllHaveSameClass() const {
     if(this->classes.empty()) {
         return false;
     }
@@ -146,4 +146,18 @@ Node::Node(const Node& node) {
         newNode->setParent(this);
         this->children.push_back(newNode);
     }
+}
+
+std::ostream&
+operator<<(std::ostream& o, Node const& aNode) {
+    o << "************************************\n";
+    for(unsigned int i = 0; i < aNode.features.size(); i++) {
+        o << aNode.features[i]->operator[](0) << " " << aNode.features[i]->operator[](1) << " . . . "
+            << aNode.features[i]->operator[](aNode.features.size()-2) << " "
+                 << aNode.features[i]->operator[](aNode.features.size()-1)
+                     << " => " << aNode.classes[i] << std::endl;
+    }
+    o << "************************************\n";
+
+    return o;
 }

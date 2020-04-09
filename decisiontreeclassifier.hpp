@@ -4,6 +4,7 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include <stack>
 #include <unordered_set>
 
 #include "mytypes.hpp"
@@ -27,6 +28,9 @@ class DecisionTreeClassifier {
         DecisionTreeClassifier<T>& setNumDataPartitions(const unsigned int);
         DecisionTreeClassifier<T>& setMinimumSamplesForSplit(const unsigned int);
 
+        template <typename K>
+        friend std::ostream& operator<<(std::ostream&, DecisionTreeClassifier<K> const&);
+
     private:
         T strategy;
         unsigned int maxHeight;
@@ -35,6 +39,32 @@ class DecisionTreeClassifier {
         int getLabel(my::single_sample_features*);
         int getLabelHelper(const Node * const, my::single_sample_features*);
 };
+
+template <typename T>
+std::ostream&
+operator<<(std::ostream& o, DecisionTreeClassifier<T> const& clf) {
+    if(clf.decisionTree == NULL) {
+        return o;
+    }
+
+    unsigned int nodeCount = 0;
+    std::stack<Node*> nodes;
+    nodes.push(clf.decisionTree);
+
+    while(!nodes.empty()) {
+        Node* currNode = nodes.top();
+        nodes.pop();
+
+        std::cout << "Node #" << nodeCount << std::endl;
+        std::cout << *currNode << std::endl;
+
+        for(Node* child : currNode->children) {
+            nodes.push(child);
+        }
+    }
+
+    return o;
+}
 
 template <typename T>
 DecisionTreeClassifier<T>::DecisionTreeClassifier() {

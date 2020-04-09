@@ -7,7 +7,7 @@
 namespace my {
     typedef std::vector<double> single_sample_features;
     typedef std::vector<std::vector<double>*> multiple_sample_features;
-    typedef std::vector<int> multiple_sample_classes;
+    typedef std::vector<bool> multiple_sample_classes;
     typedef std::pair<double, double> interval;
     typedef std::vector<my::interval> intervals;
 
@@ -22,10 +22,10 @@ namespace my {
     } testing_data;
 
     typedef struct confusion_matrix {
-        int truePositive;
-        int falsePositive;
-        int trueNegative;
-        int falseNegative;
+        unsigned int truePositive;
+        unsigned int falsePositive;
+        unsigned int trueNegative;
+        unsigned int falseNegative;
     } confusion_matrix;
 }
 

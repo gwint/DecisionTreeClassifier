@@ -9,17 +9,18 @@
 class ID3Algorithm {
     public:
         ID3Algorithm() {}
-        ID3Algorithm(const unsigned int, const unsigned int, const unsigned int);
+        ID3Algorithm(const unsigned char, const unsigned char, const unsigned char);
         Node* createModel(const my::multiple_sample_features&,
                           const my::multiple_sample_classes&);
         my::intervals getIntervalsForFeature(const my::multiple_sample_features&, const unsigned int);
 
     private:
-        unsigned int maxTreeHeight;
-        unsigned int numDataPartitions;
-        unsigned int minimumSamplesForSplit;
+        unsigned char maxTreeHeight;
+        unsigned char numDataPartitions;
+        unsigned char minimumSamplesForSplit;
 
-        void trainHelper(Node*, const unsigned int);
+        void trainHelper(Node*, const unsigned char);
+        void trainHelperIter(Node*, const unsigned char);
         std::vector<Node*> createChildren(const std::vector<my::training_data>&, const Node*);
         void labelNode(Node*);
         double getProportion(const int, const my::multiple_sample_classes&);

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 11)
+set( CMAKE_CXX_FLAGS "-Wall -g -O3 " )
 project(decisiontreeclassifier LANGUAGES CXX)
 
 find_package(aws-lambda-runtime REQUIRED)

@@ -22,11 +22,12 @@ class Node {
         void setClasses(const my::multiple_sample_classes&);
         const std::vector<Node*>& getChildren() const;
         void setChildren(const std::vector<Node*>&);
-        bool doIncludedSamplesAllHaveSameClass();
+        bool doIncludedSamplesAllHaveSameClass() const;
         bool isLeaf() const;
         ~Node();
         Node(const Node&);
         Node& operator=(const Node&);
+        friend std::ostream& operator<<(std::ostream&, Node const&);
 
     private:
         static const int NO_LABEL_ASSIGNED = -1;
