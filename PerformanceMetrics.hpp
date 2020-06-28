@@ -65,6 +65,7 @@ calculateAccuracy(DecisionTreeClassifier<T> clf,
                                             splitData.second.classes;
 
         clf.train(trainingFeatures, trainingLabels);
+        std::cout << clf << std::endl;
         predictions = clf.predict(testingFeatures);
 
         for(unsigned int i = 0; i < predictions.size(); i++) {

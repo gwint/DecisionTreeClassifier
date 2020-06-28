@@ -70,9 +70,6 @@ ID3Algorithm::trainHelperIter(Node* treeRoot, const unsigned char maximumTreeHei
 
     while(!nodeStack.empty()) {
         Node* currNode = nodeStack.top();
-
-        std::cout << *currNode << std::endl;
-
         nodeStack.pop();
         ++currHeight;
 
@@ -114,7 +111,6 @@ ID3Algorithm::trainHelperIter(Node* treeRoot, const unsigned char maximumTreeHei
 
 void
 ID3Algorithm::trainHelper(Node* treeRoot, const unsigned char maximumTreeHeight) {
-    std::cout << *treeRoot << std::endl;
 
     if(treeRoot == NULL) {
         std::cout << "Decision tree root must not be NULL" << std::endl;

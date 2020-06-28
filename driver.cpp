@@ -58,6 +58,7 @@ int main(int argv, char** args) {
 
     std::cout << "Accuracy: " << accuracy << std::endl;
 
+/*
     const double kFoldAccuracy =
              performStratifiedKFoldCV<ID3Algorithm>(clf, features, classes);
 
@@ -72,6 +73,7 @@ int main(int argv, char** args) {
                      getTrainingTime<ID3Algorithm>(clf, features, classes);
 
     std::cout << "Average training time = " << averageTrainingTime << "s" << std::endl;
+*/
 
     for(my::single_sample_features* sampleFeaturePtr : features) {
         delete sampleFeaturePtr;

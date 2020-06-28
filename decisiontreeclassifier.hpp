@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 #include <stack>
+#include <queue>
 #include <unordered_set>
 
 #include "mytypes.hpp"
@@ -47,20 +48,60 @@ operator<<(std::ostream& o, DecisionTreeClassifier<T> const& clf) {
         return o;
     }
 
+    unsigned int maxNumChildren = clf.numDataPartitions;
+
     unsigned int nodeCount = 0;
-    std::stack<Node*> nodes;
+    unsigned int level = 0;
+
+    std::queue<Node*> nodes;
     nodes.push(clf.decisionTree);
 
+    std::vector<Node*> children;
+
     while(!nodes.empty()) {
-        Node* currNode = nodes.top();
+        Node* currNode = nodes.front();
         nodes.pop();
 
-        std::cout << "Node #" << nodeCount << std::endl;
-        std::cout << *currNode << std::endl;
+        std::cout << "Node #" << nodeCount << ", Level " << level;
 
-        for(Node* child : currNode->children) {
-            nodes.push(child);
+        std::vector<Node*> currNodeChildren;
+        if(currNode != NULL) {
+            std::cout << *currNode << std::endl;
+            currNodeChildren = currNode->getChildren();
+            std::cout << ", Label " << currNode->getLabel() << std::endl;
         }
+        else {
+            std::cout << std::endl;
+            std::cout << "null" << std::endl;
+        }
+
+        for(unsigned int i = 0; i < maxNumChildren; i++) {
+            if(i < currNodeChildren.size()) {
+                children.push_back(currNodeChildren[i]);
+            }
+            else {
+                children.push_back(NULL);
+            }
+        }
+
+        if(nodes.empty()) {
+            bool nonNullFound = false;
+            for(Node* child : children) {
+                nodes.push(child);
+                if(child != NULL) {
+                    nonNullFound = true;
+                }
+            }
+            children.clear();
+            level++;
+
+            if(!nonNullFound) {
+                std::queue<Node*> empty;
+                std::swap(nodes, empty);
+            }
+        }
+
+        nodeCount++;
     }
 
     return o;
